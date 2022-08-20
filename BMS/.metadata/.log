@@ -227,3 +227,18 @@ org.eclipse.ui.PartInitException: Invalid Input: Must be IFileEditorInput
 
 !ENTRY org.eclipse.cdt.core 1 0 2022-08-20 13:13:38.837
 !MESSAGE Indexed 'F401RE' (19 sources, 81 headers) in 2.09 sec: 4,233 declarations; 17,716 references; 0 unresolved inclusions; 1 syntax errors; 2 unresolved names (0.0091%)
+!SESSION 2022-08-20 13:21:00.994 -----------------------------------------------
+eclipse.buildId=Version 1.10.1
+java.version=11.0.14.1
+java.vendor=Eclipse Adoptium
+BootLoader constants: OS=win32, ARCH=x86_64, WS=win32, NL=en_US
+Command-line arguments:  -os win32 -ws win32 -arch x86_64
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 4 4 2022-08-20 13:21:10.682
+!MESSAGE CubeMX plugin appears to be active, Log4j initialization might be too late.
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 1 1 2022-08-20 13:21:10.731
+!MESSAGE Log4j initialized with config file E:\STM microcontroller\GitHub\BMS-for-Electric-Vehicles-\BMS\.metadata\.log4j.xml
+
+!ENTRY com.st.stm32cube.ide.mcu.ide 1 1 2022-08-20 13:21:14.789
+!MESSAGE Started RMI Server, listening on port 41337

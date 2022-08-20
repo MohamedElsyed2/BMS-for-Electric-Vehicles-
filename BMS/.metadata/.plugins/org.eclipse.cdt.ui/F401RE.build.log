@@ -1,22 +1,23 @@
-13:18:22 **** Incremental Build of configuration Debug for project F401RE ****
+13:30:57 **** Incremental Build of configuration Debug for project F401RE ****
 make -j8 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F401xE -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
 arm-none-eabi-gcc -o "F401RE.elf" @"objects.list"   -mcpu=cortex-m4 -T"E:\STM microcontroller\GitHub\BMS-for-Electric-Vehicles-\BMS\F401RE\STM32F401RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="F401RE.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 Finished building target: F401RE.elf
  
 arm-none-eabi-size   F401RE.elf 
 arm-none-eabi-objdump -h -S  F401RE.elf  > "F401RE.list"
    text	   data	    bss	    dec	    hex	filename
-   8436	     20	   1668	  10124	   278c	F401RE.elf
+   8512	     20	   1668	  10200	   27d8	F401RE.elf
 arm-none-eabi-objcopy  -O ihex  F401RE.elf  "F401RE.hex"
 Finished building: default.size.stdout
 arm-none-eabi-objcopy  -O binary  F401RE.elf  "F401RE.bin"
  
 Finished building: F401RE.list
- 
-Finished building: F401RE.bin
 Finished building: F401RE.hex
+Finished building: F401RE.bin
+ 
  
  
 
-13:18:23 Build Finished. 0 errors, 0 warnings. (took 989ms)
+13:30:57 Build Finished. 0 errors, 0 warnings. (took 737ms)
 
