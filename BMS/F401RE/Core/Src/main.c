@@ -55,6 +55,9 @@ static void MX_TIM1_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+
+/* temperature sensor DHT22 code begin------------------------------------------------------*/
+
 #define DHT22_PORT GPIOB
 #define DHT22_PIN GPIO_PIN_9
 uint8_t RH1, RH2, TC1, TC2, SUM, CHECK;
@@ -125,6 +128,8 @@ uint8_t DHT22_Read (void)
   }
   return b;
 }
+  /* Temperature sensor code End------------------------------------------------*/
+
 /* USER CODE END 0 */
 
 /**
@@ -157,7 +162,7 @@ int main(void)
   MX_GPIO_Init();
   MX_TIM1_Init();
   /* USER CODE BEGIN 2 */
-  HAL_TIM_Base_Start(&htim1);
+  HAL_TIM_Base_Start(&htim1);      /* for temperature sensor--------------------------*/
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -166,39 +171,28 @@ int main(void)
   {
 
 	  if(DHT22_Start())
-	  	      {
-	  	        RH1 = DHT22_Read(); // First 8bits of humidity
-	  	        RH2 = DHT22_Read(); // Second 8bits of Relative humidity
-	  	        TC1 = DHT22_Read(); // First 8bits of Celsius
-	  	        TC2 = DHT22_Read(); // Second 8bits of Celsius
-	  	        SUM = DHT22_Read(); // Check sum
-	  	        CHECK = RH1 + RH2 + TC1 + TC2;
-	  	        if (CHECK == SUM)
-	  	        {
-	  	          if (TC1>127) // If TC1=10000000, negative temperature
-	  	          {
-	  	            tCelsius = (float)TC2/10*(-1);
-	  	          }
-	  	          else
-	  	          {
-	  	            tCelsius = (float)((TC1<<8)|TC2)/10;
-	  	          }
-	  	          tFahrenheit = tCelsius * 9/5 + 32;
-	  	          RH = (float) ((RH1<<8)|RH2)/10;
-	  	        }
-	  	      }
-	  	      HAL_Delay(1000);
-
-	  	      if (tCelsius==25.0){
-	  	    	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, GPIO_PIN_SET);
-	  	    	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_13, GPIO_PIN_RESET);
-	  	      }
-	  	      else {
-	  	    	 HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, GPIO_PIN_RESET);
-	  	    	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_13, GPIO_PIN_SET);
-
-
-	  	    	  	      }
+	      {
+	        RH1 = DHT22_Read(); // First 8bits of humidity
+	        RH2 = DHT22_Read(); // Second 8bits of Relative humidity
+	        TC1 = DHT22_Read(); // First 8bits of Celsius
+	        TC2 = DHT22_Read(); // Second 8bits of Celsius
+	        SUM = DHT22_Read(); // Check sum
+	        CHECK = RH1 + RH2 + TC1 + TC2;
+	        if (CHECK == SUM)
+	        {
+	          if (TC1>127) // If TC1=10000000, negative temperature
+	          {
+	            tCelsius = (float)TC2/10*(-1);
+	          }
+	          else
+	          {
+	            tCelsius = (float)((TC1<<8)|TC2)/10;
+	          }
+	          tFahrenheit = tCelsius * 9/5 + 32;
+	          RH = (float) ((RH1<<8)|RH2)/10;
+	        }
+	      }
+	      HAL_Delay(1000);
 
     /* USER CODE END WHILE */
 
@@ -310,14 +304,24 @@ static void MX_GPIO_Init(void)
 
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOH_CLK_ENABLE();
-  __HAL_RCC_GPIOB_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
+  __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_9, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1|GPIO_PIN_4|GPIO_PIN_7, GPIO_PIN_RESET);
 
-  /*Configure GPIO pins : PB12 PB13 PB9 */
-  GPIO_InitStruct.Pin = GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_9;
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_9, GPIO_PIN_RESET);
+
+  /*Configure GPIO pins : PA1 PA4 PA7 */
+  GPIO_InitStruct.Pin = GPIO_PIN_1|GPIO_PIN_4|GPIO_PIN_7;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : PB9 */
+  GPIO_InitStruct.Pin = GPIO_PIN_9;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
