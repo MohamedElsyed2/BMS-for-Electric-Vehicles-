@@ -1,0 +1,10 @@
+09:19:31 **** Incremental Build of configuration Debug for project ACS712 Current Sensor with STM32F401RE ****
+make -j8 all 
+arm-none-eabi-size   ACS712\ Current\ Sensor\ with\ STM32F401RE.elf 
+   text	   data	    bss	    dec	    hex	filename
+  10172	     24	   1656	  11852	   2e4c	ACS712 Current Sensor with STM32F401RE.elf
+Finished building: default.size.stdout
+ 
+
+09:19:31 Build Finished. 0 errors, 0 warnings. (took 257ms)
+

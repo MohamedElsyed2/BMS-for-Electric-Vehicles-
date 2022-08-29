@@ -1,0 +1,10 @@
+09:38:27 **** Incremental Build of configuration Debug for project LedAndPushButton ****
+make -j8 all 
+arm-none-eabi-size   LedAndPushButton.elf 
+   text	   data	    bss	    dec	    hex	filename
+   5796	     20	   1572	   7388	   1cdc	LedAndPushButton.elf
+Finished building: default.size.stdout
+ 
+
+09:38:27 Build Finished. 0 errors, 0 warnings. (took 253ms)
+
