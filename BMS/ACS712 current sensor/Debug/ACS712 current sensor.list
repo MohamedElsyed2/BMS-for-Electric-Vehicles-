@@ -1254,28 +1254,27 @@ void SystemClock_Config(void)
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
  8000ea0:	2300      	movs	r3, #0
  8000ea2:	61bb      	str	r3, [r7, #24]
-  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
- 8000ea4:	2300      	movs	r3, #0
- 8000ea6:	61fb      	str	r3, [r7, #28]
+  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV4;
+ 8000ea4:	f44f 53a0 	mov.w	r3, #5120	; 0x1400
+ 8000ea8:	61fb      	str	r3, [r7, #28]
 
   if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0) != HAL_OK)
- 8000ea8:	f107 030c 	add.w	r3, r7, #12
- 8000eac:	2100      	movs	r1, #0
- 8000eae:	4618      	mov	r0, r3
- 8000eb0:	f001 fa78 	bl	80023a4 <HAL_RCC_ClockConfig>
- 8000eb4:	4603      	mov	r3, r0
- 8000eb6:	2b00      	cmp	r3, #0
- 8000eb8:	d001      	beq.n	8000ebe <SystemClock_Config+0xae>
+ 8000eaa:	f107 030c 	add.w	r3, r7, #12
+ 8000eae:	2100      	movs	r1, #0
+ 8000eb0:	4618      	mov	r0, r3
+ 8000eb2:	f001 fa77 	bl	80023a4 <HAL_RCC_ClockConfig>
+ 8000eb6:	4603      	mov	r3, r0
+ 8000eb8:	2b00      	cmp	r3, #0
+ 8000eba:	d001      	beq.n	8000ec0 <SystemClock_Config+0xb0>
   {
     Error_Handler();
- 8000eba:	f000 f875 	bl	8000fa8 <Error_Handler>
+ 8000ebc:	f000 f874 	bl	8000fa8 <Error_Handler>
   }
 }
- 8000ebe:	bf00      	nop
- 8000ec0:	3750      	adds	r7, #80	; 0x50
- 8000ec2:	46bd      	mov	sp, r7
- 8000ec4:	bd80      	pop	{r7, pc}
- 8000ec6:	bf00      	nop
+ 8000ec0:	bf00      	nop
+ 8000ec2:	3750      	adds	r7, #80	; 0x50
+ 8000ec4:	46bd      	mov	sp, r7
+ 8000ec6:	bd80      	pop	{r7, pc}
  8000ec8:	40023800 	.word	0x40023800
  8000ecc:	40007000 	.word	0x40007000
 
@@ -1350,9 +1349,9 @@ static void MX_ADC1_Init(void)
  8000f20:	4b11      	ldr	r3, [pc, #68]	; (8000f68 <MX_ADC1_Init+0x98>)
  8000f22:	2200      	movs	r2, #0
  8000f24:	f883 2030 	strb.w	r2, [r3, #48]	; 0x30
-  hadc1.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
+  hadc1.Init.EOCSelection = ADC_EOC_SEQ_CONV;
  8000f28:	4b0f      	ldr	r3, [pc, #60]	; (8000f68 <MX_ADC1_Init+0x98>)
- 8000f2a:	2201      	movs	r2, #1
+ 8000f2a:	2200      	movs	r2, #0
  8000f2c:	615a      	str	r2, [r3, #20]
   if (HAL_ADC_Init(&hadc1) != HAL_OK)
  8000f2e:	480e      	ldr	r0, [pc, #56]	; (8000f68 <MX_ADC1_Init+0x98>)

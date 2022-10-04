@@ -1,3 +1,7 @@
 readValue
-rawVoltage
+voltage
 current
+tCelsius
+pData
+voltageToSend
+needValue

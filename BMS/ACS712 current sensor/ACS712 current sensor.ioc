@@ -1,7 +1,9 @@
 #MicroXplorer Configuration settings - do not modify
 ADC1.Channel-0\#ChannelRegularConversion=ADC_CHANNEL_9
 ADC1.ContinuousConvMode=ENABLE
-ADC1.IPParameters=Rank-0\#ChannelRegularConversion,Channel-0\#ChannelRegularConversion,SamplingTime-0\#ChannelRegularConversion,NbrOfConversionFlag,master,ContinuousConvMode
+ADC1.EOCSelection=ADC_EOC_SEQ_CONV
+ADC1.IPParameters=Rank-0\#ChannelRegularConversion,Channel-0\#ChannelRegularConversion,SamplingTime-0\#ChannelRegularConversion,NbrOfConversionFlag,master,ContinuousConvMode,NbrOfConversion,EOCSelection
+ADC1.NbrOfConversion=1
 ADC1.NbrOfConversionFlag=1
 ADC1.Rank-0\#ChannelRegularConversion=1
 ADC1.SamplingTime-0\#ChannelRegularConversion=ADC_SAMPLETIME_3CYCLES
@@ -67,12 +69,14 @@ ProjectManager.UnderRoot=true
 ProjectManager.functionlistsort=1-SystemClock_Config-RCC-false-HAL-false,2-MX_GPIO_Init-GPIO-false-HAL-true,3-MX_ADC1_Init-ADC1-false-HAL-true
 RCC.AHBFreq_Value=16000000
 RCC.APB1Freq_Value=16000000
-RCC.APB2Freq_Value=16000000
+RCC.APB2CLKDivider=RCC_HCLK_DIV4
+RCC.APB2Freq_Value=4000000
+RCC.APB2TimFreq_Value=8000000
 RCC.CortexFreq_Value=16000000
 RCC.HSE_VALUE=25000000
 RCC.HSI_VALUE=16000000
 RCC.I2SClocksFreq_Value=96000000
-RCC.IPParameters=AHBFreq_Value,APB1Freq_Value,APB2Freq_Value,CortexFreq_Value,HSE_VALUE,HSI_VALUE,I2SClocksFreq_Value,LSE_VALUE,LSI_VALUE,PLLCLKFreq_Value,PLLQCLKFreq_Value,RTCFreq_Value,RTCHSEDivFreq_Value,SYSCLKFreq_VALUE,VCOI2SOutputFreq_Value,VCOInputFreq_Value,VCOOutputFreq_Value,VcooutputI2S
+RCC.IPParameters=AHBFreq_Value,APB1Freq_Value,APB2CLKDivider,APB2Freq_Value,APB2TimFreq_Value,CortexFreq_Value,HSE_VALUE,HSI_VALUE,I2SClocksFreq_Value,LSE_VALUE,LSI_VALUE,PLLCLKFreq_Value,PLLQCLKFreq_Value,RTCFreq_Value,RTCHSEDivFreq_Value,SYSCLKFreq_VALUE,VCOI2SOutputFreq_Value,VCOInputFreq_Value,VCOOutputFreq_Value,VcooutputI2S
 RCC.LSE_VALUE=32768
 RCC.LSI_VALUE=32000
 RCC.PLLCLKFreq_Value=96000000
