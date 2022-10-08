@@ -43,7 +43,7 @@ ADC_HandleTypeDef hadc1;
 
 /* USER CODE BEGIN PV */
 uint16_t readValue;
-float sensitivity = 0.1; // 0.1 for 20A Model
+float sensitivity = 0.66; // 0.1 for 20A Model
 float rawVoltage;
 float current;
 /* USER CODE END PV */
@@ -103,7 +103,7 @@ int main(void)
 	      rawVoltage = (float) readValue * 3.3 * 2 / 4095;
 	      // If rawVoltage is not 2.5Volt, multiply by a factor.In my case it is 1.035
 	      // This is due to tolerance in voltage divider resister & ADC accuracy
-	      current =(rawVoltage - 2.5)/sensitivity;
+	      current =(rawVoltage - 2.5)/sensitivity;   // mA
 	      HAL_Delay (100);
 
 

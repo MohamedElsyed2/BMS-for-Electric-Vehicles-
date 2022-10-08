@@ -39,11 +39,11 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY, DEBUGGING, OCTETS
  17 .debug_line   00008df4  00000000  00000000  00040aad  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 18 .debug_str    0008e620  00000000  00000000  000498a1  2**0
+ 18 .debug_str    0008e626  00000000  00000000  000498a1  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 19 .comment      00000050  00000000  00000000  000d7ec1  2**0
+ 19 .comment      00000050  00000000  00000000  000d7ec7  2**0
                   CONTENTS, READONLY
- 20 .debug_frame  000021a4  00000000  00000000  000d7f14  2**2
+ 20 .debug_frame  000021a4  00000000  00000000  000d7f18  2**2
                   CONTENTS, READONLY, DEBUGGING, OCTETS
 
 Disassembly of section .text:
@@ -1478,8 +1478,8 @@ static void MX_ADC1_Init(void)
 
   /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
   */
-  sConfig.Channel = ADC_CHANNEL_9;
- 8001052:	2309      	movs	r3, #9
+  sConfig.Channel = ADC_CHANNEL_8;
+ 8001052:	2308      	movs	r3, #8
  8001054:	603b      	str	r3, [r7, #0]
   sConfig.Rank = 1;
  8001056:	2301      	movs	r3, #1
@@ -1765,10 +1765,10 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* hadc)
  80011de:	60fb      	str	r3, [r7, #12]
  80011e0:	68fb      	ldr	r3, [r7, #12]
     /**ADC1 GPIO Configuration
-    PB1     ------> ADC1_IN9
+    PB0     ------> ADC1_IN8
     */
-    GPIO_InitStruct.Pin = GPIO_PIN_1;
- 80011e2:	2302      	movs	r3, #2
+    GPIO_InitStruct.Pin = GPIO_PIN_0;
+ 80011e2:	2301      	movs	r3, #1
  80011e4:	617b      	str	r3, [r7, #20]
     GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
  80011e6:	2303      	movs	r3, #3

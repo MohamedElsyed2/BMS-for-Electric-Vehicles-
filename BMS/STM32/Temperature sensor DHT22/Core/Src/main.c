@@ -62,6 +62,8 @@ uint32_t pMillis, cMillis;
 float tCelsius = 0;
 float tFahrenheit = 0;
 float RH = 0;
+float t_celsius;
+float sensitivity=3.0;
 
 void microDelay (uint16_t delay)
 {
@@ -177,16 +179,18 @@ int main(void)
 	          if (TC1>127) // If TC1=10000000, negative temperature
 	          {
 	            tCelsius = (float)TC2/10*(-1);
+	            t_celsius = tCelsius - sensitivity;
 	          }
 	          else
 	          {
 	            tCelsius = (float)((TC1<<8)|TC2)/10;
+	            t_celsius = tCelsius - sensitivity;
 	          }
 	          tFahrenheit = tCelsius * 9/5 + 32;
 	          RH = (float) ((RH1<<8)|RH2)/10;
 	        }
 	      }
-	      HAL_Delay(1000);
+	      HAL_Delay(100);
 
     /* USER CODE END WHILE */
 

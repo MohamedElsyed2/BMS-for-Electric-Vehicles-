@@ -60,8 +60,8 @@ all: main-build
 main-build: ACS712\ current\ sensor.elf secondary-outputs
 
 # Tool invocations
-ACS712\ current\ sensor.elf ACS712\ current\ sensor.map: $(OBJS) $(USER_OBJS) E:\STM\ microcontroller\GitHub\BMS-for-Electric-Vehicles-\BMS\ACS712\ current\ sensor\STM32F401RETX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "ACS712 current sensor.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"E:\STM microcontroller\GitHub\BMS-for-Electric-Vehicles-\BMS\ACS712 current sensor\STM32F401RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="ACS712 current sensor.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+ACS712\ current\ sensor.elf ACS712\ current\ sensor.map: $(OBJS) $(USER_OBJS) E:\STM\ microcontroller\GitHub\BMS-for-Electric-Vehicles-\BMS\STM32\ACS712\ current\ sensor\STM32F401RETX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "ACS712 current sensor.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"E:\STM microcontroller\GitHub\BMS-for-Electric-Vehicles-\BMS\STM32\ACS712 current sensor\STM32F401RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="ACS712 current sensor.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
