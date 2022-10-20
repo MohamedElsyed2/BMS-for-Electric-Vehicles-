@@ -26,28 +26,29 @@ def connect_mqtt() -> mqtt_client:
     return client
 #################################################################
 
-def fan_control(client: mqtt_client):
+def subscibe_publish(client: mqtt_client):
    
     def on_message(client, userdata,msg):
-        if msg.topic==str('battery_temperature'):
+
+        if msg.topic==str('battery_temperature'): # check if the message recieved on 'battery_temperature'  topic, publish {ON,OFF} on topic 'fan' after recieving the temperature reading
             global temperature
             temperature= float(msg.payload.decode())
             print("Received " + str(temperature)+ " from " + msg.topic + " topic")
 
-            """create a function to publish {ON,OFF} on topic fan after recieving the temperature reading"""
-            if  temperature >= 25:
+            if  temperature >= 40:       
                 client.publish('fan',1)      # to turn the fan ON
 
             else:
                 client.publish('fan',0) # to turn the fan OFF
+        #***************************************************************#
 
-        elif msg.topic==str('cellVoltage'):
+        elif msg.topic==str('cellVoltage'):  # only to test the code but it should be editted later
             global cell_voltage
             cell_voltage = float(msg.payload.decode())
             print("Received " + str(cell_voltage)+ " from " + msg.topic + " topic")
 
-            """create a function to publish {ON,OFF} on topic fan after recieving the temperature reading"""
-            if  cell_voltage >= 25:
+            """create a function to publish {ON,OFF} on topic 'relay' after recieving the cell voltage reading"""
+            if  cell_voltage >= 1.3:
                 client.publish('relay',1)      # to turn the fan ON
             else:
                 client.publish('relay',0) # to turn the fan OFF
@@ -55,33 +56,8 @@ def fan_control(client: mqtt_client):
         #************************************************************#
 
     client.subscribe([('battery_temperature', 0), ('cellVoltage', 0)])
-    client.on_message = on_message
+    client.on_message = on_message  
     ###################################################################
-# def relay_control(client: mqtt_client):
-    
-#     def on_message(client, userdata,msg):
-#         if msg.topic=='cellVoltage':
-#             global cell_voltage
-#             cell_voltage = float(msg.payload.decode())
-#             print("Received " + str(cell_voltage)+ " from " + msg.topic + " topic")
-
-#             #************************************************************#
-#             """create a function to publish {ON,OFF} on topic fan after recieving the temperature reading"""
-#             if  cell_voltage >= 25:
-#                 client.publish('relay',1)      # to turn the fan ON
-
-#             else:
-#                 client.publish('relay',0) # to turn the fan OFF
-
-#         else:
-#             pass
-
-#         #************************************************************#
-
-#     client.subscribe('cellVoltage')
-#     client.on_message = on_message
-#     time.sleep(5)
-    
 # def relay_control(client: mqtt_client):
 #     #****************************************
 #     def on_message(client, userdata, msg):
@@ -104,11 +80,9 @@ def fan_control(client: mqtt_client):
 
 def run():
     client = connect_mqtt()
-    fan_control(client)
+    subscibe_publish(client)
     #relay_control(client)
     client.loop_forever()
     
-
-
 if __name__ == '__main__':
     run()

@@ -1,0 +1,10 @@
+12:53:29 **** Incremental Build of configuration Debug for project ECU_STM32 ****
+make -j8 all 
+arm-none-eabi-size   ECU_STM32.elf 
+   text	   data	    bss	    dec	    hex	filename
+  12956	    120	   1736	  14812	   39dc	ECU_STM32.elf
+Finished building: default.size.stdout
+ 
+
+12:53:29 Build Finished. 0 errors, 0 warnings. (took 246ms)
+
