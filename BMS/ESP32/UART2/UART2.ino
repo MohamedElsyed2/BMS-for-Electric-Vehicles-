@@ -24,7 +24,7 @@ void loop()
      //Serial.println(voltageFloat);
 
      //begin code for creating an ID for every sensor reading
-     //String string_sensor_reading = "v148";  // assigning value to string 
+     //String string_sensor_reading = "a148";  // assigning value to string 
      
     int string_sensor_reading_length = string_sensor_reading.length();
     

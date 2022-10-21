@@ -1,9 +1,12 @@
+#include <cstring>
+#include <iostream>
+#include <stdlib.h>
 #include <WiFi.h>
 #include <PubSubClient.h>
 //***************************************************//
 //start of initialize the WiFi SSID and pasword
-const char *ssid = "Familie";   // Enter your WiFi name
-const char *password = "Mo&Em&Iy 93.95.20";  // Enter WiFi password
+const char *ssid = "Elsyed";//"Familie";   // Enter your WiFi name
+const char *password = "f83c1915";//"Mo&Em&Iy 93.95.20";  // Enter WiFi password
 //End of initialize the WiFi SSID and pasword
 //*************************************************//
 //Start of initialize the MQTT broker, port, username and password
@@ -47,7 +50,7 @@ void setup() {
      client_id += String(WiFi.macAddress());
      Serial.printf("The client %s connects to the public mqtt broker\n", client_id.c_str());
      if (client.connect(client_id.c_str(), mqtt_username, mqtt_password)) {
-         Serial.println("Public emqx mqtt broker connected");
+         Serial.println("Connected to the EMQX mqtt broker ");
      } else {
          Serial.print("failed with state ");
          Serial.print(client.state());
@@ -56,48 +59,188 @@ void setup() {
  }
  //End of setup code to connect to a mqtt broker
  //****************************************************//
- client.subscribe("fan");    //Setup the ESP client to subscribe to the topic
+ client.subscribe("fan",0);    //Setup the ESP client to subscribe to the topic 'fan'.
+ client.subscribe("SOC_of_cell1",0);    //Setup the ESP client to subscribe to the topic
  
 }
 //End of the set up code
 //**********************************************************************************************//
-// Start of the Callback function to recieve and print the message that was sent to topic 'fan'
-int fan_status;     // intialize a fan_status variable to get the fan status{0,1}
-const char *topic = "fan";
+// Start of the Callback function to recieve and print the message that was sent to the topics.
+
+int fan_status;     // intialize a fan_status variable to get the fan status{0,1}.
+int cell1_state_of_charge;
+
 void callback(char *topic, byte *payload, unsigned int length) {
- Serial.print("Message arrived in topic: ");
- Serial.println(topic);
- Serial.print("Message:");
- String message;
- for (int i = 0; i < length; i++) {
-     message = message + (char) payload[i];  // convert *byte to string
+  String Topic = topic;
+  if (Topic == "fan"){
+     String message;
+     for (int i = 0; i < length; i++) {
+         message = message + (char) payload[i];  // convert *byte to string
  }
- Serial.print(message);
  fan_status = message.toInt();
- //if (message == "on") { digitalWrite(LED, LOW); }   // LED on
- //if (message == "off") { digitalWrite(LED, HIGH); } // LED off
- Serial.println();
  Serial.print("fan_status = ");
  Serial.println(fan_status);
- Serial.println("-----------------------");
+ }
+ else if (Topic == "SOC_of_cell1"){
+     String message;
+     for (int i = 0; i < length; i++) {
+         message = message + (char) payload[i];  // convert *byte to string
+ }
+ cell1_state_of_charge = message.toInt();
+ Serial.print("cell1_state_of_charge = ");
+ Serial.println(cell1_state_of_charge);
+ }
+
 }
 //  End of the Callback function to recieve and print the message that was sent to topic 'fan'
 //********************************************************//
 void loop() {
   //start of void loop
  client.loop();
- //***************************************************//
- // String   temperatureString = Serial2.readString();      // read and store the value of voltage sensor which recieved by UART2.
- //*************************************************//
- //Start the code to publish the battery temperature
- String temperatureString = "30.08"; // define the temperature reading as string, because the UART return string.
- char *temperature;  // define the temperature be published as char, because the UART return string.
- temperatureString.toCharArray(temperature, 30);
- client.publish("battery_temperature",temperature);
- delay(1000);
- client.publish("battery_temperature", "40.05");
- delay(1000);
- //Start the code to publish the battery temperature
+ //******************************************************************//
+      //String   string_sensor_reading = Serial2.readString();        // read and store the value of  sensor which recieved by UART2.
+     //Serial.println(string_sensor_reading);  
+ //******************************************************************//
+//begin code for creating an ID for every sensor reading
+     String string_sensor_reading = "a4.5";  // assigning value to string 
+     
+    int string_sensor_reading_length = string_sensor_reading.length();
+    
+    char char_sensor_reading [string_sensor_reading_length + 1];  // declaring character array with the length of the string voltage.
+
+    strcpy(char_sensor_reading, string_sensor_reading.c_str());  // copying the contents of the string to char array.
+ 
+    if (char_sensor_reading[0] == 'a')   //check the ID of the sensor reading, then convert it to the true value without the ID.
+    {   
+        char_sensor_reading[0]=' ';
+        char *char_cell1_voltage= char_sensor_reading;
+        client.publish("cell1_voltage",char_cell1_voltage);
+        delay(1000);
+    }
+    else if (char_sensor_reading[0] == 'b')   //check the ID of the sensor reading, then convert it to the true value without the ID.
+    {   
+        char_sensor_reading[0]=' ';
+        char *char_cell2_voltage= char_sensor_reading;
+        client.publish("cell2_voltage",char_cell2_voltage);
+        delay(1000);
+    }
+    else if (char_sensor_reading[0] == 'c')   //check the ID of the sensor reading, then convert it to the true value without the ID.
+    {   
+        char_sensor_reading[0]=' ';
+        char *char_cell3_voltage= char_sensor_reading;
+        client.publish("cell3_voltage",char_cell3_voltage);
+        delay(1000);
+    }
+    else if (char_sensor_reading[0] == 'd')   //check the ID of the sensor reading, then convert it to the true value without the ID.
+    {   
+        char_sensor_reading[0]=' ';
+        char *char_cell4_voltage= char_sensor_reading;
+        client.publish("cell4_voltage",char_cell4_voltage);
+        delay(1000);  
+    }
+    else if (char_sensor_reading[0] == 'e')   //check the ID of the sensor reading, then convert it to the true value without the ID.
+    {   
+        char_sensor_reading[0]=' ';
+        char *char_cell5_voltage= char_sensor_reading;
+        client.publish("cell5_voltage",char_cell5_voltage);
+        delay(1000);
+    }
+    else if (char_sensor_reading[0] == 'f')   //check the ID of the sensor reading, then convert it to the true value without the ID.
+    {   
+        char_sensor_reading[0]=' ';
+        char *char_cell6_voltage= char_sensor_reading;
+        client.publish("cell6_voltage",char_cell6_voltage);
+        delay(1000);
+    }
+    else if (char_sensor_reading[0] == 'g')   //check the ID of the sensor reading, then convert it to the true value without the ID.
+    {   
+        char_sensor_reading[0]=' ';
+        char *char_cell7_voltage= char_sensor_reading;
+        client.publish("cell7_voltage",char_cell7_voltage);
+        delay(1000);
+    }
+    else if (char_sensor_reading[0] == 'h')   //check the ID of the sensor reading, then convert it to the true value without the ID.
+    {   
+        char_sensor_reading[0]=' ';
+        char *char_cell8_voltage= char_sensor_reading;
+        client.publish("cell8_voltage",char_cell8_voltage);
+        delay(1000);
+    }
+    else if (char_sensor_reading[0] == 'i')   //check the ID of the sensor reading, then convert it to the true value without the ID.
+    {   
+        char_sensor_reading[0]=' ';
+        char *char_cell1_current= char_sensor_reading;
+        client.publish("cell1_current",char_cell1_current);
+        delay(1000);
+    }
+    else if (char_sensor_reading[0] == 'j')   //check the ID of the sensor reading, then convert it to the true value without the ID.
+    {   
+        char_sensor_reading[0]=' ';
+        char *char_cell2_current= char_sensor_reading;
+        client.publish("cell2_current",char_cell2_current);
+        delay(1000);
+    }
+    else if (char_sensor_reading[0] == 'k')   //check the ID of the sensor reading, then convert it to the true value without the ID.
+    {   
+        char_sensor_reading[0]=' ';
+        char *char_cell3_current= char_sensor_reading;
+        client.publish("cell3_current",char_cell3_current);
+        delay(1000);
+    }
+    else if (char_sensor_reading[0] == 'm')   //check the ID of the sensor reading, then convert it to the true value without the ID.
+    {   
+        char_sensor_reading[0]=' ';
+        char *char_cell4_current= char_sensor_reading;
+        client.publish("cell4_current",char_cell4_current);
+        delay(1000);
+    }
+    else if (char_sensor_reading[0] == 'n')   //check the ID of the sensor reading, then convert it to the true value without the ID.
+    {   
+        char_sensor_reading[0]=' ';
+        char *char_cell5_current= char_sensor_reading;
+        client.publish("cell5_current",char_cell5_current);
+        delay(1000);
+    }
+    else if (char_sensor_reading[0] == 'p')   //check the ID of the sensor reading, then convert it to the true value without the ID.
+    {   
+        char_sensor_reading[0]=' ';
+        char *char_cell6_current= char_sensor_reading;
+        client.publish("cell6_current",char_cell6_current);
+        delay(1000);
+    }
+    else if (char_sensor_reading[0] == 'q')   //check the ID of the sensor reading, then convert it to the true value without the ID.
+    {   
+        char_sensor_reading[0]=' ';
+        char *char_cell7_current= char_sensor_reading;
+        client.publish("cell7_current",char_cell7_current);
+        delay(1000);
+    }
+    else if (char_sensor_reading[0] == 'r')   //check the ID of thery sensor reading, then convert it to the true value without the ID.
+    {   
+        char_sensor_reading[0]=' ';
+        char *char_cell8_current= char_sensor_reading;
+        client.publish("cell8_current",char_cell8_current);
+        delay(1000);
+    }
+    else if (char_sensor_reading[0] == 't')   //check the ID of the sensor reading, then convert it to the true value without the ID.
+    {   
+        char_sensor_reading[0]=' ';
+        char *char_battery_temperature= char_sensor_reading;
+        client.publish("battery_temperature",char_battery_temperature);
+        delay(1000);
+    }
+
+//End code for creating an ID for every sensor readin
+/*******************************************************/
+
+
+ 
+ //char *char_temperature= "30.5";  // define the temperature be published as char, because the UART return string.
+ //client.publish("battery_temperature",char_temperature);
+ //delay(1000);
+ //client.publish("battery_temperature", "40.05");
+ //delay(500);
+ //End the code to publish the battery temperature
  //*************************************************//
 }
 //End of void loop

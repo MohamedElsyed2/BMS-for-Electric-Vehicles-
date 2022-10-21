@@ -29,21 +29,21 @@ int main()
  
     if (char_sensor_reading[0] == 'a')   //check the ID of the sensor reading, then convert it to the true value without the ID.
     {   
-        char_sensor_reading[0]='0';
-        int cell1_int_voltage =  atoi ( char_sensor_reading);  // convert char array  to integer
-        cout<<"cell1_int_voltage= " <<cell1_int_voltage <<endl;  // print the value to be published later.
+        char_sensor_reading[0]=' ';
+        //int cell1_int_voltage =  atoi ( char_sensor_reading);  // convert char array  to integer
+        cout<<"cell1_int_voltage= " <<char_sensor_reading <<endl;  // print the value to be published later.
     }
     else if (char_sensor_reading[0] == 'b')   //check the ID of the sensor reading, then convert it to the true value without the ID.
     {   
-        char_sensor_reading[0]='0';
-        int cell2_int_voltage =  atoi ( char_sensor_reading);  // convert char array  to integer
-        cout<<"cell2_int_voltage= " <<cell2_int_voltage <<endl; 
+        char_sensor_reading[0]=' ';
+        //int cell2_int_voltage =  atoi ( char_sensor_reading);  // convert char array  to integer
+        cout<<"cell2_int_voltage= " <<char_sensor_reading <<endl; 
     }
     else if (char_sensor_reading[0] == 'c')   //check the ID of the sensor reading, then convert it to the true value without the ID.
     {   
-        char_sensor_reading[0]='0';
-        int cell3_int_voltage =  atoi ( char_sensor_reading);  // convert char array to integer
-        cout<<"cell3_int_voltage= " <<cell3_int_voltage <<endl; 
+        char_sensor_reading[0]=' ';
+        //int cell3_int_voltage =  atoi ( char_sensor_reading);  // convert char array to integer
+        cout<<"cell3_int_voltage= " <<char_sensor_reading <<endl; 
     }  
     /*else if (char_sensor_reading[0] == 'd')   //check the ID of the sensor reading, then convert it to the true value without the ID.
     {   
