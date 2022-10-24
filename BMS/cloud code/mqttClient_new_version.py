@@ -48,11 +48,11 @@ def subscibe_publish(client: mqtt_client):
             cell1_voltage = float(msg.payload.decode())
             print("Received " + str(cell1_voltage)+ " from " + msg.topic + " topic")
 
-            # """create a function to publish {ON,OFF} on topic 'relay' after recieving the cell voltage reading"""
-            # if  cell1_voltage >= 1.3:
-            #     client.publish('SOC_of_cell1',1)      # to turn the fan ON
-            # else:
-            #     client.publish('SOC_of_cell1',0) # to turn the fan OFF
+            """create a function to publish on topic 'SOC_of_cell1' after recieving the cell voltage reading"""
+            if  cell1_voltage >= 1.3:
+                client.publish('SOC_of_cell1',1)      # to turn the fan ON
+            else:
+                client.publish('SOC_of_cell1',0) # to turn the fan OFF
 
         #************************************************************#
 
@@ -83,7 +83,7 @@ def run():
     client = connect_mqtt()
     subscibe_publish(client)
     #relay_control(client)
-    print (cell1_voltage)
+    #print (cell1_voltage)
     client.loop_forever()
     
 if __name__ == '__main__':

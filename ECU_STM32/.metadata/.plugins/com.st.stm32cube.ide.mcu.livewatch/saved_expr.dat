@@ -1,2 +1,3 @@
-readValue
+read_digital_voltage
 voltage
+voltage_to_send

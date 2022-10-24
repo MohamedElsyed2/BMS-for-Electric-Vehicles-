@@ -5,8 +5,11 @@
 #include <PubSubClient.h>
 //***************************************************//
 //start of initialize the WiFi SSID and pasword
-const char *ssid = "Elsyed";//"Familie";   // Enter your WiFi name
-const char *password = "f83c1915";//"Mo&Em&Iy 93.95.20";  // Enter WiFi password
+//const char *ssid = "Elsyed";                                   // Enter your WiFi name
+//const char *password = "f83c1915";       // Enter WiFi password
+
+const char *ssid = "Familie";
+const char *password = "Mo&Em&Iy 93.95.20";               // Enter WiFi password
 //End of initialize the WiFi SSID and pasword
 //*************************************************//
 //Start of initialize the MQTT broker, port, username and password
@@ -17,8 +20,8 @@ const int mqtt_port = 1883;
 //End of initialize the MQTT broker, port, username and password
 //*********************************************//
 //initialize ESP32 client UART pins as GPIO 16,17
-//#define RXD2 16
-//#define TXD2 17
+#define RXD2 16
+#define TXD2 17
 //********************************************//
 WiFiClient espClient;
 PubSubClient client(espClient);
@@ -30,7 +33,7 @@ void setup() {
   //***************************************************//
  Serial.begin(115200);  // Set the Arduino serial monitor baud rate to 115200 
  //*****************************************************//
- //Serial2.begin(115200, SERIAL_8N1, RXD2, TXD2);   // the format for setting a serial port (UART2) is as follows: Serial2.begin(baud-rate, protocol, RX pin, TX pin);
+ Serial2.begin(115200, SERIAL_8N1, RXD2, TXD2);   // the format for setting a serial port (UART2) is as follows: Serial2.begin(baud-rate, protocol, RX pin, TX pin);
 //*****************************************************//
 
  //start of setup code to connect to a WiFi network
@@ -71,8 +74,7 @@ int fan_status;     // intialize a fan_status variable to get the fan status{0,1
 int cell1_state_of_charge;
 
 void callback(char *topic, byte *payload, unsigned int length) {
-  String Topic = topic;
-  if (Topic == "fan"){
+  if (strcmp(topic, "fan") == 0){
      String message;
      for (int i = 0; i < length; i++) {
          message = message + (char) payload[i];  // convert *byte to string
@@ -81,7 +83,7 @@ void callback(char *topic, byte *payload, unsigned int length) {
  Serial.print("fan_status = ");
  Serial.println(fan_status);
  }
- else if (Topic == "SOC_of_cell1"){
+ else if (strcmp(topic, "SOC_of_cell1") == 0){
      String message;
      for (int i = 0; i < length; i++) {
          message = message + (char) payload[i];  // convert *byte to string
@@ -98,19 +100,50 @@ void loop() {
   //start of void loop
  client.loop();
  //******************************************************************//
-      //String   string_sensor_reading = Serial2.readString();        // read and store the value of  sensor which recieved by UART2.
-     //Serial.println(string_sensor_reading);  
+ if (Serial2.available()) {
+      String   string_sensor_reading = Serial2.readString();        // read and store the value of  sensor which recieved by UART2.
+      Serial.println(string_sensor_reading);
  //******************************************************************//
-//begin code for creating an ID for every sensor reading
-     String string_sensor_reading = "a4.5";  // assigning value to string 
-     
-    int string_sensor_reading_length = string_sensor_reading.length();
+
+    int string_sensor_reading_length = string_sensor_reading.length();     //begin code for creating an ID for every sensor reading 
     
     char char_sensor_reading [string_sensor_reading_length + 1];  // declaring character array with the length of the string voltage.
 
     strcpy(char_sensor_reading, string_sensor_reading.c_str());  // copying the contents of the string to char array.
+
+    switch (char_sensor_reading[0]) {   //check the ID of the sensor reading, then convert it to the true value without the ID (the ID is the frist char).
+        case 'a':
+            {
+            char_sensor_reading[0]=' ';
+            char *char_cell1_voltage= char_sensor_reading;
+            client.publish("cell1_voltage",char_cell1_voltage);
+            //delay(1000);
+            }
+            break;
+        case 'b':
+            {
+            char_sensor_reading[0]=' ';
+            char *char_cell2_voltage= char_sensor_reading;
+            client.publish("cell2_voltage",char_cell2_voltage);
+            //delay(1000);
+            }
+            break;
+        case 't':
+            {
+            char_sensor_reading[0]=' ';
+            char *char_battery_temperature= char_sensor_reading;
+            client.publish("battery_temperature",char_battery_temperature);
+            //delay(1000);
+            }
+            break;
+       /* default:
+            // operator is doesn't match any case )
+            delay(360000);
+            Serial.println("Error! The operator is not correct");
+            break;*/
+    
  
-    if (char_sensor_reading[0] == 'a')   //check the ID of the sensor reading, then convert it to the true value without the ID.
+    /*if (char_sensor_reading[0] == 'a')   //check the ID of the sensor reading, then convert it to the true value without the ID.
     {   
         char_sensor_reading[0]=' ';
         char *char_cell1_voltage= char_sensor_reading;
@@ -227,20 +260,13 @@ void loop() {
         char_sensor_reading[0]=' ';
         char *char_battery_temperature= char_sensor_reading;
         client.publish("battery_temperature",char_battery_temperature);
-        delay(1000);
+        delay(1000);*/
     }
 
 //End code for creating an ID for every sensor readin
 /*******************************************************/
-
-
- 
- //char *char_temperature= "30.5";  // define the temperature be published as char, because the UART return string.
- //client.publish("battery_temperature",char_temperature);
- //delay(1000);
- //client.publish("battery_temperature", "40.05");
- //delay(500);
- //End the code to publish the battery temperature
+}
+// Eof of if avilable code
  //*************************************************//
 }
 //End of void loop

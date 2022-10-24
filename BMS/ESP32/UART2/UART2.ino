@@ -17,14 +17,10 @@ void setup() {
 void loop() 
 {
  
-      String   string_sensor_reading = Serial2.readString();        // read and store the value of  sensor which recieved by UART2.
-     //int voltageInteger = voltageString.toInt();           // convert from string to integer.
-     //float voltageFloat= (float)voltageInteger/100;    // convert from integer to float and devided by 100 to get the real sensor value.
+     /*************************************************************************************************************************************/
+     if (Serial2.available()) {
+     String   string_sensor_reading = Serial2.readString();        // read and store the value of  sensor which recieved by UART2.
      Serial.println(string_sensor_reading);  
-     //Serial.println(voltageFloat);
-
-     //begin code for creating an ID for every sensor reading
-     //String string_sensor_reading = "a148";  // assigning value to string 
      
     int string_sensor_reading_length = string_sensor_reading.length();
     
@@ -34,19 +30,19 @@ void loop()
  
     if (char_sensor_reading[0] == 'a')   //check the ID of the sensor reading, then convert it to the true value without the ID.
     {   
-        char_sensor_reading[0]='0';
+        char_sensor_reading[0]=' ';
         int cell1_int_voltage =  atoi ( char_sensor_reading);  // convert char array  to integer
         Serial.println(cell1_int_voltage);  // print the value to be published later.
     }
     else if (char_sensor_reading[0] == 'b')   //check the ID of the sensor reading, then convert it to the true value without the ID.
     {   
-        char_sensor_reading[0]='0';
+        char_sensor_reading[0]=' ';
         int cell2_int_voltage =  atoi ( char_sensor_reading);  // convert char array  to integer
         Serial.println(cell2_int_voltage);
     }
     else if (char_sensor_reading[0] == 'c')   //check the ID of the sensor reading, then convert it to the true value without the ID.
     {   
-        char_sensor_reading[0]='0';
+        char_sensor_reading[0]=' ';
         int cell3_int_voltage =  atoi ( char_sensor_reading);  // convert char array to integer
         Serial.println(cell3_int_voltage);
     }
@@ -136,9 +132,15 @@ void loop()
     }
 
 //End code for creating an ID for every sensor readin
+//delay(1000);
 }
-    // say what you got:
-    
+}
+    /* say what you got:
+    //int voltageInteger = voltageString.toInt();           // convert from string to integer.
+     //float voltageFloat= (float)voltageInteger/100; 
+     //Serial.println(voltageFloat);// convert from integer to float and devided by 100 to get the real sensor value.
+      //begin code for creating an ID for every sensor reading
+     //String string_sensor_reading = "a148";  // assigning value to string 
    /* if (Serial2.available() > 0) {
       //Serial.print("I received: ");
       String   voltageRecieved = Serial2.readString();
