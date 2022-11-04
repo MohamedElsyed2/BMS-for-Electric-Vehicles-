@@ -61,8 +61,6 @@ void Error_Handler(void);
 #define current_sensor1_GPIO_Port GPIOA
 #define voltage_sensor1_Pin GPIO_PIN_0
 #define voltage_sensor1_GPIO_Port GPIOB
-#define Green_LED_Pin GPIO_PIN_15
-#define Green_LED_GPIO_Port GPIOD
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */

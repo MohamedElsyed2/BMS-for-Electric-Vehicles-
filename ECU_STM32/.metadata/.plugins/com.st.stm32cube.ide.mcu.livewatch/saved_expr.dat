@@ -1,3 +1,9 @@
 read_digital_voltage
 voltage
-voltage_to_send
+voltage_sensor1
+voltage_sensor2
+current_sensor1
+adcValArray
+output_voltage
+current
+internal_temp_sensor

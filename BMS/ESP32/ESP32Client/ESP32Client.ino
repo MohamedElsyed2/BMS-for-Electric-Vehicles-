@@ -64,6 +64,7 @@ void setup() {
  //****************************************************//
  client.subscribe("fan",0);    //Setup the ESP client to subscribe to the topic 'fan'.
  client.subscribe("SOC_of_cell1",0);    //Setup the ESP client to subscribe to the topic
+ client.subscribe("messages",0);    
  
 }
 //End of the set up code
@@ -83,7 +84,7 @@ void callback(char *topic, byte *payload, unsigned int length) {
  Serial.print("fan_status = ");
  Serial.println(fan_status);
  }
- else if (strcmp(topic, "SOC_of_cell1") == 0){
+  if (strcmp(topic, "SOC_of_cell1") == 0){
      String message;
      for (int i = 0; i < length; i++) {
          message = message + (char) payload[i];  // convert *byte to string
@@ -92,9 +93,23 @@ void callback(char *topic, byte *payload, unsigned int length) {
  Serial.print("cell1_state_of_charge = ");
  Serial.println(cell1_state_of_charge);
  }
+ if (strcmp(topic, "messages") == 0){
+     String message;
+     for (int i = 0; i < length; i++) {
+         message = message + (char) payload[i];  // convert *byte to string.
+ }
+ int error = message.toInt();
+ switch (error){            // if error=1 means the sensors are not connected.
+   case 1 :
+   {
+      Serial2.write("Sensors are not connected!");
+   }
+  
+ }
+ }
 
 }
-//  End of the Callback function to recieve and print the message that was sent to topic 'fan'
+//  End of the Callback function to recieve and print the message that was sent to topic 'fan'.
 //********************************************************//
 void loop() {
   //start of void loop
@@ -117,7 +132,7 @@ void loop() {
             char_sensor_reading[0]=' ';
             char *char_cell1_voltage= char_sensor_reading;
             client.publish("cell1_voltage",char_cell1_voltage);
-            //delay(1000);
+           
             }
             break;
         case 'b':
@@ -125,6 +140,54 @@ void loop() {
             char_sensor_reading[0]=' ';
             char *char_cell2_voltage= char_sensor_reading;
             client.publish("cell2_voltage",char_cell2_voltage);
+            //delay(1000);
+            }
+            break;
+        case 'c':
+            {
+            char_sensor_reading[0]=' ';
+            char *char_cell3_voltage= char_sensor_reading;
+            client.publish("cell3_voltage",char_cell3_voltage);
+            //delay(1000);
+            }
+            break;
+        case 'd':
+            {
+            char_sensor_reading[0]=' ';
+            char *char_cell4_voltage= char_sensor_reading;
+            client.publish("cell4_voltage",char_cell4_voltage);
+            //delay(1000);
+            }
+            break;
+        case 'i':
+            {
+            char_sensor_reading[0]=' ';
+            char *char_cell1_current= char_sensor_reading;
+            client.publish("cell1_current",char_cell1_current);
+            //delay(1000);
+            }
+            break;
+        case 'g':
+            {
+            char_sensor_reading[0]=' ';
+            char *char_cell2_current= char_sensor_reading;
+            client.publish("cell2_current",char_cell2_current);
+            //delay(1000);
+            }
+            break;
+        case 'h':
+            {
+            char_sensor_reading[0]=' ';
+            char *char_cell3_current= char_sensor_reading;
+            client.publish("cell3_current",char_cell3_current);
+            //delay(1000);
+            }
+            break;
+        case 'k':
+            {
+            char_sensor_reading[0]=' ';
+            char *char_cell4_current= char_sensor_reading;
+            client.publish("cell4_current",char_cell4_current);
             //delay(1000);
             }
             break;
@@ -136,133 +199,13 @@ void loop() {
             //delay(1000);
             }
             break;
-       /* default:
-            // operator is doesn't match any case )
-            delay(360000);
-            Serial.println("Error! The operator is not correct");
-            break;*/
+        
+       default:
+            // if frist charackter doesn't match any case )
+           
+            client.publish("sensors_Error","1");
+            break;
     
- 
-    /*if (char_sensor_reading[0] == 'a')   //check the ID of the sensor reading, then convert it to the true value without the ID.
-    {   
-        char_sensor_reading[0]=' ';
-        char *char_cell1_voltage= char_sensor_reading;
-        client.publish("cell1_voltage",char_cell1_voltage);
-        delay(1000);
-    }
-    else if (char_sensor_reading[0] == 'b')   //check the ID of the sensor reading, then convert it to the true value without the ID.
-    {   
-        char_sensor_reading[0]=' ';
-        char *char_cell2_voltage= char_sensor_reading;
-        client.publish("cell2_voltage",char_cell2_voltage);
-        delay(1000);
-    }
-    else if (char_sensor_reading[0] == 'c')   //check the ID of the sensor reading, then convert it to the true value without the ID.
-    {   
-        char_sensor_reading[0]=' ';
-        char *char_cell3_voltage= char_sensor_reading;
-        client.publish("cell3_voltage",char_cell3_voltage);
-        delay(1000);
-    }
-    else if (char_sensor_reading[0] == 'd')   //check the ID of the sensor reading, then convert it to the true value without the ID.
-    {   
-        char_sensor_reading[0]=' ';
-        char *char_cell4_voltage= char_sensor_reading;
-        client.publish("cell4_voltage",char_cell4_voltage);
-        delay(1000);  
-    }
-    else if (char_sensor_reading[0] == 'e')   //check the ID of the sensor reading, then convert it to the true value without the ID.
-    {   
-        char_sensor_reading[0]=' ';
-        char *char_cell5_voltage= char_sensor_reading;
-        client.publish("cell5_voltage",char_cell5_voltage);
-        delay(1000);
-    }
-    else if (char_sensor_reading[0] == 'f')   //check the ID of the sensor reading, then convert it to the true value without the ID.
-    {   
-        char_sensor_reading[0]=' ';
-        char *char_cell6_voltage= char_sensor_reading;
-        client.publish("cell6_voltage",char_cell6_voltage);
-        delay(1000);
-    }
-    else if (char_sensor_reading[0] == 'g')   //check the ID of the sensor reading, then convert it to the true value without the ID.
-    {   
-        char_sensor_reading[0]=' ';
-        char *char_cell7_voltage= char_sensor_reading;
-        client.publish("cell7_voltage",char_cell7_voltage);
-        delay(1000);
-    }
-    else if (char_sensor_reading[0] == 'h')   //check the ID of the sensor reading, then convert it to the true value without the ID.
-    {   
-        char_sensor_reading[0]=' ';
-        char *char_cell8_voltage= char_sensor_reading;
-        client.publish("cell8_voltage",char_cell8_voltage);
-        delay(1000);
-    }
-    else if (char_sensor_reading[0] == 'i')   //check the ID of the sensor reading, then convert it to the true value without the ID.
-    {   
-        char_sensor_reading[0]=' ';
-        char *char_cell1_current= char_sensor_reading;
-        client.publish("cell1_current",char_cell1_current);
-        delay(1000);
-    }
-    else if (char_sensor_reading[0] == 'j')   //check the ID of the sensor reading, then convert it to the true value without the ID.
-    {   
-        char_sensor_reading[0]=' ';
-        char *char_cell2_current= char_sensor_reading;
-        client.publish("cell2_current",char_cell2_current);
-        delay(1000);
-    }
-    else if (char_sensor_reading[0] == 'k')   //check the ID of the sensor reading, then convert it to the true value without the ID.
-    {   
-        char_sensor_reading[0]=' ';
-        char *char_cell3_current= char_sensor_reading;
-        client.publish("cell3_current",char_cell3_current);
-        delay(1000);
-    }
-    else if (char_sensor_reading[0] == 'm')   //check the ID of the sensor reading, then convert it to the true value without the ID.
-    {   
-        char_sensor_reading[0]=' ';
-        char *char_cell4_current= char_sensor_reading;
-        client.publish("cell4_current",char_cell4_current);
-        delay(1000);
-    }
-    else if (char_sensor_reading[0] == 'n')   //check the ID of the sensor reading, then convert it to the true value without the ID.
-    {   
-        char_sensor_reading[0]=' ';
-        char *char_cell5_current= char_sensor_reading;
-        client.publish("cell5_current",char_cell5_current);
-        delay(1000);
-    }
-    else if (char_sensor_reading[0] == 'p')   //check the ID of the sensor reading, then convert it to the true value without the ID.
-    {   
-        char_sensor_reading[0]=' ';
-        char *char_cell6_current= char_sensor_reading;
-        client.publish("cell6_current",char_cell6_current);
-        delay(1000);
-    }
-    else if (char_sensor_reading[0] == 'q')   //check the ID of the sensor reading, then convert it to the true value without the ID.
-    {   
-        char_sensor_reading[0]=' ';
-        char *char_cell7_current= char_sensor_reading;
-        client.publish("cell7_current",char_cell7_current);
-        delay(1000);
-    }
-    else if (char_sensor_reading[0] == 'r')   //check the ID of thery sensor reading, then convert it to the true value without the ID.
-    {   
-        char_sensor_reading[0]=' ';
-        char *char_cell8_current= char_sensor_reading;
-        client.publish("cell8_current",char_cell8_current);
-        delay(1000);
-    }
-    else if (char_sensor_reading[0] == 't')   //check the ID of the sensor reading, then convert it to the true value without the ID.
-    {   
-        char_sensor_reading[0]=' ';
-        char *char_battery_temperature= char_sensor_reading;
-        client.publish("battery_temperature",char_battery_temperature);
-        delay(1000);*/
-    }
-
 //End code for creating an ID for every sensor readin
 /*******************************************************/
 }
@@ -270,3 +213,4 @@ void loop() {
  //*************************************************//
 }
 //End of void loop
+}

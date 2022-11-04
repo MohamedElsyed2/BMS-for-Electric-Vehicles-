@@ -1,14 +1,40 @@
+
 import time
-def run1():
+global  cell1_voltage
+cell1_voltage = 0
+global cell1_current
+cell1_current = 0
+global temperature   # °C
+temperature = 30
+int_soc_flag= False
+def func():
+    
+    
     def run2():
-      global  cell1_voltage
-      global cell1_current
-      global temperature
-      cell1_voltage=0.7
-      cell1_current = 1.35
-      temperature = 30
-      print (cell1_voltage)
+        a=2
+        b=3
+        c=4
+        if c==4:
+            global  cell1_voltage
+            cell1_voltage=0.7    # (V)
+        if a==2:
+            global cell1_current
+            cell1_current = 1.35  # (A)
+        if b==3:
+            global temperature   # °C
+            temperature = 30
+        
+        
+        
+      #print (cell1_voltage)
     run2()
+    # global cell1_Voltage
+    # cell1_Voltage = cell1_voltage
+    # global cell1_Current
+    # cell1_Current = cell1_current
+    # global battery_Temp
+    # battery_Temp = temperature
+ 
 #******************************************************************#
 def get_thermal_coefficient(temperature):
     if temperature <= 25:
@@ -30,26 +56,34 @@ def get_soc_ocv (ocv):         # function to get the intial SOC of  from the rel
     elif ocv >0.5 and ocv <= 0.6 :
         socIntial= 0.05
     elif ocv >0.6 and ocv <= 0.75 :
-        socIntial= 0.1
+        socIntial= 0.1 
     return socIntial
 
 #******************************************************************#
 def soc(cell_current,cell_voltage,temperature):
-    total_cell_capacity = 3000         # cell capacity= 3000 mAh
+
+    max_cell_capacity = 0.6         # 600 mAh=0.6 Ah max cell capacity != the rated cell capacity, the rated cell capacity in this project = 600 mAh, if the battery is new, then the max cell capacity = rated cell capacity
     time_two_readings = 5 
     current = cell_current
     global state_of_charge
-    state_of_charge= get_soc_ocv (cell_voltage)           # get intial SOC from the open circuit voltage curve
+   
+    global int_soc_flag
+    if int_soc_flag == False:
+       state_of_charge= get_soc_ocv (cell_voltage)           # get intial SOC from the open circuit voltage curve.
+       int_soc_flag = True
     thermal_coefficient = get_thermal_coefficient (temperature)
-    if True: 
-        state_of_charge = state_of_charge + current* time_two_readings*thermal_coefficient/ total_cell_capacity
-        print(state_of_charge)
-        time.sleep (5)                     # to wait 5 seconds between readings
+    state_of_charge = state_of_charge + current* time_two_readings/3600*thermal_coefficient/ max_cell_capacity   #/3600 to convert from second to hour.
+    time.sleep (2)                     # to wait 5 seconds between readings.
     return state_of_charge
 #************************************************************************#
 def runall():
-  run1()
+ 
+ while True:
+  func()
   cell1_state_of_charge= soc(cell1_current,cell1_voltage,temperature)
-  print(cell1_state_of_charge)
+  print(100*cell1_state_of_charge,"% \n")
+  print(cell1_current)
 
-runall()
+
+if __name__ == '__main__':
+    runall()

@@ -1,8 +1,10 @@
-
 #include <cstring>
-#include <iostream>
+#include<iostream>
 #include <stdlib.h>
-using namespace std;
+#include <string.h>
+ 
+ using namespace std;
+
 
 #define RXD2 16
 #define TXD2 17
@@ -22,7 +24,7 @@ void loop()
      String   string_sensor_reading = Serial2.readString();        // read and store the value of  sensor which recieved by UART2.
      Serial.println(string_sensor_reading);  
      
-    int string_sensor_reading_length = string_sensor_reading.length();
+    uint8_t string_sensor_reading_length = string_sensor_reading.length();
     
     char char_sensor_reading [string_sensor_reading_length + 1];  // declaring character array with the length of the string voltage.
 

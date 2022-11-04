@@ -103,12 +103,12 @@ int main(void)
 	 	 sprintf(txdata, "%c%u \r\n",'a',60);
 	 	 HAL_UART_Transmit(&huart2,(uint8_t *) txdata, strlen(txdata), 10);
 	 	 HAL_Delay(1000);
-	 	sprintf(txdata, "%c%u \r\n",'b',70);
+	 	/*sprintf(txdata, "%c%u \r\n",'b',70);
 	 		 	 HAL_UART_Transmit(&huart2,(uint8_t *) txdata, strlen(txdata), 10);
 	 		 	 HAL_Delay(1000);
 	 		 	sprintf(txdata, "%c%u \r\n",'c',80);
 	 		 		 	 HAL_UART_Transmit(&huart2,(uint8_t *) txdata, strlen(txdata), 10);
-	 		 		 	 HAL_Delay(1000);
+	 		 		 	 HAL_Delay(1000);*/
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -148,7 +148,7 @@ void SystemClock_Config(void)
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSI;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
   if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0) != HAL_OK)

@@ -23,6 +23,7 @@
 /* USER CODE BEGIN Includes */
 #include <stdio.h>
 #include <string.h>
+#include <stdbool.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -43,8 +44,8 @@
 ADC_HandleTypeDef hadc1;
 DMA_HandleTypeDef hdma_adc1;
 
-UART_HandleTypeDef huart2;
-DMA_HandleTypeDef hdma_usart2_rx;
+UART_HandleTypeDef huart6;
+DMA_HandleTypeDef hdma_usart6_rx;
 
 /* USER CODE BEGIN PV */
 
@@ -55,7 +56,7 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_DMA_Init(void);
 static void MX_ADC1_Init(void);
-static void MX_USART2_UART_Init(void);
+static void MX_USART6_UART_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -65,7 +66,14 @@ static void MX_USART2_UART_Init(void);
 uint16_t adcValArray [3];    //array of 3 elements because I activated only 3 ADC channels. every channel has one sensor reading.
 uint16_t voltage_sensor1;
 uint16_t voltage_sensor2;
-uint16_t current_sensor1;
+int current_sensor1;
+float output_voltage;
+float current;
+float voltage;
+uint16_t digital_read_internal_temp_sensor;
+
+float internal_temp_sensor;
+bool flag = false;
 /* USER CODE END 0 */
 
 /**
@@ -98,47 +106,66 @@ int main(void)
   MX_GPIO_Init();
   MX_DMA_Init();
   MX_ADC1_Init();
-  MX_USART2_UART_Init();
+  MX_USART6_UART_Init();
   /* USER CODE BEGIN 2 */
   /******************************************/
   HAL_ADC_Start_DMA(&hadc1,(uint32_t *) adcValArray,3);      //to start the ADC conversion process
 /*********************************/
- void led_blinking ()
+ int  current_sensor (uint16_t read_digital_current)
  {
-	  HAL_GPIO_WritePin (GPIOD, GPIO_PIN_15,1);
-	  HAL_Delay (1000);
-	  HAL_GPIO_WritePin (GPIOD, GPIO_PIN_15,0);
-	  HAL_Delay (1000);
-  }
- /**********************************************/
- uint16_t  current_sensor (uint16_t read_digital_voltage)
- {
-	 uint16_t ADC_error = 250;
-	 //float voltage =(float) read_digital_voltage*16.5/4095;
-	 uint16_t current_to_send = 1000* read_digital_voltage*16.5/4095;
+	 float current_sensor_error;
+	 float current_sens_sensitivity = 0.066;
+	 output_voltage = (float) read_digital_current*3.3*2/ 4095;
+	     // calibration the current sensor  accuracy.
+	 /*if (internal_temp_sensor >= -25  && internal_temp_sensor < 25){
+		 current_sensor_error = -0.004 *internal_temp_sensor + 0.3;
+	 }
+	 else if (internal_temp_sensor >= 25 && internal_temp_sensor < 85){
+		 current_sensor_error = 0.01 *internal_temp_sensor + 0.05;
+	 }*/
+
+	 float true_output_voltage= output_voltage * (1-0.2);    //0.2 is the current_sensor_error.
+	 current =(true_output_voltage - 2.5)/current_sens_sensitivity ;  // from the data sheet of current sensor in case of Ip=30, the sensitivity = 66 mV/A.
+
+	 int current_to_send = (int) (1000*current)/20;  // (20)only to calibrate the value (it should be changed)
+
 
      return current_to_send;
   }
  /*******************************************************/
- uint16_t  voltage_sensor (uint16_t read_digital_current)
+ uint16_t  voltage_sensor (uint16_t read_digital_voltage)
   {
- 	 uint16_t ADC_error = 250;
- 	 //float voltage =(float) read_digital_voltage*16.5/4095;
- 	 uint16_t voltageToSend = 1000* read_digital_current*16.5/4095;
- 	 //HAL_Delay(500);
+ 	 float ADC_error = 0.89;
+ 	 float voltage_sens_sensitivity = 0.2;
+ 	 uint16_t true_digital_voltage = read_digital_voltage;
+ 	 voltage = (float) 1000*true_digital_voltage *3.3/voltage_sens_sensitivity*ADC_error/4095;
+ 	 uint16_t voltageToSend = (uint16_t) voltage;
+ 	 /*if (voltageToSend > 1500)
+ 	 {
+ 		voltageToSend = 1500;
+ 	 }*/
 
-      return voltageToSend;
+     return voltageToSend;
    }
  /****************************************************/
- void uart_transmit (char ID, uint16_t data_to_send)
+ void uart_voltage_transmit (char ID, uint16_t data_to_send)
  {
 
 	 char  txdata [35];
 	 sprintf(txdata, "%c%u \r\n", ID,data_to_send);
-	 HAL_UART_Transmit(&huart2,(uint8_t *) txdata, strlen(txdata), 10);
+	 HAL_UART_Transmit(&huart6,(uint8_t *) txdata, strlen(txdata), 10);
 	 //HAL_Delay(500);
    }
+/*************************************************************/
+ void uart_current_transmit (char ID, int data_to_send)
+  {
 
+ 	 char  txdata [35];
+ 	 sprintf(txdata, "%c%d \r\n", ID,data_to_send);
+ 	 HAL_UART_Transmit(&huart6,(uint8_t *) txdata, strlen(txdata), 10);
+ 	 //HAL_Delay(500);
+    }
+ /***********************************************************/
 
   /* USER CODE END 2 */
 
@@ -149,19 +176,27 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  //led_blinking();
-	  //voltage_to_send = voltage_sensor ();
+
+	  /*************************************************************************************/
+	  digital_read_internal_temp_sensor = adcValArray [2];                 //read the internal temperature sensor to adjust the output voltage of the current sensor
+	  float Vout_internal_temp_sensor = (float) digital_read_internal_temp_sensor*3.3/4095;
+	  internal_temp_sensor = (Vout_internal_temp_sensor - 0.76) / 0.0025 + 25;
+	  /***********************************************************************************************/
+	  if (flag == false){
+	  		  HAL_Delay(5000);                       // wait for 5 seconds to let the ADC get the true right value
+	  		  flag= true;
+	  	  }
+
 	  current_sensor1 = current_sensor (adcValArray [0]);
 	  voltage_sensor1 = voltage_sensor (adcValArray [1]);
-	  voltage_sensor2 = voltage_sensor (adcValArray [2]);
 
-	  uart_transmit ('a',voltage_sensor1);
+	  uart_voltage_transmit ('a',voltage_sensor1);
 	  HAL_Delay(1000);
 
-	 uart_transmit ('b',voltage_sensor2);
-	  HAL_Delay(1000);
+	 // uart_voltage_transmit ('b',voltage_sensor2);
+	  //HAL_Delay(1000);
 
-	  uart_transmit ('c',voltage_sensor3);
+	  uart_current_transmit ('i',current_sensor1);
 	  HAL_Delay(1000);
 
 
@@ -189,12 +224,7 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
   RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
-  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
-  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
-  RCC_OscInitStruct.PLL.PLLM = 8;
-  RCC_OscInitStruct.PLL.PLLN = 72;
-  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
-  RCC_OscInitStruct.PLL.PLLQ = 4;
+  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
     Error_Handler();
@@ -204,12 +234,12 @@ void SystemClock_Config(void)
   */
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
-  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
+  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSI;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
-  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
+  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0) != HAL_OK)
   {
     Error_Handler();
   }
@@ -273,7 +303,7 @@ static void MX_ADC1_Init(void)
 
   /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
   */
-  sConfig.Channel = ADC_CHANNEL_9;
+  sConfig.Channel = ADC_CHANNEL_TEMPSENSOR;
   sConfig.Rank = 3;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
@@ -286,35 +316,35 @@ static void MX_ADC1_Init(void)
 }
 
 /**
-  * @brief USART2 Initialization Function
+  * @brief USART6 Initialization Function
   * @param None
   * @retval None
   */
-static void MX_USART2_UART_Init(void)
+static void MX_USART6_UART_Init(void)
 {
 
-  /* USER CODE BEGIN USART2_Init 0 */
+  /* USER CODE BEGIN USART6_Init 0 */
 
-  /* USER CODE END USART2_Init 0 */
+  /* USER CODE END USART6_Init 0 */
 
-  /* USER CODE BEGIN USART2_Init 1 */
+  /* USER CODE BEGIN USART6_Init 1 */
 
-  /* USER CODE END USART2_Init 1 */
-  huart2.Instance = USART2;
-  huart2.Init.BaudRate = 115200;
-  huart2.Init.WordLength = UART_WORDLENGTH_8B;
-  huart2.Init.StopBits = UART_STOPBITS_1;
-  huart2.Init.Parity = UART_PARITY_NONE;
-  huart2.Init.Mode = UART_MODE_TX_RX;
-  huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-  huart2.Init.OverSampling = UART_OVERSAMPLING_16;
-  if (HAL_UART_Init(&huart2) != HAL_OK)
+  /* USER CODE END USART6_Init 1 */
+  huart6.Instance = USART6;
+  huart6.Init.BaudRate = 115200;
+  huart6.Init.WordLength = UART_WORDLENGTH_8B;
+  huart6.Init.StopBits = UART_STOPBITS_1;
+  huart6.Init.Parity = UART_PARITY_NONE;
+  huart6.Init.Mode = UART_MODE_TX_RX;
+  huart6.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart6.Init.OverSampling = UART_OVERSAMPLING_16;
+  if (HAL_UART_Init(&huart6) != HAL_OK)
   {
     Error_Handler();
   }
-  /* USER CODE BEGIN USART2_Init 2 */
+  /* USER CODE BEGIN USART6_Init 2 */
 
-  /* USER CODE END USART2_Init 2 */
+  /* USER CODE END USART6_Init 2 */
 
 }
 
@@ -325,16 +355,15 @@ static void MX_DMA_Init(void)
 {
 
   /* DMA controller clock enable */
-  __HAL_RCC_DMA1_CLK_ENABLE();
   __HAL_RCC_DMA2_CLK_ENABLE();
 
   /* DMA interrupt init */
-  /* DMA1_Stream5_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMA1_Stream5_IRQn, 0, 0);
-  HAL_NVIC_EnableIRQ(DMA1_Stream5_IRQn);
   /* DMA2_Stream0_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(DMA2_Stream0_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(DMA2_Stream0_IRQn);
+  /* DMA2_Stream1_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA2_Stream1_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA2_Stream1_IRQn);
 
 }
 
@@ -345,22 +374,11 @@ static void MX_DMA_Init(void)
   */
 static void MX_GPIO_Init(void)
 {
-  GPIO_InitTypeDef GPIO_InitStruct = {0};
 
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
-  __HAL_RCC_GPIOD_CLK_ENABLE();
-
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(Green_LED_GPIO_Port, Green_LED_Pin, GPIO_PIN_RESET);
-
-  /*Configure GPIO pin : Green_LED_Pin */
-  GPIO_InitStruct.Pin = Green_LED_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(Green_LED_GPIO_Port, &GPIO_InitStruct);
+  __HAL_RCC_GPIOC_CLK_ENABLE();
 
 }
 

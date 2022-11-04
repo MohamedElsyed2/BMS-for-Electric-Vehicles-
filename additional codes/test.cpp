@@ -1,9 +1,9 @@
 #include <cstring>
-#include<stdio.h>
+#include<iostream>
 #include <stdlib.h>
 #include <string.h>
  
- 
+ using namespace std;
 
 uint16_t  voltage_sensor ()
 {
