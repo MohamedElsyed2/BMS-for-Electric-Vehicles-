@@ -1,0 +1,10 @@
+23:00:53 **** Incremental Build of configuration Debug for project temperature_sensor_test ****
+make -j8 all 
+arm-none-eabi-size   temperature_sensor_test.elf 
+   text	   data	    bss	    dec	    hex	filename
+   6672	     20	   1588	   8280	   2058	temperature_sensor_test.elf
+Finished building: default.size.stdout
+ 
+
+23:00:53 Build Finished. 0 errors, 0 warnings. (took 169ms)
+

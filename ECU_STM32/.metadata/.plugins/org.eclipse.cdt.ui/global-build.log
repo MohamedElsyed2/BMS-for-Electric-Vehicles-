@@ -1,53 +1,84 @@
-09:46:40 **** Incremental Build of configuration Debug for project STM32_ECU ****
+10:21:03 **** Incremental Build of configuration Debug for project STM32_ECU ****
 make -j8 all 
 arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F411xE -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
 ../Core/Src/main.c: In function 'current_sensor':
-../Core/Src/main.c:116:9: warning: unused variable 'current_sensor_error' [-Wunused-variable]
-  116 |   float current_sensor_error;
+../Core/Src/main.c:244:9: warning: unused variable 'current_sensor_error' [-Wunused-variable]
+  244 |   float current_sensor_error;
       |         ^~~~~~~~~~~~~~~~~~~~
-arm-none-eabi-g++ -o "STM32_ECU.elf" @"objects.list"   -mcpu=cortex-m4 -T"E:\Masterarbeit\BMS-for-Electric-Vehicles-\ECU_STM32\STM32_ECU\STM32F411VETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="STM32_ECU.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -lstdc++ -lsupc++ -Wl,--end-group
+../Core/Src/main.c: In function 'main':
+../Core/Src/main.c:276:3: warning: "/*" within comment [-Wcomment]
+  276 |   /*if (internal_temp_sensor >= -25  && internal_temp_sensor < 25){
+      |    
+../Core/Src/main.c: At top level:
+../Core/Src/main.c:652:11: warning: "/*" within comment [-Wcomment]
+  652 |           /*default:
+      |            
+arm-none-eabi-g++ -o "STM32_ECU.elf" @"objects.list"   -mcpu=cortex-m4 -T"E:\Masterarbeit\BMS-for-Electric-Vehicles-\ECU_STM32\STM32_ECU\STM32F411VETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="STM32_ECU.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -u _printf_float -u _scanf_float -Wl,--start-group -lc -lm -lstdc++ -lsupc++ -Wl,--end-group
 Finished building target: STM32_ECU.elf
  
 arm-none-eabi-size   STM32_ECU.elf 
 arm-none-eabi-objdump -h -S  STM32_ECU.elf  > "STM32_ECU.list"
    text	   data	    bss	    dec	    hex	filename
-  18280	    120	   1960	  20360	   4f88	STM32_ECU.elf
+  41060	    488	   2072	  43620	   aa64	STM32_ECU.elf
 Finished building: default.size.stdout
  
 Finished building: STM32_ECU.list
  
-13:18:42 **** Incremental Build of configuration Debug for project STM32_ECU ****
+10:21:06 **** Incremental Build of configuration Debug for project STM32_ECU ****
+make -j8 all 
+arm-none-eabi-size   STM32_ECU.elf 
+   text	   data	    bss	    dec	    hex	filename
+  41060	    488	   2072	  43620	   aa64	STM32_ECU.elf
+Finished building: default.size.stdout
+ 
+10:30:57 **** Incremental Build of configuration Debug for project STM32_ECU ****
 make -j8 all 
 arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F411xE -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
 ../Core/Src/main.c: In function 'current_sensor':
-../Core/Src/main.c:116:9: warning: unused variable 'current_sensor_error' [-Wunused-variable]
-  116 |   float current_sensor_error;
+../Core/Src/main.c:244:9: warning: unused variable 'current_sensor_error' [-Wunused-variable]
+  244 |   float current_sensor_error;
       |         ^~~~~~~~~~~~~~~~~~~~
-arm-none-eabi-g++ -o "STM32_ECU.elf" @"objects.list"   -mcpu=cortex-m4 -T"E:\Masterarbeit\BMS-for-Electric-Vehicles-\ECU_STM32\STM32_ECU\STM32F411VETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="STM32_ECU.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -lstdc++ -lsupc++ -Wl,--end-group
+../Core/Src/main.c: In function 'main':
+../Core/Src/main.c:276:3: warning: "/*" within comment [-Wcomment]
+  276 |   /*if (internal_temp_sensor >= -25  && internal_temp_sensor < 25){
+      |    
+../Core/Src/main.c: At top level:
+../Core/Src/main.c:650:11: warning: "/*" within comment [-Wcomment]
+  650 |           /*default:
+      |            
+arm-none-eabi-g++ -o "STM32_ECU.elf" @"objects.list"   -mcpu=cortex-m4 -T"E:\Masterarbeit\BMS-for-Electric-Vehicles-\ECU_STM32\STM32_ECU\STM32F411VETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="STM32_ECU.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -u _printf_float -u _scanf_float -Wl,--start-group -lc -lm -lstdc++ -lsupc++ -Wl,--end-group
 Finished building target: STM32_ECU.elf
  
 arm-none-eabi-size   STM32_ECU.elf 
 arm-none-eabi-objdump -h -S  STM32_ECU.elf  > "STM32_ECU.list"
    text	   data	    bss	    dec	    hex	filename
-  18296	    120	   1960	  20376	   4f98	STM32_ECU.elf
+  41260	    488	   2072	  43820	   ab2c	STM32_ECU.elf
 Finished building: default.size.stdout
  
 Finished building: STM32_ECU.list
  
-14:24:13 **** Build of configuration Debug for project STM32_ECU ****
+10:34:45 **** Incremental Build of configuration Debug for project STM32_ECU ****
 make -j8 all 
 arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F411xE -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
 ../Core/Src/main.c: In function 'current_sensor':
-../Core/Src/main.c:116:9: warning: unused variable 'current_sensor_error' [-Wunused-variable]
-  116 |   float current_sensor_error;
+../Core/Src/main.c:244:9: warning: unused variable 'current_sensor_error' [-Wunused-variable]
+  244 |   float current_sensor_error;
       |         ^~~~~~~~~~~~~~~~~~~~
-arm-none-eabi-g++ -o "STM32_ECU.elf" @"objects.list"   -mcpu=cortex-m4 -T"E:\Masterarbeit\BMS-for-Electric-Vehicles-\ECU_STM32\STM32_ECU\STM32F411VETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="STM32_ECU.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -lstdc++ -lsupc++ -Wl,--end-group
+../Core/Src/main.c: In function 'main':
+../Core/Src/main.c:276:3: warning: "/*" within comment [-Wcomment]
+  276 |   /*if (internal_temp_sensor >= -25  && internal_temp_sensor < 25){
+      |    
+../Core/Src/main.c: At top level:
+../Core/Src/main.c:654:11: warning: "/*" within comment [-Wcomment]
+  654 |           /*default:
+      |            
+arm-none-eabi-g++ -o "STM32_ECU.elf" @"objects.list"   -mcpu=cortex-m4 -T"E:\Masterarbeit\BMS-for-Electric-Vehicles-\ECU_STM32\STM32_ECU\STM32F411VETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="STM32_ECU.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -u _printf_float -u _scanf_float -Wl,--start-group -lc -lm -lstdc++ -lsupc++ -Wl,--end-group
 Finished building target: STM32_ECU.elf
  
 arm-none-eabi-size   STM32_ECU.elf 
 arm-none-eabi-objdump -h -S  STM32_ECU.elf  > "STM32_ECU.list"
    text	   data	    bss	    dec	    hex	filename
-  18304	    120	   1960	  20384	   4fa0	STM32_ECU.elf
+  41092	    488	   2072	  43652	   aa84	STM32_ECU.elf
 Finished building: default.size.stdout
  
 Finished building: STM32_ECU.list

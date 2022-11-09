@@ -1,8 +1,11 @@
-#include <cstring>
+
 #include <iostream>
+#include <string> 
 #include <stdlib.h>
+
 #include <WiFi.h>
 #include <PubSubClient.h>
+
 //***************************************************//
 //start of initialize the WiFi SSID and pasword
 //const char *ssid = "Elsyed";                                   // Enter your WiFi name
@@ -62,8 +65,9 @@ void setup() {
  }
  //End of setup code to connect to a mqtt broker
  //****************************************************//
+ 
  client.subscribe("fan",0);    //Setup the ESP client to subscribe to the topic 'fan'.
- client.subscribe("SOC_of_cell1",0);    //Setup the ESP client to subscribe to the topic
+ client.subscribe("soc_cell1",1);    //Setup the ESP client to subscribe to the topic
  client.subscribe("messages",0);    
  
 }
@@ -72,7 +76,7 @@ void setup() {
 // Start of the Callback function to recieve and print the message that was sent to the topics.
 
 int fan_status;     // intialize a fan_status variable to get the fan status{0,1}.
-int cell1_state_of_charge;
+float cell1_state_of_charge;
 
 void callback(char *topic, byte *payload, unsigned int length) {
   if (strcmp(topic, "fan") == 0){
@@ -84,16 +88,31 @@ void callback(char *topic, byte *payload, unsigned int length) {
  Serial.print("fan_status = ");
  Serial.println(fan_status);
  }
-  if (strcmp(topic, "SOC_of_cell1") == 0){
+
+ //************ Read the message recieved on topic "soc_cell1"***************//
+  if (strcmp(topic, "soc_cell1") == 0){
      String message;
      for (int i = 0; i < length; i++) {
-         message = message + (char) payload[i];  // convert *byte to string
+         message = message + (char) payload[i];         // convert *byte to string
  }
- cell1_state_of_charge = message.toInt();
+
+ cell1_state_of_charge = message.toFloat();
  Serial.print("cell1_state_of_charge = ");
  Serial.println(cell1_state_of_charge);
+ //int soc = (int)(cell1_state_of_charge*100);
+ //String soc_string = String(soc);
+ //Serial.println(soc_string);
+ //char* soc_char = (char*) malloc(sizeof(char)*soc_string.length()+1);
+ //soc_string.toCharArray(soc_char, soc_string.length()+1);
+ char txdata [6];
+ sprintf(txdata,"%c%.2f",'s',cell1_state_of_charge);
+ Serial2.write(txdata);
+ //free(soc_char);
  }
- if (strcmp(topic, "messages") == 0){
+
+ //***************************************************************//
+ if (strcmp(topic, "messages") == 0)
+ {
      String message;
      for (int i = 0; i < length; i++) {
          message = message + (char) payload[i];  // convert *byte to string.
@@ -107,18 +126,21 @@ void callback(char *topic, byte *payload, unsigned int length) {
   
  }
  }
-
 }
-//  End of the Callback function to recieve and print the message that was sent to topic 'fan'.
+//****//  End of the Callback function to recieve messages.********************//
+
 //********************************************************//
 void loop() {
   //start of void loop
  client.loop();
- //******************************************************************//
+ //*********************************************************//
+ 
+//callback_func();
+
+ //************** read and store the value of  sensor which recieved by UART2.**********************//
  if (Serial2.available()) {
-      String   string_sensor_reading = Serial2.readString();        // read and store the value of  sensor which recieved by UART2.
+      String   string_sensor_reading = Serial2.readString();        
       Serial.println(string_sensor_reading);
- //******************************************************************//
 
     int string_sensor_reading_length = string_sensor_reading.length();     //begin code for creating an ID for every sensor reading 
     
@@ -207,10 +229,11 @@ void loop() {
             break;
     
 //End code for creating an ID for every sensor readin
-/*******************************************************/
+//*******************************************************
 }
-// Eof of if avilable code
- //*************************************************//
+
+}
+
+ //*******************End of if avilable code*****************************
 }
 //End of void loop
-}

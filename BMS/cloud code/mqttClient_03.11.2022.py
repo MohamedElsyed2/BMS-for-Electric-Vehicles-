@@ -45,7 +45,7 @@ def get_measurements_compute(client):
         # check if the message recieved on 'battery_temperature'  topic, publish {ON,OFF} on topic 'fan' after recieving the temperature reading
         if msg.topic==str('battery_temperature'):
             
-            temperature= (float) (msg.payload.decode())
+            temperature= (float) (msg.payload.decode())/10
             print("Received " + str(temperature)+ " from " + msg.topic + " topic")
             #global msg_recieved_flag
             #msg_recieved_flag = True
@@ -100,7 +100,7 @@ def get_measurements_compute(client):
         #***********************************************************************************#
         
     client.subscribe([('battery_temperature', 0), ('cell1_voltage', 0), ('cell1_current', 0), ('sensors_Error', 0)])
-    client.on_message = on_message
+    client.on_message = on_message 
     # if msg_recieved_flag == False:
     #         global error_soc
     #         time.sleep(3)
@@ -118,18 +118,50 @@ def get_measurements_compute(client):
             return thermal_coefficient
     #***************************************************************#
     def get_soc_ocv (ocv):         # function to get the intial SOC of  from the relation between SOC and open circuit voltage (OCV).
-            if ocv <= 0.5:
+            if ocv <= 6.4:
                 socIntial=0
-            elif ocv >0.5 and ocv <= 0.6 :
+            elif ocv >6.4 and ocv <= 7.00 :
                 socIntial= 0.05
-            elif ocv >0.6 and ocv <= 0.75 :
+            elif ocv > 7.00  and ocv <= 7.4 :
                 socIntial= 0.1
-            elif ocv >= 2.0 and ocv <= 4.0 :
+            elif ocv > 7.4 and ocv <= 7.6 :
+                socIntial= 0.15
+            elif ocv > 7.6 and ocv <= 7.68 :
                 socIntial= 0.2
-            elif ocv > 4.0 and ocv <= 6.0 :
+            elif ocv > 7.68 and ocv <= 7.8 :
+                socIntial= 0.25
+            elif ocv > 7.8 and ocv <= 7.84 :
+                socIntial= 0.25
+            elif ocv > 7.84 and ocv <= 7.9 :
+                socIntial= 0.3
+            elif ocv > 7.9 and ocv <= 7.92 :
+                socIntial= 0.35
+            elif ocv > 7.92 and ocv <= 7.96 :
+                socIntial= 0.4
+            elif ocv > 7.96 and ocv <= 7.98 :
+                socIntial= 0.45
+            elif ocv > 7.98 and ocv <= 8.00 :
                 socIntial= 0.5
-            else:
+            elif ocv > 8.00 and ocv <= 8.02 :
+                socIntial= 0.55
+            elif ocv > 8.02 and ocv <= 8.04 :
+                socIntial= 0.6
+            elif ocv > 8.04 and ocv <= 8.06 :
+                socIntial= 0.65
+            elif ocv > 8.06 and ocv <= 8.08 :
+                socIntial= 0.7
+            elif ocv > 8.08 and ocv <= 8.1 :
+                socIntial= 0.75
+            elif ocv > 8.1 and ocv <= 8.12 :
                 socIntial= 0.8
+            elif ocv > 8.12 and ocv <= 8.16 :
+                socIntial= 0.85
+            elif ocv > 8.16 and ocv <= 8.2 :
+                socIntial= 0.9
+            elif ocv > 8.2 and ocv <= 8.4 :
+                socIntial= 0.95
+            else:
+                socIntial= 1.00
             return socIntial
     #******************************************************************#
     def soc(cell_current,cell_voltage,temperature):
@@ -145,9 +177,21 @@ def get_measurements_compute(client):
             state_of_charge = state_of_charge + (current* (time_two_readings/3600)*thermal_coefficient)/ max_cell_capacity   #/3600 to convert from second to hour.
             time.sleep (2)                     # to wait 5 seconds between readings.
             return state_of_charge
-
     cell1_state_of_charge= 100*soc (cell1_current,cell1_voltage,temperature)
-    print("Cell_1 SOC= ","{0:.2f}".format(cell1_state_of_charge),"% \n")
+    #**************************************************************************#
+    def true_SOC (soc):
+        if soc <= 0:
+            soc=0
+        elif soc >= 100:
+            soc= 100
+        else:
+            soc=soc
+        return soc
+    true_cell1_state_of_charge = float("{:.2f}".format(true_SOC (cell1_state_of_charge)))                     #convert to float of to decimal point.
+    client.publish(topic ="soc_cell1", payload= str(true_cell1_state_of_charge), qos=1)                             # publish(topic, payload=None, qos=0, retain=False)
+    print("Cell_1 SOC= ",true_cell1_state_of_charge,"% \n")
+    #time.sleep(2)
+    #******************************************************************************#
     # def SOC_publish (state_of_charge, error_soc):
     #     if error_soc == 2 or error_soc == 3 or error_soc == 4 :
     #         """ 1- error_soc = 2  ----> no recieved current sensor reading, communication  failure between the cloud and gateway (ESP32).
@@ -159,11 +203,11 @@ def get_measurements_compute(client):
     #         cell1_state_of_charge= 100*soc (cell1_current,cell1_voltage,temperature)
     #         print("Cell_1 SOC= ","{0:.2f}".format(cell1_state_of_charge),"% \n")
     # SOC_publish (state_of_charge, error_soc)
-#************************************************************************#
+#***********************************************************************************#
 def run():
     client = connect_mqtt()
     client.loop_start()
     get_measurements_compute(client)
-    
+   
 if __name__ == '__main__':
     run()

@@ -7,3 +7,10 @@ adcValArray
 output_voltage
 current
 internal_temp_sensor
+tCelsius
+battery_temperature
+TempC
+RH
+rxdata
+Cell1_State_of_charge
+cell1_soc
