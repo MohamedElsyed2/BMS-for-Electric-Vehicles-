@@ -10,7 +10,7 @@ global temperature   # °C
 temperature = 25.0
 global state_of_charge
 state_of_charge = 0.0
-int_soc_flag= False
+is_int_soc_done= False
 # global error_soc
 # error_soc = 0
 # global msg_recieved_flag
@@ -169,10 +169,10 @@ def get_measurements_compute(client):
             time_two_readings = 2           # time between 2 readings.
             current = cell_current
             global state_of_charge
-            global int_soc_flag
-            if (int_soc_flag == False) and (cell_voltage != 0.0):
+            global is_int_soc_done
+            if (is_int_soc_done == False) and (cell_voltage != 0.0):
                 state_of_charge= get_soc_ocv (cell_voltage)           # get intial SOC from the open circuit voltage curve.
-                int_soc_flag = True
+                is_int_soc_done = True
             thermal_coefficient = get_thermal_coefficient (temperature)
             state_of_charge = state_of_charge + (current* (time_two_readings/3600)*thermal_coefficient)/ max_cell_capacity   #/3600 to convert from second to hour.
             time.sleep (2)                     # to wait 5 seconds between readings.
