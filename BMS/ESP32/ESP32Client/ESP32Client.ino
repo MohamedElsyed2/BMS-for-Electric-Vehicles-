@@ -68,7 +68,8 @@ void setup() {
  
  client.subscribe("fan",0);    //Setup the ESP client to subscribe to the topic 'fan'.
  client.subscribe("soc_cell1",1);    //Setup the ESP client to subscribe to the topic
- client.subscribe("messages",0);    
+ client.subscribe("errors",1);    
+ client.subscribe("SOH_cell1",1);
  
 }
 //End of the set up code
@@ -111,7 +112,24 @@ void callback(char *topic, byte *payload, unsigned int length) {
  }
 
  //***************************************************************//
- if (strcmp(topic, "messages") == 0)
+ //************ Read the message recieved on topic "soc_cell1"***************//
+  if (strcmp(topic, "SOH_cell1") == 0){
+     String message;
+     for (int i = 0; i < length; i++) {
+         message = message + (char) payload[i];         // convert *byte to string
+ }
+
+ int cell1_state_of_health = message.toInt();
+ Serial.print("cell1_state_of_health = ");
+ Serial.println(cell1_state_of_health);
+
+ char txdata [6];
+ sprintf(txdata,"%c%d",'h',cell1_state_of_health); 
+ Serial2.write(txdata);
+ }
+
+ //***************************************************************//
+ if (strcmp(topic, "errors") == 0)
  {
      String message;
      for (int i = 0; i < length; i++) {
@@ -119,9 +137,11 @@ void callback(char *topic, byte *payload, unsigned int length) {
  }
  int error = message.toInt();
  switch (error){            // if error=1 means the sensors are not connected.
-   case 1 :
+   case 5 :
    {
-      Serial2.write("Sensors are not connected!");
+     char txdata [6];
+     sprintf(txdata,"%c%d",'e',00005);
+     Serial2.write(txdata);
    }
   
  }

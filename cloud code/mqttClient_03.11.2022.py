@@ -1,6 +1,8 @@
 
 from paho.mqtt import client as mqtt_client
 import time
+from datetime import date
+
 #************************intializations***************************#
 global  cell1_voltage
 cell1_voltage = 0
@@ -11,6 +13,8 @@ temperature = 25.0
 global state_of_charge
 state_of_charge = 0.0
 is_int_soc_done= False
+global num_of_cycles
+num_of_cycles = 0      # I have to read the number of dechasging cycles from a file.
 # global error_soc
 # error_soc = 0
 # global msg_recieved_flag
@@ -106,6 +110,47 @@ def get_measurements_compute(client):
     #         time.sleep(3)
     #         error_soc = 2
     #***************************************************************************#
+    def get_state_of_health ():
+        #******* Start of the code to calculate the effect of self-discharge on total sate of health of the battery*********#
+        def SOH_self_discharge():
+            today = date.today()
+            month_from_year = today.year - 2022
+            month_from_month = today.month - 8
+            total_number_of_months = 12* month_from_year + month_from_month     # get the total number of months.
+            if total_number_of_months <= 2:
+                soc_self_discharge_coeff = 1
+            elif total_number_of_months > 2 and total_number_of_months <= 6:
+                soc_self_discharge_coeff = 0.95
+            elif total_number_of_months > 6 and total_number_of_months <= 24:
+                soc_self_discharge_coeff = 1 - (total_number_of_months/100)
+            elif total_number_of_months > 24 and total_number_of_months <= 36:
+                soc_self_discharge_coeff = 0.76 - 0.05 *(total_number_of_months - 24)
+            elif total_number_of_months > 36 and total_number_of_months <= 96:
+                soc_self_discharge_coeff = 0.7 - 0.025 *(total_number_of_months - 24)
+            else:
+                #client.publish(topic ="errors", payload= 5 , qos=1)
+                soc_self_discharge_coeff = 0
+            return soc_self_discharge_coeff
+        #print (SOH_self_discharge())
+    #******* End of the code to calculate the effect of self-discharge on total sate of health of the battery********#
+    #******* Start of the code to calculate the effect of number of cycles on total sate of health of the battery*********#
+        def SOH_num_of_cycles ():     # not complete
+            global num_of_cycles
+            if num_of_cycles <= 100:
+                soc_num_of_cycles_coeff = 1
+            elif num_of_cycles > 100 and num_of_cycles <= 200:
+                soc_num_of_cycles_coeff = 0.95
+            return soc_num_of_cycles_coeff
+
+        total_SOH = SOH_self_discharge() * SOH_num_of_cycles ()
+        return total_SOH
+    
+    SOH  = int (100000*get_state_of_health ())
+    #print (SOH)
+    client.publish(topic ="SOH_cell1", payload= str(SOH) , qos=1)        #client.publish(topic ="SOH_cell1", payload= str(SOH) , qos=1)
+    print("Cell_1 SOH= ",SOH/1000,"% \n")
+    #******* End of the code to calculate the effect of number of cycles on total sate of health of the battery*********#
+    #********* Start of get_thermal_coefficient_fun *********************************#
     def get_thermal_coefficient(temperature):
             if temperature <= 25:
                 thermal_coefficient=1
@@ -116,7 +161,7 @@ def get_measurements_compute(client):
             else :
                thermal_coefficient=0.55
             return thermal_coefficient
-    #***************************************************************#
+    #********* End of get_thermal_coefficient_fun *********************************#
     def get_soc_ocv (ocv):         # function to get the intial SOC of  from the relation between SOC and open circuit voltage (OCV).
             if ocv <= 6.4:
                 socIntial=0
@@ -165,8 +210,8 @@ def get_measurements_compute(client):
             return socIntial
     #******************************************************************#
     def soc(cell_current,cell_voltage,temperature):
-            max_cell_capacity = 0.6         # 600 mAh =0.6 Ah max cell capacity != the rated cell capacity, the rated cell capacity in this project = 600 mAh, if the battery is new, then the max cell capacity = rated cell capacity
-            time_two_readings = 2           # time between 2 readings.
+            max_cell_capacity = 0.6 * get_state_of_health ()          # 600 mAh =0.6 Ah max cell capacity != the rated cell capacity, the rated cell capacity in this project = 600 mAh, if the battery is new, then the max cell capacity = rated cell capacity
+            time_two_readings = 2           # time between two readings.
             current = cell_current
             global state_of_charge
             global is_int_soc_done
@@ -182,8 +227,12 @@ def get_measurements_compute(client):
     def true_SOC (soc):
         if soc <= 0:
             soc=0
+            global num_of_cycles
+            num_of_cycles += 1 
         elif soc >= 100:
             soc= 100
+            global num_of_cycles
+            num_of_cycles += 1
         else:
             soc=soc
         return soc
@@ -211,3 +260,9 @@ def run():
    
 if __name__ == '__main__':
     run()
+
+
+"""
+/*************** Errors refrence **********************/
+error = 5  --------------->   this means the user should replace the battery eith a new one.
+"""

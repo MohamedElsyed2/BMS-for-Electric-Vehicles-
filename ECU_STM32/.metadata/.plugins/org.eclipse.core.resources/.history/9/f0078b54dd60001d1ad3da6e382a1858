@@ -84,7 +84,6 @@ bool flag = false;
 uint16_t battery_temperature;
 char rxdata [6];
 float  Cell1_State_of_charge;
-int Cell1_State_of_health;
 /*******************Start setup code of DHT22*************************/
 #define DHT22_PORT GPIOB
 #define DHT22_PIN GPIO_PIN_9
@@ -633,7 +632,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
   	  rxdata[0]=' ';
   	  char cell1_soh [6];
   	  sprintf(cell1_soh,"%s",rxdata);
-  	  Cell1_State_of_health = (atoi (cell1_soh))/1000;
+  	  Cell1_State_of_health = atoi (cell1_soh);
 
     }
   else if (rxdata[0] == 'e')
