@@ -44,7 +44,7 @@ def connect_mqtt() -> mqtt_client:
     return client
 #******************************************************************#
 def get_measurements_compute(client):
-  while True:
+ while True:
     def on_message(client, userdata,msg):
 
         # check if the message recieved on 'battery_temperature'  topic, publish {ON,OFF} on topic 'fan' after recieving the temperature reading
@@ -231,6 +231,7 @@ def get_measurements_compute(client):
             state_of_charge = state_of_charge + (current* (time_two_readings/3600)*thermal_coefficient)/ max_cell_capacity   #/3600 to convert from second to hour.
             time.sleep (2)                     # to wait 5 seconds between readings.
             return state_of_charge
+    global cell1_state_of_charge
     cell1_state_of_charge= 100*soc (cell1_current,cell1_voltage,temperature)
     #**************************************************************************#
     def true_SOC (soc):
@@ -250,6 +251,9 @@ def get_measurements_compute(client):
     true_cell1_state_of_charge = float("{:.2f}".format(true_SOC (cell1_state_of_charge)))                     #convert to float of to decimal point.
     client.publish(topic ="soc_cell1", payload= str(true_cell1_state_of_charge), qos=1)                             # publish(topic, payload=None, qos=0, retain=False)
     print("Cell_1 SOC= ",true_cell1_state_of_charge,"% \n")
+
+
+    
     #time.sleep(2)
     #******************************************************************************#
     # def SOC_publish (state_of_charge, error_soc):
