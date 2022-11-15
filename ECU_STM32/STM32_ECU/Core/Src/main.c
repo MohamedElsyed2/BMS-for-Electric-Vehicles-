@@ -219,7 +219,7 @@ uint16_t get_temperature_sensor ()
 	      CHECK = RH1 + RH2 + TC1 + TC2;
 	      if (CHECK == SUM)
 	      {
-	        if (TC1>127) // If TC1=10000000, negative temperature
+	        if (TC1>127) // If TC1=10000000, negative temp rature
 	        {
 	          tCelsius = (float)TC2/10*(-1);
 	        }

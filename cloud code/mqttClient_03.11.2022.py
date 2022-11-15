@@ -13,8 +13,9 @@ temperature = 25.0
 global state_of_charge
 state_of_charge = 0.0
 is_int_soc_done= False
-global num_of_cycles
-num_of_cycles = 0      # I have to read the number of dechasging cycles from a file.
+# global num_of_cycles
+# file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/num_of_cycles.txt", "r")   # open the file 'num_of_cycles.txt' in raeding mode.
+# num_of_cycles = int (file.read()) 
 # global error_soc
 # error_soc = 0
 # global msg_recieved_flag
@@ -136,10 +137,18 @@ def get_measurements_compute(client):
     #******* Start of the code to calculate the effect of number of cycles on total sate of health of the battery*********#
         def SOH_num_of_cycles ():     # not complete
             global num_of_cycles
+            file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/num_of_cycles.txt", "r")   # open the file 'num_of_cycles.txt' in raeding mode.
+            num_of_cycles = int (file.read())
+            file.close() 
+            global soc_num_of_cycles_coeff
             if num_of_cycles <= 100:
                 soc_num_of_cycles_coeff = 1
             elif num_of_cycles > 100 and num_of_cycles <= 200:
                 soc_num_of_cycles_coeff = 0.95
+            elif num_of_cycles > 200 and num_of_cycles <= 500:
+                soc_num_of_cycles_coeff = 0.85
+            else:
+                soc_num_of_cycles_coeff = 0.85
             return soc_num_of_cycles_coeff
 
         total_SOH = SOH_self_discharge() * SOH_num_of_cycles ()
@@ -150,7 +159,7 @@ def get_measurements_compute(client):
     client.publish(topic ="SOH_cell1", payload= str(SOH) , qos=1)        #client.publish(topic ="SOH_cell1", payload= str(SOH) , qos=1)
     print("Cell_1 SOH= ",SOH/1000,"% \n")
     #******* End of the code to calculate the effect of number of cycles on total sate of health of the battery*********#
-    #********* Start of get_thermal_coefficient_fun *********************************#
+    #********* Start of get_thermal_coefficient_function *********************************#
     def get_thermal_coefficient(temperature):
             if temperature <= 25:
                 thermal_coefficient=1
@@ -228,11 +237,13 @@ def get_measurements_compute(client):
         if soc <= 0:
             soc=0
             global num_of_cycles
-            num_of_cycles += 1 
+            num_of_cycles += 1
+            file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/num_of_cycles.txt", "w")
+            file.truncate()      # delete the last value of number of cycles.
+            file.write(str(num_of_cycles))
+            file.close()
         elif soc >= 100:
             soc= 100
-            global num_of_cycles
-            num_of_cycles += 1
         else:
             soc=soc
         return soc
