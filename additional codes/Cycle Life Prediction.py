@@ -6,6 +6,11 @@ import datetime
 def get_measurements_compute():
     global temperature
     temperature = 25
+    global cell1_state_of_charge
+    cell1_state_of_charge = 80
+    global cell1_current
+    cell1_current = 1
+    
     #************************* Start of battery_age_estimation method*****************************************#
     """ This method is coded according to the published paper: Muenzel, V.; de Hoog, J.; Brazil, M.; Vishwanath, A.; Kalyanaraman,
     S. A multi-factor battery cycle life prediction methodology for optimal battery management. 
@@ -41,53 +46,64 @@ def get_measurements_compute():
             global total_dischg_time
             total_dischg_time = 0
 
-            while timer < 86400:
+            while timer < 100:         # 86400
                 global before_SOC
+                global cell1_state_of_charge
                 before_SOC = cell1_state_of_charge
                 if current_status_flag == False:
                     time.sleep(60)
                     if cell1_current < 0:
                         current_status_flag = True
                     increased_SOC = cell1_state_of_charge - before_SOC
-                    total_incresed_SOC = total_incresed_SOC + increased_SOC
-                    total_chg_time = total_chg_time + 60                            # in secondes
+                    global total_incresed_SOC
+                    total_incresed_SOC += increased_SOC
+                    global total_chg_time
+                    total_chg_time +=  60                                        # in secondes
                 else:
                     time.sleep(60)
+                    global cell1_current
                     if cell1_current > 0:
                         current_status_flag = False
                         #stop_time = datetime.datetime.now()
-                    decresed_SOC = before_SOC - cell1_state_of_charge 
-                    total_decresed_SOC = total_decresed_SOC + decresed_SOC
-                    total_dischg_time = total_dischg_time + 60
+                    decresed_SOC = before_SOC - cell1_state_of_charge
+                    global total_decresed_SOC
+                    total_decresed_SOC += decresed_SOC
+                    global total_dischg_time
+                    total_dischg_time += 60
                 timer = timer + 60
-            global disch_current
-            disch_current = ((total_decresed_SOC*2350)/(total_dischg_time/(3600)))/2350      # in coulomb
-            global charging_current
-            charging_current = ((total_incresed_SOC*2350)/(total_chg_time/(3600)))/2350
-
-            #time.sleep(2)                           #time.sleep(86400)
+        get_chg_dischg_current()
+        global disch_current
+        disch_current = ((total_decresed_SOC*2350)/(total_dischg_time/(3600)))/2350      # in coulomb
+        global charging_current
+        charging_current = ((total_incresed_SOC*2350)/(total_chg_time/(3600)))/2350
+                 
         #********************************************************************************************#
         #******************* Start of battery_age_disch_current method*******************************#
         def battery_age_disch_current():
-            #disch_current = get_chg_dischg_current()
+            global disch_current
+            disch_current =  0.025
             nominal_disch_current = 1                       # from datasheet
             e = 4464
             f = -0.1382
             g = -1519
             h = -0.4305
+            global num_cycle_life_disch_current
             num_cycle_life_disch_current = (e*exp(f*disch_current)+g*exp(h*disch_current))/(e*exp(f*nominal_disch_current)+g*exp(h*nominal_disch_current))
-            return num_cycle_life_disch_current
+            #return num_cycle_life_disch_current
+        battery_age_disch_current()
         #******************* End of battery_age_disch_current method*******************************#
         #******************* Start of battery_age_charging_current method*******************************#
         def battery_age_charging_current():
-            #charging_current = get_chg_dischg_current()
+            global charging_current 
             nominal_charging_current = 0.7
             m = 5963
             n = -0.6531
             o = 321.4
             p = 0.03168
+            global num_cycle_life_charging_current
             num_cycle_life_charging_current = (m*exp(n*charging_current)+o*exp(p*charging_current))/(m*exp(n*nominal_charging_current)+o*exp(p*nominal_charging_current))
-            return num_cycle_life_charging_current
+            #return num_cycle_life_charging_current
+        battery_age_charging_current()
         #******************* End of battery_age_charging_current method*******************************#
         #******************* Start of battery_age_SOC_DOD method*******************************#
         def battery_age_SOC_DOD():
@@ -105,12 +121,18 @@ def get_measurements_compute():
             num_cycle_life_SOC_DOD = real_cycle_life / nominal_cycle_life
             return num_cycle_life_SOC_DOD
         #******************* End of battery_age_SOC_DOD method*******************************#
-        nominal_cycle_life = 649
+        
         thread_1 = threading.Thread(target=battery_age_temperature)
         thread_1.start()
         thread_2 = threading.Thread(target=get_chg_dischg_current)
         thread_2.start()
-        equivelant_battery_num_cycle_life = int (nominal_cycle_life * battery_age_temperature() * battery_age_disch_current() * battery_age_charging_current() * battery_age_SOC_DOD())
+        thread_3 = threading.Thread(target=battery_age_SOC_DOD)
+        thread_3.start()
+        # the next line will not be executed until the all of the previous threads finished.
+        nominal_cycle_life = 649
+        global num_cycle_life_disch_current
+        global num_cycle_life_charging_current
+        equivelant_battery_num_cycle_life = int (nominal_cycle_life * battery_age_temperature() * num_cycle_life_disch_current * num_cycle_life_charging_current * battery_age_SOC_DOD())
         return equivelant_battery_num_cycle_life
     #************************* End of battery_age_estimation method*****************************************#
     #     equivelant_battery_num_cycle_life = battery_age_temperature() * battery_age_disch_current()

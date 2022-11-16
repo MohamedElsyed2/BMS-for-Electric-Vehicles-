@@ -81,38 +81,54 @@
 #             print(x)
 #             time.sleep(5)
 
-# import threading 
-# import time
-  
-# def print_hello():
-#     current = 5
-#     time.sleep(1)
-#     current = current +1
-#     return current
-  
-# def print_hi(): 
-#     voltage= 3
-#     time.sleep(2)
-#     voltage = voltage +1
-#     return voltage
-
-# thread_1 = threading.Thread(target=print_hello)  
-# thread_2 = threading.Thread(target=print_hi)  
-# print(time.localtime())
-# thread_1.start()
-# thread_2.start()
-# print(print_hi() * print_hello() )
-# print(time.localtime())
-import array
+import threading 
 import time
-global tem 
-tem = 5
-clT_array = array.array('f', [])                  # clT_array: is the array of cycle life of temperature, 'f': stands for float.
-for i in range (0,4):
-                num_cycle_life_temp = tem
-                clT_array.append (num_cycle_life_temp)       # adding an num_cycle_life_temp to the array.
-                time.sleep(1)                              # wait for 6 hours to get another value of num_cycle_life_temp.
-avr_num_cycle_life_temp= (clT_array[0]+clT_array[1]+clT_array[2]+clT_array[3])/4
-print(clT_array)
-print(avr_num_cycle_life_temp)
-print(time.)
+  
+def print_hello():
+    current = 5
+    time.sleep(1)
+    current = current +1
+    return current
+  
+def print_hi(): 
+    voltage= 3
+    time.sleep(2)
+    voltage = voltage +1
+    return voltage
+
+thread_1 = threading.Thread(target=print_hello)  
+thread_2 = threading.Thread(target=print_hi)  
+#print(time.localtime())
+thread_1.start()
+thread_2.start()
+print(print_hi() * print_hello() )
+# print(time.localtime())
+# import array
+# import time
+# global tem 
+# tem = 5
+# clT_array = array.array('f', [])                  # clT_array: is the array of cycle life of temperature, 'f': stands for float.
+# for i in range (0,4):
+#                 num_cycle_life_temp = tem
+#                 clT_array.append (num_cycle_life_temp)       # adding an num_cycle_life_temp to the array.
+#                 time.sleep(1)                              # wait for 6 hours to get another value of num_cycle_life_temp.
+# avr_num_cycle_life_temp= (clT_array[0]+clT_array[1]+clT_array[2]+clT_array[3])/4
+# print(clT_array)
+# print(avr_num_cycle_life_temp)
+# print(time.)
+
+#global a 
+a= 5
+def func():
+ def fun3():
+    def fun2():
+        global a
+        a += 1
+    fun2()
+ fun3()
+func()
+def fun5():
+    global a
+    a = 10
+fun5()
+print(a)
