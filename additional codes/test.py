@@ -81,27 +81,34 @@
 #             print(x)
 #             time.sleep(5)
 
-import threading 
+import threading
 import time
-  
+
+
 def print_hello():
+    global current
     current = 5
     time.sleep(1)
-    current = current +1
-    return current
-  
-def print_hi(): 
+    current = 4
+    #return current
+
+def print_hi():
+    global voltage
     voltage= 3
     time.sleep(2)
-    voltage = voltage +1
+    voltage = 5
     return voltage
 
-thread_1 = threading.Thread(target=print_hello)  
-thread_2 = threading.Thread(target=print_hi)  
-#print(time.localtime())
+thread_1 = threading.Thread(target=print_hello())
 thread_1.start()
+print(time.localtime())
+thread_2 = threading.Thread(target=print_hi)  
 thread_2.start()
-print(print_hi() * print_hello() )
+#print_hello()
+#print_hi()
+print(current * print_hi() )
+print(time.localtime())
+
 # print(time.localtime())
 # import array
 # import time
@@ -118,17 +125,17 @@ print(print_hi() * print_hello() )
 # print(time.)
 
 #global a 
-a= 5
-def func():
- def fun3():
-    def fun2():
-        global a
-        a += 1
-    fun2()
- fun3()
-func()
-def fun5():
-    global a
-    a = 10
-fun5()
-print(a)
+# a= 5
+# def func():
+#  def fun3():
+#     def fun2():
+#         global a
+#         a += 1
+#     fun2()
+#  fun3()
+# func()
+# def fun5():
+#     global a
+#     a = 10
+# fun5()
+# print(a)
