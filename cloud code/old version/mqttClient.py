@@ -44,58 +44,63 @@ def connect_mqtt():
         time.sleep(4)    
     client.loop_stop()    #Stop loop 
     return client
+
     #########################################################
-
-def publish(client,topic, message_to_send):
-    time.sleep(1)
-    result = client.publish(topic, message_to_send)
-        # result: [0, 1]
-    status = result[0]   #get publish acknacknowledge
-    if status == 0:
-        print(f"Send `{message_to_send}` to topic `{topic}`")
-    else:
-        print(f"Failed to send message to topic {topic}")
-##############################################################
-def fan_control(client):
-    """create a function to publish {ON,OFF} on topic fan after recieving 
-    the temperature reading"""
-    global fan_flag
-    global fan_flag_current_State
-    fan_flag= False
-    #global topic
-   
-    client.subscribe('battery_temperature')
-    ############################################################
 def on_message(client, topic, message):
-    #temperature= float (str(message.payload.decode("utf-8")))
+    global temperature
+    temperature= float (str(message.payload.decode("utf-8")))
     print("message received " + str(message.payload.decode("utf-8"))+ " on topic " + message.topic)
+#temp = temperature
+client.subscribe([('battery_temperature', 0), ('cell1_voltage', 0), ('cell1_current', 0), ('sensors_Error', 0)])
+client.on_message = on_message 
 
-#########################################################
+# #########################################################
 
-    # temperature_sensor_reading= [20,21,25,30,35,20]
-    #for battery_temperature in temperature_sensor_reading:
-    fan_flag_current_state = fan_flag  # to grt the fan ststus (on,off)
+# def publish(client,topic, message_to_send):
+#     time.sleep(1)
+#     result = client.publish(topic, message_to_send)
+#         # result: [0, 1]
+#     status = result[0]   #get publish acknacknowledge
+#     if status == 0:
+#         print(f"Send `{message_to_send}` to topic `{topic}`")
+#     else:
+#         print(f"Failed to send message to topic {topic}")
+# ##############################################################
+# def fan_control(client):
+#     """create a function to publish {ON,OFF} on topic fan after recieving 
+#     the temperature reading"""
+#     global fan_flag
+#     global fan_flag_current_State
+#     fan_flag= False
+#     #global topic
+   
+#     client.subscribe('battery_temperature')
 
-    if not fan_flag_current_state and temperature > 25:
-        """if the fan is on and the temperature still more than 25,
-         do nothing. but if the fan is off and the temperature more 
-         than 25, then turn the fan on"""
-        publish(client,topic='fan',message_to_send=1) # to turn the fan ON
-        fan_flag= True
 
-    fan_flag_current_state= fan_flag
-    print(fan_flag_current_state)
-    if fan_flag_current_state and temperature <=25:
-        """if the fan is off and the temperature still less than 25, do nothing. but if the fan is on and the temperature less 
-        than 25, then turn the fan off"""
-        publish(client, topic= 'fan', message_to_send=0) # to turn the fan OFF
-        fan_flag= False
-        ############################################################
+#     # temperature_sensor_reading= [20,21,25,30,35,20]
+#     #for battery_temperature in temperature_sensor_reading:
+#     fan_flag_current_state = fan_flag  # to grt the fan ststus (on,off)
+
+#     if not fan_flag_current_state and temperature > 25:
+#         """if the fan is on and the temperature still more than 25,
+#          do nothing. but if the fan is off and the temperature more 
+#          than 25, then turn the fan on"""
+#         publish(client,topic='fan',message_to_send=1) # to turn the fan ON
+#         fan_flag= True
+
+#     fan_flag_current_state= fan_flag
+#     print(fan_flag_current_state)
+#     if fan_flag_current_state and temperature <=25:
+#         """if the fan is off and the temperature still less than 25, do nothing. but if the fan is on and the temperature less 
+#         than 25, then turn the fan off"""
+#         publish(client, topic= 'fan', message_to_send=0) # to turn the fan OFF
+#         fan_flag= False
+#         ############################################################
 
 def run():
     client = connect_mqtt()
     client.loop_start()
-    fan_control(client)
+    #fan_control(client)
     
 
 if __name__ == '__main__':

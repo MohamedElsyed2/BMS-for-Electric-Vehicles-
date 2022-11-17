@@ -91,6 +91,8 @@ def print_hello():
     time.sleep(1)
     current = 4
     #return current
+thread_1 = threading.Thread(target=print_hello())
+thread_1.start()
 
 def print_hi():
     global voltage
@@ -99,15 +101,13 @@ def print_hi():
     voltage = 5
     return voltage
 
-thread_1 = threading.Thread(target=print_hello())
-thread_1.start()
-print(time.localtime())
+# print(time.localtime())
 thread_2 = threading.Thread(target=print_hi)  
 thread_2.start()
 #print_hello()
 #print_hi()
 print(current * print_hi() )
-print(time.localtime())
+#print(time.localtime())
 
 # print(time.localtime())
 # import array
