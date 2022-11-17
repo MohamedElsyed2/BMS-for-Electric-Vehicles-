@@ -22,16 +22,16 @@ def cycle_life():
     print("connecting to broker")
     client.connect(broker_address) #connect to broker
     client.subscribe('fan')
-    client.loop_start()         # make the client always connected and running.
+    #client.loop_start()         # make the client always connected and running.
 #compute ()
 
     while True:         
-        #client.loop_start() #start the loop
-        time.sleep(1) # wait
-        #client.loop_stop() #stop the loop
-        #time.sleep(2) # wait
-        #global fan_flag
-        global fan_status
-        fan_status += 1
-        print(fan_status)
-#cycle_life()
+        client.loop_start() #start the loop
+    #     time.sleep(1) # wait
+    #     #client.loop_stop() #stop the loop
+    #     #time.sleep(2) # wait
+    #     #global fan_flag
+    #     global fan_status
+    #     fan_status += 1
+    #     print(fan_status)
+cycle_life()
