@@ -13,24 +13,27 @@ def get_thermal_coefficient(temperature):
         thermal_coefficient=0.55
     return thermal_coefficient
 #********* End of get_thermal_coefficient_fun *********************************#
+""" This method is coded according to the published paper: Zhong, Q.; Huang, B.; Ma, J.; Li, H. Experimental Study on
+Relationship between SOC and OCV of Lithium-Ion Batteries. Int. J.Smart Grid Clean Energy 2014, 3, 149-153.
+"""
 def get_soc_ocv (ocv):         # function to get the intial SOC of  from the relation between SOC and open circuit voltage (OCV).
-    if ocv <= 6.4:
+    if ocv <= 3.43:
         socIntial=0
-    elif ocv >6.4 and ocv <= 7.00 :
+    elif ocv > 3.43 and ocv <= 3.48 :
         socIntial= 0.05
-    elif ocv > 7.00  and ocv <= 7.4 :
+    elif ocv > 3.48  and ocv <= 3.53 :
         socIntial= 0.1
-    elif ocv > 7.4 and ocv <= 7.6 :
+    elif ocv > 3.53 and ocv <= 3.55 :
         socIntial= 0.15
-    elif ocv > 7.6 and ocv <= 7.68 :
+    elif ocv > 3.55 and ocv <= 3.58 :
         socIntial= 0.2
-    elif ocv > 7.68 and ocv <= 7.8 :
+    elif ocv > 3.58 and ocv <= 3.61 :
         socIntial= 0.25
-    elif ocv > 7.8 and ocv <= 7.84 :
+    elif ocv > 3.61 and ocv <= 3.62 :
         socIntial= 0.25
-    elif ocv > 7.84 and ocv <= 7.9 :
+    elif ocv > 3.62 and ocv <= 3.63 :
         socIntial= 0.3
-    elif ocv > 7.9 and ocv <= 7.92 :
+    elif ocv > 3.63 and ocv <= 7.92 :
         socIntial= 0.35
     elif ocv > 7.92 and ocv <= 7.96 :
         socIntial= 0.4
@@ -64,7 +67,8 @@ def soc(cell_current,cell_voltage,temperature):
     file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell1_state_of_health.txt", "r")   # open the file 'temperature.txt' in raeding mode.
     state_of_health = float (file.read())
     file.close()
-    max_cell_capacity = 0.6 * state_of_health           # 600 mAh =0.6 Ah max cell capacity != the rated cell capacity, the rated cell capacity in this project = 600 mAh, if the battery is new, then the max cell capacity = rated cell capacity
+    nominal_capacity = 3.350                                         # rated capacity (at 25° C)
+    max_cell_capacity =  nominal_capacity* state_of_health          
     time_two_readings = 2           # time between two readings.
     current = cell_current
     global state_of_charge

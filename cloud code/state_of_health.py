@@ -58,4 +58,4 @@ def run():
         time.sleep(2)
         #client.publish(topic ="SOH_cell1", payload= str(SOH) , qos=1)        #client.publish(topic ="SOH_cell1", payload= str(SOH) , qos=1)
 
-#run()
+# run()
