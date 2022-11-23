@@ -13,11 +13,18 @@ def get_thermal_coefficient(temperature):
         thermal_coefficient=0.55
     return thermal_coefficient
 #********* End of get_thermal_coefficient_fun *********************************#
-""" This method is coded according to the published paper: Zhong, Q.; Huang, B.; Ma, J.; Li, H. Experimental Study on
-Relationship between SOC and OCV of Lithium-Ion Batteries. Int. J.Smart Grid Clean Energy 2014, 3, 149-153.
-"""
-def get_soc_ocv (ocv):         # function to get the intial SOC of  from the relation between SOC and open circuit voltage (OCV).
-    if ocv <= 3.43:
+# """ This method is coded according to the published paper: Zhong, Q.; Huang, B.; Ma, J.; Li, H. Experimental Study on
+# Relationship between SOC and OCV of Lithium-Ion Batteries. Int. J.Smart Grid Clean Energy 2014, 3, 149-153.
+# """
+def get_intial_soc (current,ocv):         
+    
+    if current < 0 :
+        """Charging stage: in this experiment, the battery is first charged with a constant rate of 0.6C to a threshold voltage of 3.6 V, 
+        and then charged with a constant voltage of 3.6 V to its full capacity. It can be observed that with the constant 
+        charging current, the battery voltage increases gradually and reaches the threshold after 3200 s. After that, the battery 
+        charged by the constant-voltage mode and the charging current drops rapidly in the first step, and then slowly. When the 
+        current declines to 0.1C, the charging stage closes."""
+    if ocv <= 3.43:                             # get the intial SOC of  from the relation between SOC and open circuit voltage (OCV).
         socIntial=0
     elif ocv > 3.43 and ocv <= 3.48 :
         socIntial= 0.05
@@ -67,17 +74,18 @@ def soc(cell_current,cell_voltage,temperature):
     file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell1_state_of_health.txt", "r")   # open the file 'temperature.txt' in raeding mode.
     state_of_health = float (file.read())
     file.close()
-    nominal_capacity = 3.350                                         # rated capacity (at 25° C)
-    max_cell_capacity =  nominal_capacity* state_of_health          
+    rated_capacity = 3.350                                         # rated capacity (at 25° C)
+    coulombic_efficiency= ???????????????????????  # must to be calculated firstly.
+    #max_cell_capacity =  rated_capacity* state_of_health          
     time_two_readings = 2           # time between two readings.
     current = cell_current
     global state_of_charge
     global is_int_soc_done
     if (is_int_soc_done == False) and (cell_voltage != 0.0):
-        state_of_charge= get_soc_ocv (cell_voltage)           # get intial SOC from the open circuit voltage curve.
+        state_of_charge= get_intial_soc (cell_current, cell_voltage)           # get intial SOC from the open circuit voltage curve.
         is_int_soc_done = True
     thermal_coefficient = get_thermal_coefficient (temperature)
-    state_of_charge = state_of_charge + (current* (time_two_readings/3600)*thermal_coefficient)/ max_cell_capacity   #/3600 to convert from second to hour.
+    state_of_charge = state_of_charge - coulombic_efficiency*(current* (time_two_readings/3600))/ rated_capacity   #/3600 to convert from second to hour.
     time.sleep (2)                     # to wait 5 seconds between readings.
     return state_of_charge
 # global cell1_state_of_charge

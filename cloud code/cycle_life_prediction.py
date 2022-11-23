@@ -15,10 +15,10 @@ S. A multi-factor battery cycle life prediction methodology for optimal battery 
 
 def battery_age_estimation ():
     
-    global cell1_state_of_charge
-    cell1_state_of_charge = 80
-    global cell1_current
-    cell1_current = 1
+    # global cell1_state_of_charge
+    # cell1_state_of_charge = 80
+    # global cell1_current
+    # cell1_current = 1
     #******************* Start of battery_age_temperature method***********************************#
     def battery_age_temperature():
         file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/temperature.txt", "r")   # open the file 'temperature.txt' in raeding mode.
@@ -54,7 +54,7 @@ def battery_age_estimation ():
             file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell1_current.txt", "r")   # open the file 'temperature.txt' in raeding mode.
             cell1_current = float (file.read())
             file.close()              
-            while timer < 50:         # 86400
+            while timer < 86400:         # 86400
                 #global before_SOC
                 # global cell1_state_of_charge
                 # before_SOC = cell1_state_of_charge
@@ -90,9 +90,9 @@ def battery_age_estimation ():
                 
         get_chg_dischg_current()
         global disch_current
-        disch_current = 0.025  #((total_decresed_SOC*3350)/(total_dischg_time/(3600)))/3350      # in coulomb
+        disch_current = ((total_decresed_SOC*3350)/(total_dischg_time/(3600)))/3350      # in coulomb
         global charging_current
-        charging_current =  0.7  #((total_incresed_SOC*3350)/(total_chg_time/(3600)))/3350
+        charging_current =    ((total_incresed_SOC*3350)/(total_chg_time/(3600)))/3350
                 
         #********************************************************************************************#
         #******************* Start of battery_age_disch_current method*******************************#
@@ -135,10 +135,10 @@ def battery_age_estimation ():
             cell1_SOC = float (file.read())
             file.close()
             SOC_array.append(cell1_SOC)         # append a new value of the cell1_state of charge every 3 hours.
-            time.sleep(10)    #10800                       # wait for 3 hours
+            time.sleep(10800)    #10800                       # wait for 3 hours
         
-        dod =  60  #max(SOC_array) - min(SOC_array)                                  # depth of discharge.
-        average_SOC =  50 #(SOC_array[0]+SOC_array[1]+SOC_array[2]+SOC_array[3])/4
+        dod =  max(SOC_array) - min(SOC_array)                                  # depth of discharge.
+        average_SOC =  (SOC_array[0]+SOC_array[1]+SOC_array[2]+SOC_array[3])/4
         nominal_dod = 100
         nominal_average_SOC = 50
         real_cycle_life = q+((u/(2*v))*(s+100*u)-200*t)*dod + s*average_SOC + t* pow(dod,2) + u*dod*average_SOC + v* pow(average_SOC,2)
@@ -171,7 +171,7 @@ def run():
         file.close()
         #client.publish(topic ="battery_age_estimation", payload= str(estimated_life_cycles), qos=1)
 
-#run()
+run()
 
 
         
