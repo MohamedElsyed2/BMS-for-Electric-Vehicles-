@@ -25,30 +25,75 @@ def get_intial_soc_calibration (cell_number,temperature, current, voltage):
         charging current, the battery voltage increases gradually and reaches the threshold after 3200 s. After that, the battery 
         charged by the constant-voltage mode and the charging current drops rapidly in the first step, and then slowly. When the 
         current declines to 0.1C, the charging stage closes."""
+        rated_capacity = 3350
         if temperature >= -5 and temperature < 15:
-            if voltage < 4.2:          
-                if voltage <= 3.75:        
-                    socIntial=0
-                elif voltage > 3.43 and voltage <= 3.48 :
-                    socIntial= 0.05
-                elif voltage > 3.48  and voltage <= 3.53 :
-                    socIntial= 0.1
-                elif voltage > 3.53 and voltage <= 3.55 :
-                    socIntial= 0.15
-                elif voltage > 3.96:
-                    socIntial= 0.2
-                elif voltage > 3.58 and voltage <= 3.61 :
-                    socIntial= 0.25
-                elif voltage > 3.61 and voltage <= 3.62 :
-                    socIntial= 0.25
-                elif voltage > 3.62 and voltage <= 3.63 :
-                    socIntial= 0.3
+            if voltage >= 4.2:
+                if current < -1.4 and current >= -1.65:
+                    residual_capacity = 2550
+                elif current < -1.2 and current >= -1.4:
+                    residual_capacity = 2610
+                elif current < -1.0 and current >= -1.2:
+                    residual_capacity = 2650
+                elif current < -0.8 and current >= -1.0:
+                    residual_capacity = 2700
+                elif current < -0.6 and current >= -0.8:
+                    residual_capacity = 2760
+                elif current < -0.4 and current >= -0.6:
+                    residual_capacity = 2800
+                elif current < -0.2 and current >= -0.4:
+                    residual_capacity = 2880
+                elif current < -0.12 and current >= -0.2:
+                    residual_capacity = 2950
+                elif current < -0.065 and current >= -0.12:
+                    residual_capacity = 3000
+                elif current > -0.065:
+                    residual_capacity = 3100
+            elif voltage >= 3.96 and voltage < 4.2:
+                residual_capacity = 3845 *(voltage-3.545)      # from the battery datasheet, according to Charge Characteristics for NCR18650B1S.
+            elif voltage > 3.78 and voltage < 3.96 :
+                residual_capacity = 7061 *(voltage-3.725)
+            elif voltage > 3.77 and voltage <= 3.78 :
+                socIntial= 0.08 
+            elif voltage > 3.76 and voltage <= 3.77 :
+                socIntial= 0.065          
+            elif voltage > 3.75 and voltage <= 3.76 :
+                socIntial= 0.05     
+            elif voltage <= 3.75:        
+                socIntial=0
+            
         elif temperature >= 15 and temperature < 45:
-            # get the values from the datasheet.
-        
+            if voltage >= 4.2:
+                if current < -1.4 and current >= -1.65:
+                    residual_capacity = 2850
+                elif current < -1.2 and current >= -1.4:
+                    residual_capacity = 2940
+                elif current < -1.0 and current >= -1.2:
+                    residual_capacity = 2990
+                elif current < -0.8 and current >= -1.0:
+                    residual_capacity = 3030
+                elif current < -0.6 and current >= -0.8:
+                    residual_capacity = 3100
+                elif current < -0.4 and current >= -0.6:
+                    residual_capacity = 3150
+                elif current < -0.2 and current >= -0.4:
+                    residual_capacity = 3200
+                elif current < -0.12 and current >= -0.2:
+                    residual_capacity = 3280
+                elif current < -0.065 and current >= -0.12:
+                    residual_capacity = 3000
+                elif current > -0.065:
+                    residual_capacity = 3350   
+            elif voltage >= 3.84 and voltage < 4.2 :                     # from the battery datasheet, according to Charge Characteristics for NCR18650B1S.
+                residual_capacity = 3570 *(voltage-3.375)  
+            elif voltage >= 3.54 and voltage < 3.84 :
+                residual_capacity = 5040 *(voltage-3.516)         
+            elif voltage >= 3.3 and voltage < 3.54 :
+                residual_capacity = 450 *(voltage-3.3)    
+            elif voltage < 3.3:        
+                socIntial=0
 
     #***********************************************************************#
-    elif current >= 0 and current < 0.5:      # In case of open circuit voltage stage, 0.5 --->  to take in mind the current losses.
+    elif current >= 0 and current < 0.5:      # In case of open circuit voltage (OCV) stage, 0.5 --->  to take in mind the current losses.
         if voltage <= 3.43:                             
             socIntial=0
         elif voltage > 3.43 and voltage <= 3.48 :
@@ -93,7 +138,8 @@ def get_intial_soc_calibration (cell_number,temperature, current, voltage):
             socIntial= 0.95
         else:
             socIntial= 1.00
-    else:                # In case of dicharging case.
+    #***********************************************************************#
+    elif current >= 0.5:                # In case of dicharging stage.
         if cell_number == 1:
             file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell1_state_of_charge.txt", "r")  
             socIntial = float (file.read())
@@ -114,6 +160,7 @@ def get_intial_soc_calibration (cell_number,temperature, current, voltage):
             file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/module1_state_of_charge.txt", "r")  
             socIntial = float (file.read())
             file.close()
+    socIntial= residual_capacity/ rated_capacity
     return socIntial
 #******************************************************************#
 def soc(cell_number,cell_current,cell_voltage,temperature):
@@ -131,7 +178,6 @@ def soc(cell_number,cell_current,cell_voltage,temperature):
     file.close() 
     if timmer_interrupt % 5 == 0:             # calibrate the SOC every 5 minutes.
         state_of_charge= get_intial_soc_calibration (cell_number,temperature,cell_current, cell_voltage)           # get intial SOC from the open circuit voltage curve.
-        #is_int_soc_calibration_done = False
     #thermal_coefficient = get_thermal_coefficient (temperature)
     state_of_charge = state_of_charge - coulombic_efficiency*(current* (time_two_readings/3600))/ rated_capacity   #/3600 to convert from second to hour.
     time.sleep (2)                     # to wait 5 seconds between readings.

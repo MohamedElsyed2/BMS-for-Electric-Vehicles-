@@ -19,4 +19,4 @@ def run():
     while True:
         timer()
 
-run()
+#run()
