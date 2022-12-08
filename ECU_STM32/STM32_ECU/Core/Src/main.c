@@ -74,7 +74,7 @@ uint16_t voltage_sensor1;
 uint16_t voltage_sensor2;
 int current_sensor1;
 float output_voltage;
-float current;
+float current , true_read_digital_current;
 float voltage;
 uint16_t digital_read_internal_temp_sensor;
 
@@ -242,21 +242,26 @@ uint16_t get_temperature_sensor ()
 int  current_sensor ()
  {
 	 const uint16_t samples = 10;
-	 float current_sensor_error;
+	 int ADC_error = 371;
 	 float current_sensor_sensitivity = 0.4;                // from the data sheet of current sensor the sensitivity = 400 mV/A.
 	 uint16_t read_digital_current;
 	 /*****for loop to get the average value of the sensor output, to increase the accuracy.***/
 	 for (int i = 0; i < samples; i++)
 	   {
-		 read_digital_current += adcValArray [0];
+
+		 read_digital_current += (adcValArray [0] - ADC_error);
 	     HAL_Delay(10);                         // wait 10 milliseconds before the next loop.
 	   }
       /******** End for loop******************************/
-	 read_digital_current = read_digital_current / samples;
-	 output_voltage = (float) read_digital_current*3.3/ 4095;
+	 true_read_digital_current = read_digital_current / samples;
+	 output_voltage = (float) true_read_digital_current*3.3/ 4095;
 	 read_digital_current = 0;                        // Initialize the reading value to zero for the next process.
 
-	 current =(output_voltage - 2.5)/current_sensor_sensitivity ;
+	 current =(output_voltage - 2.364)/current_sensor_sensitivity ;          // 2.5 at Vcc= 5 V and temperature = 25° C .
+	 if( current <= 0.02 && current >= -0.01)
+	 {
+		 current = 0;
+	 }
 
 	 int current_to_send = (int) (1000*current);
 
@@ -339,7 +344,8 @@ int  current_sensor ()
 	  /********* Start code of reading the internal temperature sensor to adjust the output voltage of the current sensor*************/
 	  digital_read_internal_temp_sensor = adcValArray [2];
 	  float Vout_internal_temp_sensor = (float) digital_read_internal_temp_sensor*3.3/4095;
-	  internal_temp_sensor = (Vout_internal_temp_sensor - 0.76) / 0.0025 + 25;
+	  float error = 0.081;
+	  internal_temp_sensor = (Vout_internal_temp_sensor- error - 0.76) / 0.0025 + 25;               // 0.76
 	  /********* End code of reading the internal temperature sensor to adjust the output voltage of the current sensor*************/
 
 	  /*if (flag == false){

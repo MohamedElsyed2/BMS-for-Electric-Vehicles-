@@ -15,3 +15,4 @@ rxdata
 Cell1_State_of_charge
 cell1_soc
 Cell1_State_of_health
+true_read_digital_current
