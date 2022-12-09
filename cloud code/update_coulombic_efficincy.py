@@ -203,7 +203,7 @@ def calibrate_cell1_coulombic_Efficiency(cell_number):
 
 
 def run():
-    #while True:
+
     thread_1 = threading.Thread(target=calibrate_cell1_coulombic_Efficiency, args=(1,))
     thread_2 = threading.Thread(target=calibrate_cell1_coulombic_Efficiency, args=(2,))
     thread_3 = threading.Thread(target=calibrate_cell1_coulombic_Efficiency, args=(3,))
@@ -213,11 +213,10 @@ def run():
     thread_2.start()
     thread_3.start()
     thread_4.start()
-   
     # thread_1.join()   # wait until thread 1 is completely executed
     # thread_2.join()
     # thread_3.join()
     # thread_4.join()
     # thread_5.join()
-
+    print("update cycle life prediction is running")
 #run()

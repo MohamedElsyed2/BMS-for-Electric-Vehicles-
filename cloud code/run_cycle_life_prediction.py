@@ -10,5 +10,6 @@ def run():
     thread_1.start()
     thread_2.start()
     thread_3.start()
+    print("cycle life prediction is running")
 
 #run()

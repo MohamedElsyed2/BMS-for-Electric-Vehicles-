@@ -13,12 +13,6 @@ import datetime
 S. A multi-factor battery cycle life prediction methodology for optimal battery management. 
 """
 
-# def battery_age_estimation ():
-    
-# global cell_state_of_charge
-# cell_state_of_charge = 80
-# global cell_current
-# cell_current = 1
 #******************* Start of battery_age_temperature method***********************************#
 def battery_age_temperature():
     file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/temperature.txt", "r")   # open the file 'temperature.txt' in raeding mode.
@@ -163,7 +157,6 @@ def run(cell_number):
         thread_2.join()                  # wait until thread 2 is completely executed
         thread_3.join()                  # wait until thread 3 is completely executed
         #end = time.time()
-
         # all threads completely executed
 
         nominal_cycle_life = 649                                        # from battery datasheet.
@@ -179,8 +172,5 @@ def run(cell_number):
             file.write(str(equivelant_battery_num_cycle_life))
         finally:
             file.close()
+# run()
 
-run(1)
-
-
-        

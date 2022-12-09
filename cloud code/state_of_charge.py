@@ -105,7 +105,7 @@ def get_intial_soc_calibration (cell_number,temperature, current, voltage):
     
     # #************************************************************************************#
     elif cell_number == 4:         
-        ????????????????????  I have to change the voltage and current to be the voltage and current of the whole module. ????????
+        #????????????????????  I have to change the voltage and current to be the voltage and current of the whole module. ????????
         if current < 0 :          # In case of charging stage: if the current srnsor reading is negative, then the current is charging current.
             rated_capacity = 10050         # the rated capacity of the whole module at 25° C. = 3350* 3 .
             if voltage >= 4.2 and current >= -1.65:
@@ -204,7 +204,7 @@ def get_coulombic_efficiency(cell_number):             # coulombic_efficiency at
     return coulombic_efficiency
 
 #*********************************************************************#
-def soc(cell_number):
+def SoC_method(cell_number):
     file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/temperature.txt", "r")  
     temperature = float (file.read())
     file.close()
@@ -235,12 +235,13 @@ def soc(cell_number):
     file.close() 
     if timmer_interrupt % 5 == 0:             # calibrate the SOC every 5 minutes.
         state_of_charge= get_intial_soc_calibration (cell_number,temperature, current, voltage)           # get intial SOC from the open circuit voltage curve.
-    #thermal_coefficient = get_thermal_coefficient (temperature)
+
     state_of_charge = state_of_charge - coulombic_efficiency*(current* (time_two_readings/3600))/ recalibrated_rated_capacity   #/3600 to convert from second to hour.
     time.sleep (2)                     # to wait 2 seconds between readings.
     return state_of_charge
 #**************************************************************************#
-def true_SOC (soc):
+def true_SOC (cell_number):
+    soc = SoC_method (cell_number)
     if soc <= 0:
         soc=0
     elif soc >= 100:
@@ -251,43 +252,15 @@ def true_SOC (soc):
 #####################################################################################
 def run():
     while True:
-
         for cell_number in range(1,4):     # calculate the state of charge of cell1, cell2, and  cell3.
-            true_cell_state_of_charge = float("{:.2f}".format(true_SOC (soc (cell_number))))                     #convert to float of to decimal point.
+            true_cell_state_of_charge = float("{:.2f}".format(true_SOC (cell_number)))                     #convert to float of to decimal point.
             file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell"+str(cell_number)+"_state_of_charge.txt", "w")
             file.truncate()       
             file.write(str(true_cell_state_of_charge))
             file.close()
-        # #************************************** Statrt calculation of cell1_SOC***************************************#
-        # true_cell1_state_of_charge = float("{:.2f}".format(true_SOC (100*soc (1))))                     #convert to float of to decimal point.
-        # file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell1_state_of_charge.txt", "w")
-        # file.truncate()       
-        # file.write(str(true_cell1_state_of_charge))
-        # file.close()
-        # #*********************************************End calculation of cell1_SOC****************************************#
-        # #************************************** Statrt calculation of cell2_SOC****************************************#
-        # true_cell2_state_of_charge = float("{:.2f}".format(true_SOC (100*soc (2))))
-        # file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell2_state_of_charge.txt", "w")
-        # file.truncate()      
-        # file.write(str(true_cell2_state_of_charge))
-        # file.close()   
-        # #************************************** End calculation of cell2_SOC****************************************#
-        # #************************************** Statrt calculation of cell3_SOC****************************************#
-        # true_cell3_state_of_charge = float("{:.2f}".format(true_SOC (100*soc (3))))
-        # file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell3_state_of_charge.txt", "w")
-        # file.truncate()      
-        # file.write(str(true_cell3_state_of_charge))
-        # file.close()   
-        # #************************************** End calculation of cell3_SOC****************************************#
-        # #************************************** Statrt calculation of cell4_SOC****************************************#
-        # true_cell4_state_of_charge = float("{:.2f}".format(true_SOC (100*soc (4))))
-        # file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell4_state_of_charge.txt", "w")
-        # file.truncate()      
-        # file.write(str(true_cell4_state_of_charge))
-        # file.close()   
-        # #************************************** End calculation of cell4_SOC****************************************#
+        
         #************************************** Statrt calculation of module1_SOC****************************************#
-        true_module1_state_of_charge = float("{:.2f}".format(true_SOC (soc (4))))
+        true_module1_state_of_charge = float("{:.2f}".format(true_SOC (4)))
         file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/module1_state_of_charge.txt", "w")
         file.truncate()      
         file.write(str(true_module1_state_of_charge))
