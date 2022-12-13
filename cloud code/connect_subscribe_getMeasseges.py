@@ -150,7 +150,7 @@ def run():
     client.loop_start()
     get_measurements_compute(client)
     
-run()
+#run()
 
 
 

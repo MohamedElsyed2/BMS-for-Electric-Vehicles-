@@ -13,9 +13,9 @@ def check_battery_being_used_or_not ():
         
             if battery_current != 0:            # like a watchdog, if battery current is not equal to zero, then the battery is in service.
                 try:
-                    file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/check_battery_being_used.txt", "w")   # open the file 'temperature.txt' in raeding mode.
-                    file.truncate()       
-                    file.write("1")
+                    file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/battery_usage.txt", "w")   # open the file 'temperature.txt' in raeding mode.
+                    file.truncate()      
+                    file.write(str(1))
                 finally:
                     file.close()
                 timer = 0                  # to restart the timer.
@@ -23,9 +23,9 @@ def check_battery_being_used_or_not ():
                 time.sleep(3600)                 # 3600 second = 1 hour.
                 timer += 1 
         try:
-            file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/check_battery_being_used.txt", "w")   # open the file 'temperature.txt' in raeding mode.
+            file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/battery_usage.txt", "w")   # open the file 'temperature.txt' in raeding mode.
             file.truncate()       
-            file.write("0")
+            file.write(str(0))
         finally:
             file.close()
     

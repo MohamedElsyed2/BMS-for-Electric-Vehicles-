@@ -95,8 +95,8 @@ def get_state_of_health (cell_number):
                 return soh_num_of_cycles_coeff 
             #******* End of the code to calculate SoH based on number of cycles*********#
             try:
-                file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/check_battery_being_used.txt", "r")   # open the file 'temperature.txt' in raeding mode.
-                battery_being_used = int (file.read())
+                file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/battery_usage.txt", "r")   # open the file 'temperature.txt' in raeding mode.
+                battery_being_used = float (file.read())
             finally:
                 file.close()
             if battery_being_used == 1:
