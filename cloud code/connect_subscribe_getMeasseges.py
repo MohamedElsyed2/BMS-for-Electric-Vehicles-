@@ -30,53 +30,127 @@ def get_measurements_compute(client):
 
             # check if the message recieved on 'battery_temperature'  topic, publish {ON,OFF} on topic 'fan' after recieving the temperature reading
             if msg.topic==str('battery_temperature'):
-                
                 temperature= (float) (msg.payload.decode())/10
-                file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/temperature.txt", "w")
-                file.truncate()      # delete the last value of number of cycles.
-                file.write(str(temperature))
-                file.close()
+                try:
+                    file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/temperature.txt", "w")
+                    file.truncate()      
+                    file.write(str(temperature))
+                finally:
+                    file.close()
                 print("Received " + str(temperature)+ " from " + msg.topic + " topic")
             #***************************************************************#
-
             elif msg.topic==str('cell1_voltage'):  # recive the message on topic cell1_voltage 
-                global cell1_voltage
+                # global cell1_voltage
                 voltage = (float) (msg.payload.decode())
                 cell1_voltage = voltage/1000
-                file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell1_voltage.txt", "w")
-                file.truncate()      # delete the last value of number of cycles.
-                file.write(str(cell1_voltage))
-                file.close()
+                try:
+                    file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell1_voltage.txt", "w")
+                    file.truncate()     
+                    file.write(str(cell1_voltage))
+                finally:
+                    file.close()
                 print("Received " + str(cell1_voltage)+ " from " + msg.topic + " topic")
-            
+            #************************************************************#
+            #***************************************************************#
+            elif msg.topic==str('cell2_voltage'):  
+                voltage = (float) (msg.payload.decode())
+                cell2_voltage = voltage/1000
+                try:
+                    file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell2_voltage.txt", "w")
+                    file.truncate()      
+                    file.write(str(cell2_voltage))
+                finally:
+                    file.close()
+                print("Received " + str(cell2_voltage)+ " from " + msg.topic + " topic")
+            #************************************************************#
+            #***************************************************************#
+            elif msg.topic==str('cell3_voltage'):  
+                voltage = (float) (msg.payload.decode())
+                cell3_voltage = voltage/1000
+                try:
+                    file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell3_voltage.txt", "w")
+                    file.truncate()     
+                    file.write(str(cell3_voltage))
+                finally:
+                    file.close()
+                print("Received " + str(cell3_voltage)+ " from " + msg.topic + " topic")
+            #************************************************************#
+            #***************************************************************#
+            elif msg.topic==str('module1_voltage'):  
+                voltage = (float) (msg.payload.decode())
+                module1_voltage = voltage/1000
+                try:
+                    file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/module1_voltage.txt", "w")
+                    file.truncate()     
+                    file.write(str(module1_voltage))
+                finally:
+                    file.close()
+                print("Received " + str(module1_voltage)+ " from " + msg.topic + " topic")
             #************************************************************#
             elif msg.topic==str('cell1_current'):  # recive the message on topic cell1_current 
-                global cell1_current
+                #global cell1_current
                 current = (float)(msg.payload.decode())
                 cell1_current = current/1000
-                file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell1_current.txt", "w")
-                file.truncate()       # delete the last value of number of cycles.
-                file.write(str(cell1_current))
-                file.close()
+                try:
+                    file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell1_current.txt", "w")
+                    file.truncate()       
+                    file.write(str(cell1_current))
+                finally:
+                    file.close()
                 print("Received " + str(cell1_current)+ " from " + msg.topic + " topic")
-            
+            #*******************************************************************************#
+             #************************************************************#
+            elif msg.topic==str('cell2_current'): 
+                current = (float)(msg.payload.decode())
+                cell2_current = current/1000
+                try:
+                    file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell2_current.txt", "w")
+                    file.truncate()       
+                    file.write(str(cell2_current))
+                finally:
+                    file.close()
+                print("Received " + str(cell2_current)+ " from " + msg.topic + " topic")
+            #*******************************************************************************#
+            #************************************************************#
+            elif msg.topic==str('cell3_current'): 
+                current = (float)(msg.payload.decode())
+                cell3_current = current/1000
+                try:
+                    file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell3_current.txt", "w")
+                    file.truncate()       
+                    file.write(str(cell3_current))
+                finally:
+                    file.close()
+                print("Received " + str(cell3_current)+ " from " + msg.topic + " topic")
+            #*******************************************************************************#
+            #************************************************************#
+            elif msg.topic==str('module1_current'): 
+                current = (float)(msg.payload.decode())
+                module1_current = current/1000
+                try:
+                    file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/module1_current.txt", "w")
+                    file.truncate()       
+                    file.write(str(module1_current))
+                finally:
+                    file.close()
+                print("Received " + str(module1_current)+ " from " + msg.topic + " topic")
             #*******************************************************************************#
             elif msg.topic==str('sensors_Error'):  # recive the message on topic cell1_current 
                 error = (int)(msg.payload.decode())
                 if error == 1:
                     client.publish('messages',"1")  # 1 means the sensors are not connected.
             #***********************************************************************************#
-            
-        client.subscribe([('battery_temperature', 0), ('cell1_voltage', 0), ('cell1_current', 0), ('sensors_Error', 0)])
+        client.subscribe([('battery_temperature', 1), ('cell1_voltage', 1), ('cell2_voltage', 1),('cell3_voltage', 1),('module1_voltage', 1), 
+                          ('cell1_current', 1),('cell2_current', 1), ('cell3_current', 1),('module1_current', 1),('sensors_Error', 1)])
         client.on_message = on_message 
 #***********************************************************************************#
 def run():
     # while True:
-        client = connect_mqtt()
-        client.loop_start()
-        get_measurements_compute(client)
+    client = connect_mqtt()
+    client.loop_start()
+    get_measurements_compute(client)
     
-#run()
+run()
 
 
 

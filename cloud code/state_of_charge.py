@@ -1,16 +1,21 @@
  
 import time
 import numpy
+import threading
 #*************************************************************************************#
 def get_state_of_health (cell_number):
     if cell_number < 4:
-        file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell"+str(cell_number)+"_state_of_health.txt", "r")  
-        state_of_health = float (file.read())
-        file.close()
+        try:
+            file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell"+str(cell_number)+"_state_of_health.txt", "r")  
+            state_of_health = float (file.read())
+        finally:
+            file.close()
     elif cell_number == 4:
-        file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/module1_state_of_health.txt", "r")  
-        state_of_health = float (file.read())
-        file.close()
+        try:
+            file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/module1_state_of_health.txt", "r")  
+            state_of_health = float (file.read())
+        finally:
+            file.close()
     return state_of_health
 #*************************************************************************************#
 def get_intial_soc_calibration (cell_number,temperature, current, voltage):         
@@ -86,22 +91,14 @@ def get_intial_soc_calibration (cell_number,temperature, current, voltage):
             socIntial = numpy.interp(voltage, OCV[::1], SOC[::1])
         #*************************************************************************#
         elif current >= 0.05:                # In case of dicharging stage.
-            
-            file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell"+str(cell_number)+"_state_of_charge.txt", "r")  
-            socIntial = float (file.read())
-            file.close()
-            # elif cell_number == 2:
-            #     file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell2_state_of_charge.txt", "r")  
-            #     socIntial = float (file.read())
-            #     file.close()
-            # elif cell_number == 3:
-            #     file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell3_state_of_charge.txt", "r")  
-            #     socIntial = float (file.read())
-            #     file.close()
-            # elif cell_number == 4:
-            #     file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell4_state_of_charge.txt", "r")  
-            #     socIntial = float (file.read())
-            #     file.close()
+            try:
+                file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell"+str(cell_number)+"_state_of_charge.txt", "r")  
+                socIntial = float (file.read())
+            except:
+                time.sleep(0.1)
+                socIntial = float (file.read())
+            finally:
+                file.close()
     
     # #************************************************************************************#
     elif cell_number == 4:         
@@ -133,36 +130,6 @@ def get_intial_soc_calibration (cell_number,temperature, current, voltage):
             elif voltage < 3.3:        
                 residual_capacity = 0
             socIntial =  residual_capacity  / rated_capacity
-            # if voltage >= 4.2:
-            #     if current < -1.4 and current >= -1.65:
-            #         residual_capacity = 2850
-            #     elif current < -1.2 and current >= -1.4:
-            #         residual_capacity = 2940
-            #     elif current < -1.0 and current >= -1.2:
-            #         residual_capacity = 2990
-            #     elif current < -0.8 and current >= -1.0:
-            #         residual_capacity = 3030
-            #     elif current < -0.6 and current >= -0.8:
-            #         residual_capacity = 3100
-            #     elif current < -0.4 and current >= -0.6:
-            #         residual_capacity = 3150
-            #     elif current < -0.2 and current >= -0.4:
-            #         residual_capacity = 3200
-            #     elif current < -0.12 and current >= -0.2:
-            #         residual_capacity = 3280
-            #     elif current < -0.065 and current >= -0.12:
-            #         residual_capacity = 3000
-            #     elif current > -0.065:
-            #         residual_capacity = 3350   
-            # elif voltage >= 3.84 and voltage < 4.2 :                     # from the battery datasheet, according to Charge Characteristics for NCR18650B1S.
-            #     residual_capacity = 3570 *(voltage-3.375)  
-            # elif voltage >= 3.54 and voltage < 3.84 :
-            #     residual_capacity = 5040 *(voltage-3.516)         
-            # elif voltage >= 3.3 and voltage < 3.54 :
-            #     residual_capacity = 450 *(voltage-3.3)    
-            # elif voltage < 3.3:        
-            #     residual_capacity=0
-            # socIntial= residual_capacity/ rated_capacity
 
         #***********************************************************************#
         elif current >= 0 and current < 0.05:      # In case of open circuit voltage (OCV) stage, 0.05 --->  to take in mind the current losses.
@@ -173,9 +140,11 @@ def get_intial_soc_calibration (cell_number,temperature, current, voltage):
             socIntial = numpy.interp(voltage, OCV[::1], SOC[::1])
         #*******************************************#
         elif current >= 0.05:                # In case of dicharging stage.
-            file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/module1_state_of_charge.txt", "r")  
-            socIntial = float (file.read())
-            file.close()
+            try:
+                file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/module1_state_of_charge.txt", "r")  
+                socIntial = float (file.read())
+            finally:
+                file.close()
 
     #***********************************************************************#
     return socIntial
@@ -185,18 +154,6 @@ def get_coulombic_efficiency(cell_number):             # coulombic_efficiency at
         file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell"+str(cell_number)+"_coulombic_efficiency.txt", "r")  
         coulombic_efficiency = float (file.read())
         file.close()
-    # elif cell_number == 2:
-    #     file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell2_coulombic_efficiency.txt", "r")  
-    #     coulombic_efficiency = float (file.read())
-    #     file.close()
-    # elif cell_number == 3:
-    #     file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell3_coulombic_efficiency.txt", "r")  
-    #     coulombic_efficiency = float (file.read())
-    #     file.close()
-    # elif cell_number == 4:
-    #     file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell4_coulombic_efficiency.txt", "r")  
-    #     coulombic_efficiency = float (file.read())
-    #       file.close()
     elif cell_number == 4:
         file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/module1_coulombic_efficiency.txt", "r")  
         coulombic_efficiency = float (file.read())
@@ -205,68 +162,83 @@ def get_coulombic_efficiency(cell_number):             # coulombic_efficiency at
 
 #*********************************************************************#
 def SoC_method(cell_number):
-    file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/temperature.txt", "r")  
-    temperature = float (file.read())
-    file.close()
-    if cell_number < 4:
-        rated_capacity = 3.350                                         # rated capacity (at 25° C)
-        file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell"+str(cell_number)+"_current.txt", "r")  
-        current = float (file.read())
+    while True:
+        file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/temperature.txt", "r")  
+        temperature = float (file.read())
         file.close()
-        file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell"+str(cell_number)+"_voltage.txt", "r")  
-        voltage = float (file.read())
-        file.close()
-    elif cell_number == 4:
-        rated_capacity = 10.05                                          # rate capacity for the the whole module = 3* 3.350 Ah
-        file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/module1_current.txt", "r")  
-        current = float (file.read())
-        file.close()
-        file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/module1_voltage.txt", "r")  
-        voltage = float (file.read())
-        file.close()
-    global recalibrated_rated_capacity
-    recalibrated_rated_capacity =  rated_capacity * get_state_of_health(cell_number)  
-    coulombic_efficiency= get_coulombic_efficiency(cell_number)
-    time_two_readings = 2           # time between two readings (2 sec).
+        if cell_number < 4:
+            rated_capacity = 3.350                                         # rated capacity (at 25° C)
+            file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell"+str(cell_number)+"_current.txt", "r")  
+            current = float (file.read())
+            file.close()
+            file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell"+str(cell_number)+"_voltage.txt", "r")  
+            voltage = float (file.read())
+            file.close()
+        elif cell_number == 4:
+            rated_capacity = 10.05                                          # rate capacity for the the whole module = 3* 3.350 Ah
+            file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/module1_current.txt", "r")  
+            current = float (file.read())
+            file.close()
+            file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/module1_voltage.txt", "r")  
+            voltage = float (file.read())
+            file.close()
+        global recalibrated_rated_capacity
+        recalibrated_rated_capacity =  rated_capacity * get_state_of_health(cell_number)  
+        coulombic_efficiency= get_coulombic_efficiency(cell_number)
+        time_two_readings = 2           # time between two readings (2 sec).
 
-    global state_of_charge
-    file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/timer.txt", "r")   # open the file 'timer.txt' in raeding mode.
-    timmer_interrupt = numpy.uint32 (file.read())                                # convert the string to unsigned int32.
-    file.close() 
-    if timmer_interrupt % 5 == 0:             # calibrate the SOC every 5 minutes.
-        state_of_charge= get_intial_soc_calibration (cell_number,temperature, current, voltage)           # get intial SOC from the open circuit voltage curve.
-
-    state_of_charge = state_of_charge - coulombic_efficiency*(current* (time_two_readings/3600))/ recalibrated_rated_capacity   #/3600 to convert from second to hour.
-    time.sleep (2)                     # to wait 2 seconds between readings.
-    return state_of_charge
-#**************************************************************************#
-def true_SOC (cell_number):
-    soc = SoC_method (cell_number)
-    if soc <= 0:
-        soc=0
-    elif soc >= 100:
-        soc= 1
-    else:
-        soc=soc
-    return soc
+        global state_of_charge
+        file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/timer.txt", "r")   # open the file 'timer.txt' in raeding mode.
+        timmer_interrupt = numpy.uint32 (file.read())                                # convert the string to unsigned int32.
+        file.close() 
+        if timmer_interrupt % 5 == 0:             # calibrate the SOC every 5 minutes.
+            state_of_charge= get_intial_soc_calibration (cell_number,temperature, current, voltage)           # get intial SOC from the open circuit voltage curve.
+        else:
+            if cell_number < 4:
+                try:
+                    file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell"+str(cell_number)+"_state_of_charge.txt", "r")  
+                    state_of_charge = float (file.read())
+                finally:
+                    file.close()
+            elif cell_number == 4:
+                try:
+                    file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/module1_state_of_charge.txt", "r")  
+                    state_of_charge = float (file.read())
+                finally:
+                    file.close()
+        state_of_charge = state_of_charge - coulombic_efficiency*(current* (time_two_readings/3600))/ recalibrated_rated_capacity   #/3600 to convert from second to hour.
+        #*********** Start get the true SoC***********************************#
+        if state_of_charge <= 0:
+            state_of_charge=0
+        elif state_of_charge >= 100:
+            state_of_charge= 1
+        else:
+            state_of_charge = state_of_charge
+        #****************** start code of update SoC********************#
+        if cell_number < 4:
+            try:
+                file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell"+str(cell_number)+"_state_of_charge.txt", "w")
+                file.truncate()       
+                file.write(str(state_of_charge))
+            finally:
+                file.close()
+        elif cell_number == 4:
+            try:
+                file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/module1_state_of_charge.txt", "w")
+                file.truncate()      
+                file.write(str(state_of_charge))
+            finally:
+                file.close()   
+        time.sleep (2)                     # to wait 2 seconds between readings.
 #####################################################################################
 def run():
-    while True:
-        for cell_number in range(1,4):     # calculate the state of charge of cell1, cell2, and  cell3.
-            true_cell_state_of_charge = float("{:.2f}".format(true_SOC (cell_number)))                     #convert to float of to decimal point.
-            file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell"+str(cell_number)+"_state_of_charge.txt", "w")
-            file.truncate()       
-            file.write(str(true_cell_state_of_charge))
-            file.close()
-        
-        #************************************** Statrt calculation of module1_SOC****************************************#
-        true_module1_state_of_charge = float("{:.2f}".format(true_SOC (4)))
-        file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/module1_state_of_charge.txt", "w")
-        file.truncate()      
-        file.write(str(true_module1_state_of_charge))
-        file.close()   
-        #************************************** End calculation of Module1_SOC****************************************#
+    t_1 = threading.Thread(target=SoC_method, args=(1,))   # calculate the state of charge  of cell1.
+    t_2 = threading.Thread(target=SoC_method, args=(2,))   # calculate the state of charge  of cell2.
+    t_3 = threading.Thread(target=SoC_method, args=(3,))   # calculate the state of charge  of cell3.
+    t_4 = threading.Thread(target=SoC_method, args=(4,))   # calculate the state of charge  of module1.
+    t_1.start()
+    t_2.start()
+    t_3.start()
+    t_4.start()
 
 #run()
-
-#******************************************************************************#
