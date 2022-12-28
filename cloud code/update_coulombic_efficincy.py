@@ -4,6 +4,8 @@ import threading
 
 def calibrate_cell1_coulombic_Efficiency(cell_number):
     while True:
+        print("update coulombic efficincy is running")
+        time.sleep(2)
         global is_discharged_capacity_done
         is_discharged_capacity_done = False 
         def get_discharged_capacity (cell_number):
@@ -218,5 +220,5 @@ def run():
     # thread_3.join()
     # thread_4.join()
     # thread_5.join()
-    print("update cycle life prediction is running")
+    
 #run()

@@ -145,6 +145,8 @@ def battery_age_SOC_DOD(cell_number):
 
 def run(cell_number):
     while True:
+        print("cycle life prediction is running")
+        time.sleep(2)
         thread_1 = threading.Thread(target=battery_age_temperature)
         thread_2 = threading.Thread(target=battery_age_chg_dischg_current, args=(cell_number,))
         thread_3 = threading.Thread(target=battery_age_SOC_DOD, args=(cell_number,))

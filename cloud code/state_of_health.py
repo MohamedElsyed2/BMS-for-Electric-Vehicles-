@@ -2,6 +2,7 @@
 from datetime import date
 from math import exp
 import threading
+import time
 
 """ These methods are coded according to the methodology which is published in: Andrea, Davide. Battery management systems for 
 large lithium-ion battery packs. Artech house, 2010, pp. 189-192. And Tan, C.M., Singh, P. and Chen, C., 2020. Accurate real time 
@@ -9,6 +10,8 @@ on-line estimation of state-of-health and remaining useful life of Li ion batter
 
 def get_state_of_health (cell_number):
     while True:
+        print ("state of health is running")
+        time.sleep(2)
         if cell_number < 4:
             def get_nominal_lifetime (cell_number):
                 a = 0.0039

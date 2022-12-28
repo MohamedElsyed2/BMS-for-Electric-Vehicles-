@@ -193,6 +193,7 @@ void loop() {
             //delay(1000);
             }
             break;
+        
         case 'd':
             {
             char_sensor_reading[0]=' ';

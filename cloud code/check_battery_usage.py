@@ -3,6 +3,8 @@ import time
 
 def check_battery_being_used_or_not ():
     while True:
+        print("check battery usage is running")
+        time.sleep(2)
         timer = 0
         while timer <= 72:          # 72       # check battery usage every 72 hour= 3 days.
             try:

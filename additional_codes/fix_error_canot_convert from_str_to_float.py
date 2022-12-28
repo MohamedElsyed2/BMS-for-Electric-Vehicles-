@@ -15,3 +15,4 @@ while True:
         file.close()
     #print("{} is empety".format(a))
     print(current)
+    time.sleep(1)

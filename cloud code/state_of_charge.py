@@ -163,6 +163,8 @@ def get_coulombic_efficiency(cell_number):             # coulombic_efficiency at
 #*********************************************************************#
 def SoC_method(cell_number):
     while True:
+        print ("state of charge is running")
+        time.sleep(2)
         file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/temperature.txt", "r")  
         temperature = float (file.read())
         file.close()
