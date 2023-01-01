@@ -3,6 +3,7 @@ from datetime import date
 from math import exp
 import threading
 import time
+import os
 
 """ These methods are coded according to the methodology which is published in: Andrea, Davide. Battery management systems for 
 large lithium-ion battery packs. Artech house, 2010, pp. 189-192. And Tan, C.M., Singh, P. and Chen, C., 2020. Accurate real time 
@@ -100,8 +101,18 @@ def get_state_of_health (cell_number):
             try:
                 file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/battery_usage.txt", "r")   # open the file 'temperature.txt' in raeding mode.
                 battery_being_used = float (file.read())
+            except:
+                while os.stat("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/battery_usage.txt").st_size == 0:
+                    time.sleep(0.1)
+                    if os.stat("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/battery_usage.txt").st_size != 0:
+                        battery_being_used = float (file.read())
             finally:
                 file.close()
+            # try:
+            #     file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/battery_usage.txt", "r")   # open the file 'temperature.txt' in raeding mode.
+            #     battery_being_used = float (file.read())
+            # finally:
+            #     file.close()
             if battery_being_used == 1:
                 is_battery_being_used = True
             else:
@@ -122,9 +133,16 @@ def get_state_of_health (cell_number):
         elif cell_number == 4:
             soh = 0
             for cell_number in range(1,4):     # get the state of health of every cell.
-                file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell"+str(cell_number)+"_state_of_health.txt", "r")  
-                soh += float (file.read())
-                file.close()
+                try:
+                    file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell"+str(cell_number)+"_state_of_health.txt", "r")  
+                    soh += float (file.read())
+                except:
+                    while os.stat("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell"+str(cell_number)+"_state_of_health.txt").st_size == 0:
+                        time.sleep(0.1)
+                        if os.stat("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell"+str(cell_number)+"_state_of_health.txt").st_size != 0:
+                            soh += float (file.read())
+                finally:
+                    file.close()
             module1_SoH = soh / 3
             try:
                 file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/module1_state_of_health.txt", "w")

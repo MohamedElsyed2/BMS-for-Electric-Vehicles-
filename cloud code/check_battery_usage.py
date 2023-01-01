@@ -20,6 +20,7 @@ def check_battery_being_used_or_not ():
                     file.write(str(1))
                 finally:
                     file.close()
+                time.sleep(60)
                 timer = 0                  # to restart the timer.
             elif battery_current == 0:     # if the battery current still equals to zero then increment the timer and go to the next iteration.
                 time.sleep(3600)                 # 3600 second = 1 hour.
