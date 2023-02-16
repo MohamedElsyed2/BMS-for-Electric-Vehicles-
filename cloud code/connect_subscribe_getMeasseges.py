@@ -4,16 +4,16 @@ from datetime import date
 
 #******************************************************************#
 def connect_mqtt() -> mqtt_client:
-    #*****************************************************************#
+    
     broker = 'broker.emqx.io'
     port = 1883
     topic = 'battery_temperature'
-    # generate client ID with pub prefix randomly
-    client_id = 'python_cloud'
+   
+    client_id = 'python_cloud'     # generate client ID
     #username = 'emqx'
     #password = 'public'
     def on_connect(client, userdata, flags, rc):
-        if rc == 0:
+        if rc == 0:               # rc:  the reason Code.
             print("Connected to MQTT Broker!")
         else:
             print("Failed to connect, return code %d\n", rc)
