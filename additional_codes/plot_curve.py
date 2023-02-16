@@ -33,3 +33,10 @@ def charging_voltage_charging_tim_plot():
     curve.grid(True)
     plt.show()
 charging_voltage_charging_tim_plot()
+
+
+client.subscribe('topic_name',QoS level)
+
+for examle:
+client.subscribe([('battery_temperature', 1), ('cell1_voltage', 1),('module1_voltage', 1), 
+                ('cell1_current', 1),('module1_current', 1),('sensors_Error', 1)])

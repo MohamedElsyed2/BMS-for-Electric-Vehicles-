@@ -14,7 +14,7 @@ def get_state_of_health (cell_number):
         print ("state of health is running")
         time.sleep(2)
         if cell_number < 4:
-            def get_nominal_lifetime (cell_number):
+            def  get_nominal_lifetime (cell_number):
                 """ This method is coded according to the published paper: Muenzel, V.; de Hoog, J.; Brazil, M.; Vishwanath, A.; Kalyanaraman,
                 S. A multi-factor battery cycle life prediction methodology for optimal battery management. 
                 """
@@ -27,7 +27,7 @@ def get_state_of_health (cell_number):
                 nominal_temperature = 25
                 num_cycle_life_temp = (a*pow(temperature,3) - b*pow(temperature,2) + c*temperature + d)/(a*pow(nominal_temperature,3) - b*pow(nominal_temperature,2) + c*nominal_temperature + d)
                 #*************************************************************************************#
-                disch_current = 0                 # no discharging current.
+                disch_current = 0                 # no discharging current, beacuse the battery is out of sevice
                 nominal_disch_current = 1                       # from datasheet
                 e = 4464
                 f = -0.1382
@@ -36,15 +36,15 @@ def get_state_of_health (cell_number):
                 num_cycle_life_disch_current = (e*exp(f*disch_current)+g*exp(h*disch_current))/(e*exp(f*nominal_disch_current)+g*exp(h*nominal_disch_current))
 
 
-                charging_current = 0          # no charging current.
-                nominal_charging_current = 0.7
+                charging_current = 0                   # no charging current, beacuse the battery is out of sevice
+                nominal_charging_current = 0.7        # from datasheet
                 m = 5963
                 n = -0.6531
                 o = 321.4
                 p = 0.03168
                 num_cycle_life_charging_current = (m*exp(n*charging_current)+o*exp(p*charging_current))/(m*exp(n*nominal_charging_current)+o*exp(p*nominal_charging_current))
 
-                #********* Start of nominal nominal cycle life due to varying temperature*************#
+                #********* Start of nominal nominal cycle life due to DOD and SOCavg*************#
                 q = 1471
                 u = 0.3369
                 v = -2.295
@@ -57,8 +57,8 @@ def get_state_of_health (cell_number):
                 finally:
                     file.close()
 
-                nominal_dod = 100
-                nominal_average_SOC = 50
+                nominal_dod = 100         # from datasheet
+                nominal_average_SOC = 50    # from datasheet
                 real_cycle_life = q+((u/(2*v))*(s+100*u)-200*t)*dod + s*average_SOC + t* pow(dod,2) + u*dod*average_SOC + v* pow(average_SOC,2)
                 nominal_cycle_life = q+((u/(2*v))*(s+100*u)-200*t)*nominal_dod + s*nominal_average_SOC + t* pow(nominal_dod,2) + u*nominal_dod*nominal_average_SOC + v* pow(nominal_average_SOC,2)
                 num_cycle_life_SOC_DOD = real_cycle_life / nominal_cycle_life

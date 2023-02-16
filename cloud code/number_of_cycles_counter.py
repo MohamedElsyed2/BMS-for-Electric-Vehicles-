@@ -5,7 +5,7 @@ from math import fabs
 import time
 import threading
 
-""" These methods are coded according to the methodology and  explanation of Rainfloe counting method which is published in: 
+""" These methods are coded according to the methodology and  explanation of Rainflow counting method which is published in: 
 Alam, M. J. E., and T. K. Saha. "Cycle-life degradation assessment of Battery Energy Storage Systems caused by solar PV variability.
 " In 2016 IEEE Power and Energy Society General Meeting (PESGM), pp. 2. IEEE, 2016."""
 
