@@ -2,20 +2,34 @@
 import time
 import numpy
 import threading
+#************************************#
+import firebase_admin
+from firebase_admin import credentials
+from firebase_admin import db
+#********************* stup the databse************#
+cred = credentials.Certificate("E:\Masterarbeit\BMS-for-Electric-Vehicles-\cloud code\serviceAccountKey.json")
+
+# Initialize the app with a service account, granting admin privileges
+firebase_admin.initialize_app(cred, {
+    'databaseURL': 'https://cloud-based-bms-default-rtdb.europe-west1.firebasedatabase.app/'
+})
+ref = db.reference('/')
 #*************************************************************************************#
 def get_state_of_health (cell_number):
     if cell_number < 4:
-        try:
-            file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell"+str(cell_number)+"_state_of_health.txt", "r")  
-            state_of_health = float (file.read())
-        finally:
-            file.close()
+        # try:
+        #     file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell"+str(cell_number)+"_state_of_health.txt", "r")  
+        #     state_of_health = float (file.read())
+        # finally:
+        #     file.close()
+        state_of_health = ref.child("state_of_health").child("cell"+str(cell_number)+"_SOH").get()
     elif cell_number == 4:
-        try:
-            file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/module1_state_of_health.txt", "r")  
-            state_of_health = float (file.read())
-        finally:
-            file.close()
+        # try:
+        #     file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/module1_state_of_health.txt", "r")  
+        #     state_of_health = float (file.read())
+        # finally:
+        #     file.close()
+        state_of_health = ref.child("state_of_health").child("module1_SOH").get()
     return state_of_health
 #*************************************************************************************#
 def get_intial_soc_calibration (cell_number,temperature, current, voltage):         
@@ -90,15 +104,15 @@ def get_intial_soc_calibration (cell_number,temperature, current, voltage):
             socIntial = numpy.interp(voltage, OCV[::1], SOC[::1])
         #*************************************************************************#
         elif current >= 0.05:                # In case of dicharging stage.
-            try:
-                file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell"+str(cell_number)+"_state_of_charge.txt", "r")  
-                socIntial = float (file.read())
-            except:
-                time.sleep(0.1)
-                socIntial = float (file.read())
-            finally:
-                file.close()
-    
+            # try:
+            #     file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell"+str(cell_number)+"_state_of_charge.txt", "r")  
+            #     socIntial = float (file.read())
+            # except:
+            #     time.sleep(0.1)
+            #     socIntial = float (file.read())
+            # finally:
+            #     file.close()
+            socIntial = ref.child("state_of_charge").child("cell"+str(cell_number)+"_SOC").get()
     # #************************************************************************************#
     elif cell_number == 4:         
         #????????????????????  I have to change the voltage and current to be the voltage and current of the whole module. ????????
@@ -139,24 +153,26 @@ def get_intial_soc_calibration (cell_number,temperature, current, voltage):
             socIntial = numpy.interp(voltage, OCV[::1], SOC[::1])
         #*******************************************#
         elif current >= 0.05:                # In case of dicharging stage.
-            try:
-                file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/module1_state_of_charge.txt", "r")  
-                socIntial = float (file.read())
-            finally:
-                file.close()
-
+            # try:
+            #     file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/module1_state_of_charge.txt", "r")  
+            #     socIntial = float (file.read())
+            # finally:
+            #     file.close()
+            socIntial = ref.child("state_of_charge").child("module1_SOC").get()
     #***********************************************************************#
     return socIntial
 #******************************************************************#
 def get_coulombic_efficiency(cell_number):             # coulombic_efficiency at temberature 25° C.
     if cell_number < 4:
-        file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell"+str(cell_number)+"_coulombic_efficiency.txt", "r")  
-        coulombic_efficiency = float (file.read())
-        file.close()
+        # file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell"+str(cell_number)+"_coulombic_efficiency.txt", "r")  
+        # coulombic_efficiency = float (file.read())
+        # file.close()
+        coulombic_efficiency = ref.child("coulombic_efficiency").child("cell"+str(cell_number)+"_CE").get()
     elif cell_number == 4:
-        file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/module1_coulombic_efficiency.txt", "r")  
-        coulombic_efficiency = float (file.read())
-        file.close()
+        # file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/module1_coulombic_efficiency.txt", "r")  
+        # coulombic_efficiency = float (file.read())
+        # file.close()
+        coulombic_efficiency = ref.child("coulombic_efficiency").child("module1_CE").get()
     return coulombic_efficiency
 
 #*********************************************************************#
@@ -164,34 +180,41 @@ def SoC_method(cell_number):
     while True:
         print ("state of charge is running")
         time.sleep(2)
-        file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/temperature.txt", "r")  
-        temperature = float (file.read())
-        file.close()
+        # file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/temperature.txt", "r")  
+        # temperature = float (file.read())
+        # file.close()
+        temperature = ref.child("temperature").child("Module1_temperature").get()
         if cell_number < 4:
             rated_capacity = 3.350                                         # rated capacity (at 25° C)
-            file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell"+str(cell_number)+"_current.txt", "r")  
-            current = float (file.read())
-            file.close()
-            file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell"+str(cell_number)+"_voltage.txt", "r")  
-            voltage = float (file.read())
-            file.close()
+            # file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell"+str(cell_number)+"_current.txt", "r")  
+            # current = float (file.read())
+            # file.close()
+            current = ref.child("current").child("cell"+str(cell_number)+"_current").get()
+            # file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell"+str(cell_number)+"_voltage.txt", "r")  
+            # voltage = float (file.read())
+            # file.close()
+            voltage = ref.child("voltage").child("cell"+str(cell_number)+"_voltage").get()
         elif cell_number == 4:
             rated_capacity = 10.05                                          # rate capacity for the the whole module = 3* 3.350 Ah
-            file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/module1_current.txt", "r")  
-            current = float (file.read())
-            file.close()
-            file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/module1_voltage.txt", "r")  
-            voltage = float (file.read())
-            file.close()
+            # file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/module1_current.txt", "r")  
+            # current = float (file.read())
+            # file.close()
+            current = ref.child("current").child("module1_current").get()
+            # file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/module1_voltage.txt", "r")  
+            # voltage = float (file.read())
+            # file.close()
+            voltage = ref.child("voltage").child("module1_voltage").get()  # read the module_1 voltage from the database
         global recalibrated_rated_capacity
         recalibrated_rated_capacity =  rated_capacity * get_state_of_health(cell_number)  
         coulombic_efficiency= get_coulombic_efficiency(cell_number)
         time_two_readings = 2           # time between two readings (2 sec).
 
         global state_of_charge
-        file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/timer.txt", "r")   # open the file 'timer.txt' in raeding mode.
-        timmer_interrupt = numpy.uint32 (file.read())                                # convert the string to unsigned int32.
-        file.close() 
+        # file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/timer.txt", "r")   # open the file 'timer.txt' in raeding mode.
+        # timmer_interrupt = numpy.uint32 (file.read())                                # convert the string to unsigned int32.
+        # file.close() 
+        timer = ref.child("timer").get()
+        timmer_interrupt = numpy.uint32 (timer)
         if timmer_interrupt % 5 == 0:             # calibrate the SOC every 5 minutes.
             state_of_charge= get_intial_soc_calibration (cell_number,temperature, current, voltage)           # get intial SOC from the open circuit voltage curve.
         else:
