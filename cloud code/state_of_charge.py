@@ -11,7 +11,7 @@ cred = credentials.Certificate("E:\Masterarbeit\BMS-for-Electric-Vehicles-\cloud
 
 # Initialize the app with a service account, granting admin privileges
 firebase_admin.initialize_app(cred, {
-    'databaseURL': 'https://cloud-based-bms-default-rtdb.europe-west1.firebasedatabase.app/'
+    'databaseURL': 'https://cloud-based-bms-95343-default-rtdb.europe-west1.firebasedatabase.app/'
 })
 ref = db.reference('/')
 #*************************************************************************************#
@@ -178,8 +178,8 @@ def get_coulombic_efficiency(cell_number):             # coulombic_efficiency at
 #*********************************************************************#
 def SoC_method(cell_number):
     while True:
-        print ("state of charge is running")
-        time.sleep(2)
+        # print ("state of charge is running")
+        # time.sleep(2)
         # file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/temperature.txt", "r")  
         # temperature = float (file.read())
         # file.close()
@@ -219,17 +219,19 @@ def SoC_method(cell_number):
             state_of_charge= get_intial_soc_calibration (cell_number,temperature, current, voltage)           # get intial SOC from the open circuit voltage curve.
         else:
             if cell_number < 4:
-                try:
-                    file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell"+str(cell_number)+"_state_of_charge.txt", "r")  
-                    state_of_charge = float (file.read())
-                finally:
-                    file.close()
+                # try:
+                #     file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell"+str(cell_number)+"_state_of_charge.txt", "r")  
+                #     state_of_charge = float (file.read())
+                # finally:
+                #     file.close()
+                state_of_charge = ref.child("state_of_charge").child("cell"+str(cell_number)+"_SOC").get()
             elif cell_number == 4:
-                try:
-                    file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/module1_state_of_charge.txt", "r")  
-                    state_of_charge = float (file.read())
-                finally:
-                    file.close()
+                # try:
+                #     file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/module1_state_of_charge.txt", "r")  
+                #     state_of_charge = float (file.read())
+                # finally:
+                #     file.close()
+                state_of_charge = ref.child("state_of_charge").child("module1_SOC").get()
         state_of_charge = state_of_charge - coulombic_efficiency*(current* (time_two_readings/3600))/ recalibrated_rated_capacity   #/3600 to convert from second to hour.
         #*********** Start get the true SoC***********************************#
         if state_of_charge <= 0:
@@ -240,19 +242,25 @@ def SoC_method(cell_number):
             state_of_charge = state_of_charge
         #****************** start code of update SoC********************#
         if cell_number < 4:
-            try:
-                file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell"+str(cell_number)+"_state_of_charge.txt", "w")
-                file.truncate()       
-                file.write(str(state_of_charge))
-            finally:
-                file.close()
+            # try:
+            #     file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell"+str(cell_number)+"_state_of_charge.txt", "w")
+            #     file.truncate()       
+            #     file.write(str(state_of_charge))
+            # finally:
+            #     file.close()
+            time_str = time.ctime(time.time())
+            ref.child("state_of_charge").update({"cell"+str(cell_number)+"_SOC": state_of_charge})
+            ref.child("cell"+str(cell_number)+"_SOC").child(time_str).update({"value": state_of_charge, "time":time_str})
         elif cell_number == 4:
-            try:
-                file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/module1_state_of_charge.txt", "w")
-                file.truncate()      
-                file.write(str(state_of_charge))
-            finally:
-                file.close()   
+            # try:
+            #     file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/module1_state_of_charge.txt", "w")
+            #     file.truncate()      
+            #     file.write(str(state_of_charge))
+            # finally:
+            #     file.close()
+            time_str = time.ctime(time.time())
+            ref.child("state_of_charge").update({"module1_SOC": state_of_charge})
+            ref.child("module1_SOC").child(time_str).update({"value": state_of_charge, "time":time_str})
         time.sleep (2)                     # to wait 2 seconds between readings.
 #####################################################################################
 def run():
@@ -265,4 +273,4 @@ def run():
     t_3.start()
     t_4.start()
 
-#run()
+run()

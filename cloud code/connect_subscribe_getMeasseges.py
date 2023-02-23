@@ -33,7 +33,7 @@ cred = credentials.Certificate("E:\Masterarbeit\BMS-for-Electric-Vehicles-\cloud
 
 # Initialize the app with a service account, granting admin privileges
 firebase_admin.initialize_app(cred, {
-    'databaseURL': 'https://cloud-based-bms-default-rtdb.europe-west1.firebasedatabase.app/'
+    'databaseURL': 'https://cloud-based-bms-95343-default-rtdb.europe-west1.firebasedatabase.app/'
 })
 ref = db.reference('/')
 #****************************#
