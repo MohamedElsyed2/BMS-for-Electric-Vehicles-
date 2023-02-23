@@ -1,13 +1,17 @@
 
 from paho.mqtt import client as mqtt_client
 from datetime import date
-
+import time
+#*******************************#
+import firebase_admin
+from firebase_admin import credentials
+from firebase_admin import db
 #******************************************************************#
 def connect_mqtt() -> mqtt_client:
     
     broker = 'broker.emqx.io'
     port = 1883
-    topic = 'battery_temperature'
+    #topic = 'battery_temperature'
    
     client_id = 'python_cloud'     # generate client ID
     #username = 'emqx'
@@ -24,116 +28,153 @@ def connect_mqtt() -> mqtt_client:
     client.connect(broker, port)
     return client
 #******************************************************************#
+#********************* stup the databse************#
+cred = credentials.Certificate("E:\Masterarbeit\BMS-for-Electric-Vehicles-\cloud code\serviceAccountKey.json")
+
+# Initialize the app with a service account, granting admin privileges
+firebase_admin.initialize_app(cred, {
+    'databaseURL': 'https://cloud-based-bms-default-rtdb.europe-west1.firebasedatabase.app/'
+})
+ref = db.reference('/')
+#****************************#
 def get_measurements_compute(client):
     while True:
         def on_message(client, userdata,msg):
-
+           
             # check if the message recieved on 'battery_temperature'  topic, publish {ON,OFF} on topic 'fan' after recieving the temperature reading
             if msg.topic==str('battery_temperature'):
                 temperature= (float) (msg.payload.decode())/10
-                try:
-                    file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/temperature.txt", "w")
-                    file.truncate()      
-                    file.write(str(temperature))
-                finally:
-                    file.close()
-                print("Received " + str(temperature)+ " from " + msg.topic + " topic")
+                # try:
+                #     file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/temperature.txt", "w")
+                #     file.truncate()      
+                #     file.write(str(temperature))
+                # finally:
+                #     file.close()
+               
+                time_str = time.ctime(time.time())
+                ref.child("temperature").update({"Module1_temperature": temperature})
+                ref.child("Module1_temperature").child(time_str).update({"value": temperature, "time":time_str})
+                #print("Received " + str(temperature)+ " from " + msg.topic + " topic")
             #***************************************************************#
             elif msg.topic==str('cell1_voltage'):  # recive the message on topic cell1_voltage 
                 # global cell1_voltage
                 voltage = (float) (msg.payload.decode())
                 cell1_voltage = voltage/1000
-                try:
-                    file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell1_voltage.txt", "w")
-                    file.truncate()     
-                    file.write(str(cell1_voltage))
-                finally:
-                    file.close()
-                print("Received " + str(cell1_voltage)+ " from " + msg.topic + " topic")
+                # try:
+                #     file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell1_voltage.txt", "w")
+                #     file.truncate()     
+                #     file.write(str(cell1_voltage))
+                # finally:
+                #     file.close()
+                time_str = time.ctime(time.time())
+                ref.child("voltage").update({"cell1_voltage": cell1_voltage})
+                ref.child("cell1_voltage").child(time_str).update({"value": cell1_voltage, "time":time_str})
+                
+                #print("Received " + str(cell1_voltage)+ " from " + msg.topic + " topic")
             #************************************************************#
             #***************************************************************#
             elif msg.topic==str('cell2_voltage'):  
                 voltage = (float) (msg.payload.decode())
                 cell2_voltage = voltage/1000
-                try:
-                    file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell2_voltage.txt", "w")
-                    file.truncate()      
-                    file.write(str(cell2_voltage))
-                finally:
-                    file.close()
-                print("Received " + str(cell2_voltage)+ " from " + msg.topic + " topic")
+                # try:
+                #     file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell2_voltage.txt", "w")
+                #     file.truncate()      
+                #     file.write(str(cell2_voltage))
+                # finally:
+                #     file.close()
+                # print("Received " + str(cell2_voltage)+ " from " + msg.topic + " topic")
+                time_str = time.ctime(time.time())
+                ref.child("voltage").update({"cell2_voltage": cell2_voltage})
+                ref.child("cell2_voltage").child(time_str).update({"value": cell2_voltage, "time":time_str})
             #************************************************************#
             #***************************************************************#
             elif msg.topic==str('cell3_voltage'):  
                 voltage = (float) (msg.payload.decode())
                 cell3_voltage = voltage/1000
-                try:
-                    file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell3_voltage.txt", "w")
-                    file.truncate()     
-                    file.write(str(cell3_voltage))
-                finally:
-                    file.close()
-                print("Received " + str(cell3_voltage)+ " from " + msg.topic + " topic")
+                # try:
+                #     file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell3_voltage.txt", "w")
+                #     file.truncate()     
+                #     file.write(str(cell3_voltage))
+                # finally:
+                #     file.close()
+                # print("Received " + str(cell3_voltage)+ " from " + msg.topic + " topic")
+                time_str = time.ctime(time.time())
+                ref.child("voltage").update({"cell3_voltage": cell3_voltage})
+                ref.child("cell3_voltage").child(time_str).update({"value": cell3_voltage, "time":time_str})
             #************************************************************#
             #***************************************************************#
             elif msg.topic==str('module1_voltage'):  
                 voltage = (float) (msg.payload.decode())
                 module1_voltage = voltage/1000
-                try:
-                    file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/module1_voltage.txt", "w")
-                    file.truncate()     
-                    file.write(str(module1_voltage))
-                finally:
-                    file.close()
-                print("Received " + str(module1_voltage)+ " from " + msg.topic + " topic")
+                # try:
+                #     file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/module1_voltage.txt", "w")
+                #     file.truncate()     
+                #     file.write(str(module1_voltage))
+                # finally:
+                #     file.close()
+                # print("Received " + str(module1_voltage)+ " from " + msg.topic + " topic")
+                time_str = time.ctime(time.time())
+                ref.child("voltage").update({"module1_voltage": module1_voltage})
+                ref.child("module1_voltage").child(time_str).update({"value": module1_voltage, "time":time_str})
             #************************************************************#
             elif msg.topic==str('cell1_current'):  # recive the message on topic cell1_current 
                 #global cell1_current
                 current = (float)(msg.payload.decode())
                 cell1_current = current/1000
-                try:
-                    file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell1_current.txt", "w")
-                    file.truncate()       
-                    file.write(str(cell1_current))
-                finally:
-                    file.close()
-                print("Received " + str(cell1_current)+ " from " + msg.topic + " topic")
-            #*******************************************************************************#
-             #************************************************************#
+                # try:
+                #     file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell1_current.txt", "w")
+                #     file.truncate()       
+                #     file.write(str(cell1_current))
+                # finally:
+                #     file.close()
+                # print("Received " + str(cell1_current)+ " from " + msg.topic + " topic")
+                time_str = time.ctime(time.time())
+                ref.child("current").update({"cell1_current": cell1_current})
+                ref.child("cell1_current").child(time_str).update({"value": cell1_current, "time":time_str})
+            #******************************************************************************#
             elif msg.topic==str('cell2_current'): 
                 current = (float)(msg.payload.decode())
                 cell2_current = current/1000
-                try:
-                    file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell2_current.txt", "w")
-                    file.truncate()       
-                    file.write(str(cell2_current))
-                finally:
-                    file.close()
-                print("Received " + str(cell2_current)+ " from " + msg.topic + " topic")
+                # try:
+                #     file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell2_current.txt", "w")
+                #     file.truncate()       
+                #     file.write(str(cell2_current))
+                # finally:
+                #     file.close()
+                # print("Received " + str(cell2_current)+ " from " + msg.topic + " topic")
+                time_str = time.ctime(time.time())
+                ref.child("current").update({"cell2_current": cell2_current})
+                ref.child("cell2_current").child(time_str).update({"value": cell2_current, "time":time_str})
             #*******************************************************************************#
             #************************************************************#
             elif msg.topic==str('cell3_current'): 
                 current = (float)(msg.payload.decode())
                 cell3_current = current/1000
-                try:
-                    file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell3_current.txt", "w")
-                    file.truncate()       
-                    file.write(str(cell3_current))
-                finally:
-                    file.close()
-                print("Received " + str(cell3_current)+ " from " + msg.topic + " topic")
+                # try:
+                #     file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell3_current.txt", "w")
+                #     file.truncate()       
+                #     file.write(str(cell3_current))
+                # finally:
+                #     file.close()
+                # print("Received " + str(cell3_current)+ " from " + msg.topic + " topic")
+                time_str = time.ctime(time.time())
+                ref.child("current").update({"cell3_current": cell3_current})
+                ref.child("cell3_current").child(time_str).update({"value": cell3_current, "time":time_str})
             #*******************************************************************************#
             #************************************************************#
             elif msg.topic==str('module1_current'): 
                 current = (float)(msg.payload.decode())
                 module1_current = current/1000
-                try:
-                    file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/module1_current.txt", "w")
-                    file.truncate()       
-                    file.write(str(module1_current))
-                finally:
-                    file.close()
-                print("Received " + str(module1_current)+ " from " + msg.topic + " topic")
+                # try:
+                #     file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/module1_current.txt", "w")
+                #     file.truncate()       
+                #     file.write(str(module1_current))
+                # finally:
+                #     file.close()
+                # print("Received " + str(module1_current)+ " from " + msg.topic + " topic")
+                time_str = time.ctime(time.time())
+                ref.child("current").update({"module1_current": module1_current})
+                ref.child("module1_current").child(time_str).update({"value": module1_current, "time":time_str})
             #*******************************************************************************#
             elif msg.topic==str('sensors_Error'):  # recive the message on topic cell1_current 
                 error = (int)(msg.payload.decode())
@@ -150,7 +191,7 @@ def run():
     client.loop_start()
     get_measurements_compute(client)
     
-#run()
+run()
 
 
 
