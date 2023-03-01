@@ -1,6 +1,6 @@
 
 import time
-
+print("Thread7!")
 def check_battery_being_used_or_not ():
     while True:
         print("check battery usage is running")

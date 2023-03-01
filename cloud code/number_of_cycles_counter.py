@@ -4,7 +4,7 @@ import numpy as np
 from math import fabs
 import time
 import threading
-
+print("Thread8!")
 """ These methods are coded according to the methodology and  explanation of Rainflow counting method which is published in: 
 Alam, M. J. E., and T. K. Saha. "Cycle-life degradation assessment of Battery Energy Storage Systems caused by solar PV variability.
 " In 2016 IEEE Power and Energy Society General Meeting (PESGM), pp. 2. IEEE, 2016."""
@@ -13,7 +13,7 @@ Alam, M. J. E., and T. K. Saha. "Cycle-life degradation assessment of Battery En
 def rainflow_algorithm(cell_number):
     while True:
         print("cycles counter is running")
-        time.sleep(2)
+        #time.sleep(2)
         #**************************** Start of get the depth of discharging array *************#
         def get_DoD_array(cell_number):
             #DoD_array =np.array([0,10,5,2,3,10,10,0,0,30,15,10,20,10,0,0,0,0,0,0,0,15,10,10,5,10,10,0,0,10,10,0,0,0,0,25,35,0,0,20,40,0,0,0,0,0,0,0,0,0,0]) # array of DoD points.

@@ -1,17 +1,32 @@
 
-import firebase_admin
-from firebase_admin import credentials
-from firebase_admin import db
+# import firebase_admin
+# from firebase_admin import credentials
+# from firebase_admin import dbcdcd
 import time
-cred = credentials.Certificate("E:\Masterarbeit\BMS-for-Electric-Vehicles-\cloud code\serviceAccountKey.json")
+import mysql.connector
 
 
-# Initialize the app with a service account, granting admin privileges
-firebase_admin.initialize_app(cred, {
-    'databaseURL': 'https://cloud-based-bms-95343-default-rtdb.europe-west1.firebasedatabase.app/'
-})
-ref = db.reference('/')
-while True:
+mydb = mysql.connector.connect(
+  host="localhost",
+  user="root",
+  password="46045",
+  database="CBBMS_DB"
+)
+mycursor = mydb.cursor()
+
+mycursor.execute("SHOW DATABASES")
+
+for x in mycursor:
+  print(x)
+
+#cred = credentials.Certificate("E:\Masterarbeit\BMS-for-Electric-Vehicles-\cloud code\serviceAccountKey.json")
+
+# # Initialize the app with a service account, granting admin privileges
+# firebase_admin.initialize_app(cred, {
+#     'databaseURL': 'https://cloud-based-bms-95343-default-rtdb.europe-west1.firebasedatabase.app/'
+# })
+# ref = db.reference('/')
+# while True:
     
     # # ref.set({
     # #     'voltage': '4'
@@ -27,10 +42,10 @@ while True:
     # ref.child("cell"+str(cell_number)+"_SOH").child(time_str).update({"value": state_of_health, "time":time_str})
 
     # state_of_health = ref.child("state_of_health").child("cell"+str(cell_number)+"_SOH").get()
-    # #print(state_of_health)
-    # time.sleep(1)
-    timer = ref.child("timer").get()
-    print(timer)
+    # # #print(state_of_health)
+    # # time.sleep(1)
+    # timer = ref.child("timer").get()
+    # print(timer)
     # cell1_voltage = ref.child("temperature").child("Module1_temperature").get()
     # print(cell1_voltage)
 

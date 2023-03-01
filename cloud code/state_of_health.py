@@ -4,13 +4,23 @@ from math import exp
 import threading
 import time
 import os
+import mysql.connector
+#*********** setup the sql database ***********#
+mydb = mysql.connector.connect(
+  host="127.0.0.1",
+  user="root",
+  password="46045",
+  database="CBBMS_DB"
+)
+mycursor = mydb.cursor()
+#***********************************************#
 
 """ These methods are coded according to the methodology which is published in: Andrea, Davide. Battery management systems for 
 large lithium-ion battery packs. Artech house, 2010, pp. 189-192. And Tan, C.M., Singh, P. and Chen, C., 2020. Accurate real time 
 on-line estimation of state-of-health and remaining useful life of Li ion batteries. Applied Sciences, 10(21), p.7836. """
-
+print("Thread3!")
 def get_state_of_health (cell_number):
-    while True:
+    #while True:
         print ("state of health is running")
         time.sleep(2)
         if cell_number < 4:
@@ -51,11 +61,15 @@ def get_state_of_health (cell_number):
                 s = 214.3
                 t = 0.6111
                 dod = 0     # the battery will not charge or discharge.
-                try:
-                    file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell"+str(cell_number)+"_state_of_charge.txt", "r")   # open the file 'temperature.txt' in raeding mode.
-                    average_SOC = float (file.read())
-                finally:
-                    file.close()
+                sql = "SELECT SOC FROM cells_state_of_charge WHERE module_ID = 1 AND cell_ID = "+ str(cell_number)+"ORDER BY ID DESC LIMIT 1"
+                mycursor.execute(sql)
+                data = mycursor.fetchone()
+                average_SOC = data[0]
+                # try:
+                #     file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell"+str(cell_number)+"_state_of_charge.txt", "r")   # open the file 'temperature.txt' in raeding mode.
+                #     average_SOC = float (file.read())
+                # finally:
+                #     file.close()
 
                 nominal_dod = 100         # from datasheet
                 nominal_average_SOC = 50    # from datasheet
@@ -82,20 +96,33 @@ def get_state_of_health (cell_number):
 
             #******* Start of the code to calculate SoH based on number of cycles *********#
             def SOH_num_of_cycles (cell_number):
-                file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell"+str(cell_number)+"_num_of_cycles.txt", "r")  
-                num_of_cycles = float (file.read())
-                file.close()
+                # file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell"+str(cell_number)+"_num_of_cycles.txt", "r")  
+                # num_of_cycles = float (file.read())
+                # file.close()
+                sql = "SELECT num_of_cycles FROM cells_num_of_cycles WHERE module_ID = 1 AND cell_ID = "+ str(cell_number)
+                mycursor.execute(sql) # ORDER BY ID DESC LIMIT 1
+                data = mycursor.fetchall()
+                last_value = data [-1]
+                num_of_cycles = float (last_value[0])
                 nominal_capacity = 3.350   # Ah
-                try:
-                    file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell"+str(cell_number)+"_current.txt", "r")  
-                    cell_current = float (file.read())
-                finally:
-                    file.close()
-                try:
-                    file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/temperature.txt", "r")  
-                    temperature = float (file.read())
-                finally:
-                    file.close()
+                # try:
+                #     file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell"+str(cell_number)+"_current.txt", "r")  
+                #     cell_current = float (file.read())
+                # finally:
+                #     file.close()
+                mycursor.execute("SELECT current FROM current_measurements WHERE module_ID = 1 AND cell_ID = "+ str(cell_number))
+                data = mycursor.fetchall()
+                last_value = data [-1]
+                cell_current = float (last_value[0])
+                # try:
+                #     file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/temperature.txt", "r")  
+                #     temperature = float (file.read())
+                # finally:
+                #     file.close()
+                mycursor.execute("SELECT temperature FROM modules_temperature WHERE module_ID = 1") # ORDER BY ID DESC LIMIT 1
+                data = mycursor.fetchall()
+                last_value = data [-1]
+                temperature = float (last_value[0])
                 c_rate = abs(cell_current)/nominal_capacity   
                 temp_coeff = (temperature - 40 )/15                   # (temperature (◦C) - 40 ◦C)/15 ◦C, @ temperature 25° C.
                 c_rate_coeff = c_rate - 2
@@ -105,21 +132,20 @@ def get_state_of_health (cell_number):
                 soh_num_of_cycles_coeff = 1- (0.5*k1*pow(num_of_cycles,2)+k2 * num_of_cycles) - (k3*c_rate /nominal_capacity)
                 return soh_num_of_cycles_coeff 
             #*************************************************************************************#
-            try:
-                file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/battery_usage.txt", "r")   # open the file 'temperature.txt' in raeding mode.
-                battery_being_used = float (file.read())
-            except:
-                while os.stat("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/battery_usage.txt").st_size == 0:
-                    time.sleep(0.1)
-                    if os.stat("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/battery_usage.txt").st_size != 0:
-                        battery_being_used = float (file.read())
-            finally:
-                file.close()
             # try:
             #     file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/battery_usage.txt", "r")   # open the file 'temperature.txt' in raeding mode.
             #     battery_being_used = float (file.read())
+            # except:
+            #     while os.stat("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/battery_usage.txt").st_size == 0:
+            #         time.sleep(0.1)
+            #         if os.stat("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/battery_usage.txt").st_size != 0:
+            #             battery_being_used = float (file.read())
             # finally:
             #     file.close()
+            mycursor.execute("SELECT value FROM battery_usage WHERE module_ID = 1") 
+            data = mycursor.fetchall()
+            last_value = data [-1]
+            battery_being_used = float (last_value[0])
             if battery_being_used == 1:
                 is_battery_being_used = True
             else:
@@ -130,42 +156,59 @@ def get_state_of_health (cell_number):
             else:
                 state_of_health = SOH_passage_of_time (cell_number)
             total_SOH  = float("{:.2f}".format(state_of_health))               #convert to float of to decimal point.
-            try:
-                file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell"+str(cell_number)+"_state_of_health.txt", "w")
-                file.truncate()       
-                file.write(str(total_SOH))
-            finally:
-                file.close()
+            # try:
+            #     file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell"+str(cell_number)+"_state_of_health.txt", "w")
+            #     file.truncate()       
+            #     file.write(str(total_SOH))
+            # finally:
+            #     file.close()
+            sql = "INSERT INTO cells_state_of_health (module_ID,cell_ID, SOH) VALUES (%s, %s, %s)"
+            values = (1,cell_number, total_SOH)
+            mycursor.execute(sql , values) # store the measurement value in SQL database
+            mydb.commit()  # Commit the transaction
         #********************************************************************#
         elif cell_number == 4:
             soh = 0
             for cell_number in range(1,4):     # get the state of health of every cell.
-                try:
-                    file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell"+str(cell_number)+"_state_of_health.txt", "r")  
-                    soh += float (file.read())
-                except:
-                    while os.stat("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell"+str(cell_number)+"_state_of_health.txt").st_size == 0:
-                        time.sleep(0.1)
-                        if os.stat("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell"+str(cell_number)+"_state_of_health.txt").st_size != 0:
-                            soh += float (file.read())
-                finally:
-                    file.close()
+                # try:
+                #     file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell"+str(cell_number)+"_state_of_health.txt", "r")  
+                #     soh += float (file.read())
+                # except:
+                #     while os.stat("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell"+str(cell_number)+"_state_of_health.txt").st_size == 0:
+                #         time.sleep(0.1)
+                #         if os.stat("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell"+str(cell_number)+"_state_of_health.txt").st_size != 0:
+                #             soh += float (file.read())
+                # finally:
+                #     file.close()
+                sql = "SELECT SOH FROM cells_state_of_health WHERE module_ID = 1 AND cell_ID = "+ str(cell_number)
+                mycursor.execute(sql) 
+                data = mycursor.fetchall()
+                last_value = data [-1]
+                soh += float (last_value[0])
             module1_SoH = soh / 3
-            try:
-                file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/module1_state_of_health.txt", "w")
-                file.truncate()      
-                file.write(str(module1_SoH))
-            finally:
-                file.close()   
+            # try:
+            #     file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/module1_state_of_health.txt", "w")
+            #     file.truncate()      
+            #     file.write(str(module1_SoH))
+            # finally:
+            #     file.close()
+            sql = "INSERT INTO modules_state_of_health (module_ID, SOH) VALUES (%s, %s)"
+            values = (1, module1_SoH)
+            mycursor.execute(sql , values) # store the measurement value in SQL database
+            mydb.commit()  # Commit the transaction
 #************************************************************************************************#    
 def run():
-    t_1 = threading.Thread(target=get_state_of_health, args=(1,))   # calculate the state of health  of cell1.
-    t_2 = threading.Thread(target=get_state_of_health, args=(2,))   # calculate the state of health  of cell2.
-    t_3 = threading.Thread(target=get_state_of_health, args=(3,))   # calculate the state of health  of cell3.
-    t_4 = threading.Thread(target=get_state_of_health, args=(4,))   # calculate the state of health  of module1.
-    t_1.start()
-    t_2.start()
-    t_3.start()
-    t_4.start()
+    # t_1 = threading.Thread(target=get_state_of_health, args=(1,))   # calculate the state of health  of cell1.
+    # t_2 = threading.Thread(target=get_state_of_health, args=(2,))   # calculate the state of health  of cell2.
+    # t_3 = threading.Thread(target=get_state_of_health, args=(3,))   # calculate the state of health  of cell3.
+    # t_4 = threading.Thread(target=get_state_of_health, args=(4,))   # calculate the state of health  of module1.
+    # t_1.start()
+    # t_2.start()
+    # t_3.start()
+    # t_4.start()
+    #while True:
+        for i in range(4):
+            get_state_of_health(i+1)
+            time.sleep(2)
 
 #run()

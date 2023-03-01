@@ -1,0 +1,77 @@
+CREATE TABLE current_measurements (ID int NOT NULL AUTO_INCREMENT,module_ID int, cell_ID  int, current float,timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (ID));
+
+CREATE TABLE current_measurements (module_ID int, cell_ID  int, current float);
+select * from voltage_measurements;
+select * from modules_temperature;
+
+CREATE TABLE voltage_measurements (id int NOT NULL AUTO_INCREMENT,module_ID int,cell_ID int,voltage float,PRIMARY KEY (id));
+
+INSERT INTO current_measurements (module_ID, cell_ID , current) VALUES (1, 1, 1.5);
+
+CREATE TABLE modules_current (ID int NOT NULL AUTO_INCREMENT,module_ID int, current float,timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (ID));
+
+CREATE TABLE modules_temperature (ID int NOT NULL AUTO_INCREMENT,module_ID int, temperature float,timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (ID));
+
+CREATE TABLE voltage_measurements (ID int NOT NULL AUTO_INCREMENT,module_ID int, cell_ID  int, voltage float,timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (ID));
+
+CREATE TABLE cells_state_of_charge (ID int NOT NULL AUTO_INCREMENT,module_ID int, cell_ID  int, SOC float,timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (ID));
+
+INSERT INTO cells_state_of_charge (module_ID, cell_ID , SOH) VALUES (1, 1, 1);
+
+INSERT INTO cells_coulombic_efficiency (module_ID, cell_ID , coulombic_efficiency) VALUES (1, 1, 1);
+
+select * from cells_coulombic_efficiency;
+
+select * from modules_coulombic_efficiency;
+
+CREATE TABLE modules_state_of_charge (ID int NOT NULL AUTO_INCREMENT, module_ID int, SOC float,timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (ID));
+
+UPDATE cells_state_of_health SET cell_ID = 3 WHERE ID= 4;
+
+CREATE TABLE modules_coulombic_efficiency (ID int NOT NULL AUTO_INCREMENT, module_ID int, coulombic_efficiency float,timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (ID));
+
+CREATE TABLE cells_coulombic_efficiency (ID int NOT NULL AUTO_INCREMENT, module_ID int,cell_ID  int, coulombic_efficiency float,timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (ID));
+
+CREATE TABLE timer (ID int NOT NULL AUTO_INCREMENT, timer_value int, PRIMARY KEY (ID));
+
+INSERT INTO timer (timer_value) VALUES (0);
+
+SELECT SOC FROM cells_state_of_charge WHERE cell_ID = 1 ORDER BY id DESC LIMIT 1;
+SELECT SOC FROM cells_state_of_charge WHERE module_ID = 1 AND cell_ID =1 ORDER BY ID DESC LIMIT 1;
+
+cat /proc/cpuinfo  # to ptint the system data
+
+SELECT num_of_cycles FROM cells_num_of_cycles WHERE module_ID = 1 AND cell_ID = "+ str(cell_number)
+
+CREATE TABLE modules_coulombic_Efficiency_denominator (ID int NOT NULL AUTO_INCREMENT,module_ID int, coulombic_Efficiency_denominator float,timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (ID));
+CREATE TABLE cells_coulombic_Efficiency_numinator (ID int NOT NULL AUTO_INCREMENT,module_ID int,cell_ID int, coulombic_Efficiency_numinator float,timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (ID));
+
+SELECT coulombic_Efficiency_numinator FROM cells_coulombic_Efficiency_numinator WHERE module_ID
+INSERT INTO cells_coulombic_Efficiency_denominator (module_ID,cell_ID, coulombic_Efficiency_denominator) VALUES (1, 1,1);
+SELECT value FROM battery_usage WHERE module_ID = 1
+
+import mysql.connector
+#*********** setup the sql database ***********#
+mydb = mysql.connector.connect(
+  host="127.0.0.1",
+  user="root",
+  password="46045",
+  database="CBBMS_DB"
+)
+mycursor = mydb.cursor()
+#***********************************************#
+
+##########################################################################
+sql = "INSERT INTO cells_state_of_charge (module_ID,cell_ID, SOC) VALUES (%s, %s, %s)"
+values = (1,cell_number, state_of_charge)
+mycursor.execute(sql , values) # store the measurement value in SQL database
+mydb.commit()  # Commit the transaction
+#############################################
+sql = "SELECT SOC FROM cells_state_of_charge WHERE module_ID = 1 ORDER BY ID DESC LIMIT 1"
+mycursor.execute(sql)
+data = mycursor.fetchone()
+state_of_charge = data[0]
+#########################################
+
+
+
