@@ -7,7 +7,7 @@ import time
 # from firebase_admin import credentials
 # from firebase_admin import db
 import mysql.connector
-print("Thread1!")
+
 #******************************************************************#
 def connect_mqtt() -> mqtt_client:
     
@@ -29,6 +29,8 @@ def connect_mqtt() -> mqtt_client:
     client.on_connect = on_connect
     client.connect(broker, port)
     return client
+client = connect_mqtt()
+client.loop_start()
 #******************************************************************#
 # #********************* stup the databse************#
 # cred = credentials.Certificate("E:\Masterarbeit\BMS-for-Electric-Vehicles-\cloud code\serviceAccountKey.json")
@@ -39,24 +41,26 @@ def connect_mqtt() -> mqtt_client:
 # })
 # ref = db.reference('/')
 
-#*********** setup the sql database ***********#
-mydb = mysql.connector.connect(
-  host="127.0.0.1",
-  user="root",
-  password="46045",
-  database="CBBMS_DB"
-)
-mycursor = mydb.cursor()
-print("connected to the database")
-#***********************************************#
+
 def get_measurements_compute(client):
-    while True:
+        #*********** setup the sql database ***********#
+        mydb = mysql.connector.connect(
+        host="127.0.0.1",
+        user="root",
+        password="46045",
+        database="CBBMS_DB"
+        )
+        mycursor = mydb.cursor()
+        #print("connected to the database")
+        #***********************************************#
+    
+    #while True:
         def on_message(client, userdata,msg):
-            print("get measurment from MQTT!")
             # check if the message recieved on 'battery_temperature'  topic, publish {ON,OFF} on topic 'fan' after recieving the temperature reading
             if msg.topic==str('battery_temperature'):
                 temperature= (float) (msg.payload.decode())/10
-
+                print("Received " + str(temperature)+ " from " + msg.topic + " topic")
+                
                 sql = "INSERT INTO modules_temperature (module_ID,temperature) VALUES (%s, %s)"
                 values = (1, temperature)
                 mycursor.execute(sql , values) # store the measurement value in SQL database
@@ -251,12 +255,12 @@ def get_measurements_compute(client):
         client.on_message = on_message 
 #***********************************************************************************#
 def run():
-    # while True:
-    client = connect_mqtt()
-    client.loop_start()
-    get_measurements_compute(client)
     
-run()
+    
+    #while True:
+        get_measurements_compute(client)
+    
+#run()
 
 
 """

@@ -3,7 +3,6 @@ import time
 import numpy
 import threading
 import mysql.connector
-print("Thread5!")
 #*********** setup the sql database ***********#
 mydb = mysql.connector.connect(
   host="127.0.0.1",
@@ -45,7 +44,7 @@ def get_state_of_health (cell_number):
         # finally:
         #     file.close()
         # state_of_health = ref.child("state_of_health").child("module1_SOH").get()
-        sql = "SELECT SOH FROM modules_state_of_health WHERE module_ID = 1 " 
+        sql = "SELECT SOH FROM modules_state_of_health WHERE module_ID = 1  ORDER BY ID DESC LIMIT 1" 
         mycursor.execute(sql)
         data = mycursor.fetchone()
         state_of_health = data[0]
@@ -204,10 +203,11 @@ def get_coulombic_efficiency(cell_number):             # coulombic_efficiency at
         # coulombic_efficiency = float (file.read())
         # file.close()
         #coulombic_efficiency = ref.child("coulombic_efficiency").child("module1_CE").get()
-        mycursor.execute("SELECT coulombic_efficiency FROM modules_coulombic_efficiency WHERE module_ID = 1") # ORDER BY ID DESC LIMIT 1
-        data = mycursor.fetchall()
-        last_value = data [-1]
-        coulombic_efficiency = float (last_value[0])
+        # sql= "SELECT coulombic_efficiency FROM modules_coulombic_efficiency"
+        sql= "SELECT coulombic_efficiency FROM modules_coulombic_efficiency WHERE module_ID = 1  ORDER BY ID DESC LIMIT 1"
+        mycursor.execute(sql)
+        data = mycursor.fetchone()
+        coulombic_efficiency = data[0]
     return coulombic_efficiency
 
 #*********************************************************************#
@@ -295,7 +295,7 @@ def SoC_method(cell_number):
                 # finally:
                 #     file.close()
                 #state_of_charge = ref.child("state_of_charge").child("module1_SOC").get()
-                sql = "SELECT SOC FROM cells_state_of_charge WHERE module_ID = 1 ORDER BY ID DESC LIMIT 1"
+                sql = "SELECT SOC FROM modules_state_of_charge WHERE module_ID = 1 ORDER BY ID DESC LIMIT 1"
                 mycursor.execute(sql)
                 data = mycursor.fetchone()
                 state_of_charge = data[0]
@@ -350,5 +350,7 @@ def run():
     #while True:
         for i in range(4):
             SoC_method(i+1)
+            time.sleep(2)
+
 
 #run()

@@ -47,7 +47,7 @@ CREATE TABLE modules_coulombic_Efficiency_denominator (ID int NOT NULL AUTO_INCR
 CREATE TABLE cells_coulombic_Efficiency_numinator (ID int NOT NULL AUTO_INCREMENT,module_ID int,cell_ID int, coulombic_Efficiency_numinator float,timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (ID));
 
 SELECT coulombic_Efficiency_numinator FROM cells_coulombic_Efficiency_numinator WHERE module_ID
-INSERT INTO cells_coulombic_Efficiency_denominator (module_ID,cell_ID, coulombic_Efficiency_denominator) VALUES (1, 1,1);
+
 SELECT value FROM battery_usage WHERE module_ID = 1
 
 import mysql.connector
@@ -73,5 +73,5 @@ data = mycursor.fetchone()
 state_of_charge = data[0]
 #########################################
 
-
-
+CREATE TABLE cells_residual_num_cycles (ID int NOT NULL AUTO_INCREMENT,module_ID int,cell_ID int, residual_num_cycles float,timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (ID));
+INSERT INTO cells_residual_num_cycles (module_ID,cell_ID, residual_num_cycles) VALUES (1, 1,31657);

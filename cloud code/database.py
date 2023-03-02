@@ -29,7 +29,7 @@ mycursor = mydb.cursor()
 # values = (1, temperature)
 # mycursor.execute(sql , values) # store the measurement value in SQL database
 # mydb.commit()  # Commit the transaction
-cell_number = 1
+#cell_number = 1
 # sql = "SELECT SOC FROM cells_state_of_charge WHERE module_ID = 1 AND cell_ID = "+ str(cell_number)
 # mycursor.execute(sql) 
 # data = mycursor.fetchall()
@@ -39,19 +39,22 @@ cell_number = 1
 # mycursor.execute(sql)
 # data = mycursor.fetchone()
 # timer_1 = data[0]
-calibrated_coulombic_Efficiency = 1
-sql = "INSERT INTO cells_coulombic_efficiency (module_ID,cell_ID, coulombic_efficiency) VALUES (%s, %s, %s)"
-values = (1,cell_number, calibrated_coulombic_Efficiency)
-mycursor.execute(sql , values) # store the measurement value in SQL database
-mydb.commit()  # Commit the transaction
+# calibrated_coulombic_Efficiency = 1
+# sql = "INSERT INTO cells_coulombic_efficiency (module_ID,cell_ID, coulombic_efficiency) VALUES (%s, %s, %s)"
+# values = (1,cell_number, calibrated_coulombic_Efficiency)
+# mycursor.execute(sql , values) # store the measurement value in SQL database
+# mydb.commit()  # Commit the transaction
 #mycursor.execute("INSERT INTO modules_temperature (module_ID,temperature) VALUES (%s, %s)",(1, 20.5)) # store the measurement value in SQL database
 # #********************************#
 # mycursor.execute("SELECT temperature FROM modules_temperature") # ORDER BY ID DESC LIMIT 1
 # temperature = mycursor.fetchall()
 # last_value = temperature[-1]
 # print(temperature)
-# #print(last_value)
-# print(float(last_value[0]))
+sql = "INSERT INTO modules_state_of_charge (module_ID, SOC) VALUES (%s, %s)"
+values = (1, 0.99)
+mycursor.execute(sql , values) # store the measurement value in SQL database
+mydb.commit()  
+#print(state_of_health)
 #***** read the last value in a specific column*****#
 #mycursor.execute("SELECT voltage FROM voltage_measurements WHERE cell_ID = 2") # ORDER BY ID DESC LIMIT 1
 # cell3_values = mycursor.fetchall()

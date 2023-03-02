@@ -5,9 +5,16 @@ import threading
 import time
 import array
 import datetime
-
-
-
+import mysql.connector
+#*********** setup the sql database ***********#
+mydb = mysql.connector.connect(
+  host="127.0.0.1",
+  user="root",
+  password="46045",
+  database="CBBMS_DB"
+)
+mycursor = mydb.cursor()
+#***********************************************#
 #************************* Start of battery_age_estimation method*****************************************#
 """ This method is coded according to the published paper: Muenzel, V.; de Hoog, J.; Brazil, M.; Vishwanath, A.; Kalyanaraman,
 S. A multi-factor battery cycle life prediction methodology for optimal battery management. 
@@ -15,9 +22,13 @@ S. A multi-factor battery cycle life prediction methodology for optimal battery 
 
 #******************* Start of battery_age_temperature method***********************************#
 def battery_age_temperature():
-    file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/temperature.txt", "r")   # open the file 'temperature.txt' in raeding mode.
-    temperature = float (file.read())
-    file.close()                   # the real temperature of the battery cell.
+    # file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/temperature.txt", "r")   # open the file 'temperature.txt' in raeding mode.
+    # temperature = float (file.read())
+    # file.close()                   # the real temperature of the battery cell.
+    sql = "SELECT temperature FROM modules_temperature WHERE module_ID = 1 ORDER BY ID DESC LIMIT 1"
+    mycursor.execute(sql)
+    data = mycursor.fetchone()
+    temperature = data[0]
     clT_array = array.array('f', [])   # clT_array: is the array of cycle life of temperature, 'f': stands for float.
     for i in range (0,4):
         a = 0.0039
@@ -45,24 +56,36 @@ def battery_age_chg_dischg_current(cell_number):
         global total_chg_time
         total_chg_time = 0
         global total_dischg_time
-        total_dischg_time = 1                    #it should to be zero, but substituted with 1 to avoid a software error, and more 1 second will not affect on our calculations. 
-        file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell"+str(cell_number)+"_current.txt", "r")   # open the file 'temperature.txt' in raeding mode.
-        cell_current = float (file.read())
-        file.close()              
+        total_dischg_time = 1               #it should to be zero, but substituted with 1 to avoid a software error, and more 1 second will not affect on our calculations. 
+        # file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell"+str(cell_number)+"_current.txt", "r")   # open the file 'temperature.txt' in raeding mode.
+        # cell_current = float (file.read())
+        # file.close() 
+        sql = "SELECT current FROM current_measurements WHERE module_ID = 1 AND cell_ID = "+ str(cell_number)+" ORDER BY ID DESC LIMIT 1"       
+        mycursor.execute(sql)
+        data = mycursor.fetchone()
+        cell_current = data[0]      
         while timer < 86400:         # 86400   wait for 24 hours
             #global before_SOC
             # global cell_state_of_charge
             # before_SOC = cell_state_of_charge
-            file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell"+str(cell_number)+"_state_of_charge.txt", "r")   # open the file 'temperature.txt' in raeding mode.
-            before_SOC = float (file.read())
-            file.close()
+            # file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell"+str(cell_number)+"_state_of_charge.txt", "r")   # open the file 'temperature.txt' in raeding mode.
+            # before_SOC = float (file.read())
+            # file.close()
+            sql = "SELECT SOC FROM cells_state_of_charge WHERE module_ID = 1 AND cell_ID = "+ str(cell_number) + " ORDER BY ID DESC LIMIT 1"
+            mycursor.execute(sql)
+            data = mycursor.fetchone()
+            before_SOC = data[0]
             if current_status_flag == False:
                 time.sleep(60) #60
                 if cell_current > 0:              # positive  current means discharge current
                     current_status_flag = True
-                file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell"+str(cell_number)+"_state_of_charge.txt", "r")   # open the file 'temperature.txt' in raeding mode.
-                SOC_after_chg = float (file.read())
-                file.close()
+                # file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell"+str(cell_number)+"_state_of_charge.txt", "r")   # open the file 'temperature.txt' in raeding mode.
+                # SOC_after_chg = float (file.read())
+                # file.close()
+                sql = "SELECT SOC FROM cells_state_of_charge WHERE module_ID = 1 AND cell_ID = "+ str(cell_number) + " ORDER BY ID DESC LIMIT 1"
+                mycursor.execute(sql)
+                data = mycursor.fetchone()
+                SOC_after_chg = data[0]
                 increased_SOC = SOC_after_chg - before_SOC
                 #global total_incresed_SOC
                 total_incresed_SOC += increased_SOC
@@ -73,9 +96,13 @@ def battery_age_chg_dischg_current(cell_number):
                 if cell_current < 0:             # negative current means charge current
                     current_status_flag = False
                 #stop_time = datetime.datetime.now()
-                file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell"+str(cell_number)+"_state_of_charge.txt", "r")   # open the file 'temperature.txt' in raeding mode.
-                SOC_after_dischg = float (file.read())
-                file.close()
+                # file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell"+str(cell_number)+"_state_of_charge.txt", "r")   # open the file 'temperature.txt' in raeding mode.
+                # SOC_after_dischg = float (file.read())
+                # file.close()
+                sql = "SELECT SOC FROM cells_state_of_charge WHERE module_ID = 1 AND cell_ID = "+ str(cell_number) + " ORDER BY ID DESC LIMIT 1"
+                mycursor.execute(sql)
+                data = mycursor.fetchone()
+                SOC_after_dischg = data[0]
                 decresed_SOC = before_SOC - SOC_after_dischg
                 #global total_decresed_SOC
                 total_decresed_SOC += decresed_SOC
@@ -126,9 +153,13 @@ def battery_age_SOC_DOD(cell_number):
     SOC_array = array.array('f', [])
     for i in range (0,8):                  # it repeats 8 times.
         #global cell_state_of_charge
-        file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell"+str(cell_number)+"_state_of_charge.txt", "r")   # open the file 'temperature.txt' in raeding mode.
-        cell_SOC = float (file.read())
-        file.close()
+        # file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell"+str(cell_number)+"_state_of_charge.txt", "r")   # open the file 'temperature.txt' in raeding mode.
+        # cell_SOC = float (file.read())
+        # file.close()
+        sql = "SELECT SOC FROM cells_state_of_charge WHERE module_ID = 1 AND cell_ID = "+ str(cell_number) + " ORDER BY ID DESC LIMIT 1"
+        mycursor.execute(sql)
+        data = mycursor.fetchone()
+        cell_SOC = data[0]
         SOC_array.append(cell_SOC)         # append a new value of the cell_state of charge every 3 hours.
         time.sleep(10800)    #10800                       # wait for 3 hours
     
@@ -152,8 +183,11 @@ def run(cell_number):
         thread_3 = threading.Thread(target=battery_age_SOC_DOD, args=(cell_number,))
         #start = time.time()
         thread_1.start()           # starting thread 1
+        time.sleep(5)
         thread_2.start()            # starting thread 2
+        time.sleep(5)
         thread_3.start()            # starting thread 3
+        time.sleep(5)
         
         thread_1.join()                 # wait until thread 1 is completely executed
         thread_2.join()                  # wait until thread 2 is completely executed
@@ -165,14 +199,18 @@ def run(cell_number):
         global avr_num_cycle_life_temp
         global num_cycle_life_disch_current
         global num_cycle_life_charging_current
-        equivelant_battery_num_cycle_life = int (nominal_cycle_life * avr_num_cycle_life_temp * num_cycle_life_disch_current * num_cycle_life_charging_current * num_cycle_life_SOC_DOD)
-        # print ("Battery age (Number of cycle life)= ",equivelant_battery_num_cycle_life)
+        residual_num_cycles = int (nominal_cycle_life * avr_num_cycle_life_temp * num_cycle_life_disch_current * num_cycle_life_charging_current * num_cycle_life_SOC_DOD)
+        # print ("Battery age (Number of cycle life)= ",residual_num_cycles)
         # print('Time taken in seconds: ', end - start)
-        try:
-            file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell"+str(cell_number)+"_estimated_life_cycles.txt", "w")
-            file.truncate()       # delete the last value of number of cycles.
-            file.write(str(equivelant_battery_num_cycle_life))
-        finally:
-            file.close()
-# run()
+        # try:
+        #     file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell"+str(cell_number)+"_estimated_life_cycles.txt", "w")
+        #     file.truncate()       # delete the last value of number of cycles.
+        #     file.write(str(residual_num_cycles))
+        # finally:
+        #     file.close()
+        sql = "INSERT INTO cells_residual_num_cycles (module_ID,cell_ID, residual_num_cycles) VALUES (%s, %s, %s)"
+        values = (1,cell_number, residual_num_cycles)
+        mycursor.execute(sql , values) # store the measurement value in SQL database
+        mydb.commit()  # Commit the transaction
+#run(2)
 

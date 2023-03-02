@@ -12,10 +12,9 @@ mydb = mysql.connector.connect(
 mycursor = mydb.cursor()
 #***********************************************#
 print("Thread4!")
-def calibrate_cell1_coulombic_Efficiency(cell_number):
-    while True:
+def calibrate_coulombic_Efficiency(cell_number):
+    #while True:
         print("update coulombic efficincy is running")
-        time.sleep(2)
         global is_discharged_capacity_done
         is_discharged_capacity_done = False 
         def get_discharged_capacity (cell_number):
@@ -302,27 +301,32 @@ def calibrate_cell1_coulombic_Efficiency(cell_number):
             calibrated_coulombic_Efficiency = coulombic_Efficiency_numinator / coulombic_Efficiency_denominator
 
             #### update the old values with the new ones.
-            write_updated_coulombic_Efficiency (cell_number,calibrated_coulombic_Efficiency,coulombic_Efficiency_numinator,coulombic_Efficiency_denominator)
+            write_updated_coulombic_Efficiency (cell_number,calibrated_coulombic_Efficiency,
+                                                coulombic_Efficiency_numinator,coulombic_Efficiency_denominator)
 
 
 def run():
 
-    # thread_1 = threading.Thread(target=calibrate_cell1_coulombic_Efficiency, args=(1,))
-    # thread_2 = threading.Thread(target=calibrate_cell1_coulombic_Efficiency, args=(2,))
-    # thread_3 = threading.Thread(target=calibrate_cell1_coulombic_Efficiency, args=(3,))
-    # thread_4 = threading.Thread(target=calibrate_cell1_coulombic_Efficiency, args=(4,))
+    thread_1 = threading.Thread(target=calibrate_coulombic_Efficiency, args=(1,))
+    thread_2 = threading.Thread(target=calibrate_coulombic_Efficiency, args=(2,))
+    thread_3 = threading.Thread(target=calibrate_coulombic_Efficiency, args=(3,))
+    thread_4 = threading.Thread(target=calibrate_coulombic_Efficiency, args=(4,))
     
-    # thread_1.start()
-    # thread_2.start()
-    # thread_3.start()
-    # thread_4.start()
+    thread_1.start()
+    time.sleep(5)
+    thread_2.start()
+    time.sleep(5)
+    thread_3.start()
+    time.sleep(5)
+    thread_4.start()
+    time.sleep(5)
     # thread_1.join()   # wait until thread 1 is completely executed
     # thread_2.join()
     # thread_3.join()
     # thread_4.join()
-    # thread_5.join()
+    #thread_5.join()
     #while True:
-        for i in range(4):
-            calibrate_cell1_coulombic_Efficiency(i+1)
+        # for i in range(4):
+        #     calibrate_coulombic_Efficiency(i+1)
     
 #run()
