@@ -4,7 +4,17 @@ import numpy as np
 from math import fabs
 import time
 import threading
-print("Thread8!")
+import mysql.connector
+#*********** setup the sql database ***********#
+mydb = mysql.connector.connect(
+  host="127.0.0.1",
+  user="root",
+  password="46045",
+  database="CBBMS_DB"
+)
+mycursor = mydb.cursor()
+#***********************************************#
+
 """ These methods are coded according to the methodology and  explanation of Rainflow counting method which is published in: 
 Alam, M. J. E., and T. K. Saha. "Cycle-life degradation assessment of Battery Energy Storage Systems caused by solar PV variability.
 " In 2016 IEEE Power and Energy Society General Meeting (PESGM), pp. 2. IEEE, 2016."""
@@ -20,17 +30,25 @@ def rainflow_algorithm(cell_number):
             DoD_array =np.zeros(48)         # intialize an array of zeros with size 48.
             counter = 0
             while counter < 48:
-                try:
-                    file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell"+str(cell_number)+"_state_of_charge.txt", "r")
-                    SoC_before = float (file.read())
-                finally:
-                    file.close()
+                # try:
+                #     file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell"+str(cell_number)+"_state_of_charge.txt", "r")
+                #     SoC_before = float (file.read())
+                # finally:
+                #     file.close()
+                sql = "SELECT SOC FROM cells_state_of_charge WHERE module_ID = 1 AND cell_ID = "+ str(cell_number) + " ORDER BY ID DESC LIMIT 1"
+                mycursor.execute(sql)
+                data = mycursor.fetchone()
+                SoC_before = data[0]
                 time.sleep (1800)  # 1800  # wait for half hour.
-                try:
-                    file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell"+str(cell_number)+"_state_of_charge.txt", "r")
-                    SoC_after = float (file.read())
-                finally:
-                    file.close()
+                # try:
+                #     file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell"+str(cell_number)+"_state_of_charge.txt", "r")
+                #     SoC_after = float (file.read())
+                # finally:
+                #     file.close()
+                sql = "SELECT SOC FROM cells_state_of_charge WHERE module_ID = 1 AND cell_ID = "+ str(cell_number) + " ORDER BY ID DESC LIMIT 1"
+                mycursor.execute(sql)
+                data = mycursor.fetchone()
+                SoC_after = data[0]
                 diff_SoC = SoC_before - SoC_after
 
                 if diff_SoC < 0:                  # in charging stage.
@@ -75,18 +93,26 @@ def rainflow_algorithm(cell_number):
                     temporary_array[j-2]=temporary_array[j]
                     j=j-2
                     if (DoD_range > 0):
-                        try:
-                            file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell"+str(cell_number)+"_num_of_cycles.txt", "r")
-                            num_of_cycles = int (file.read())
-                        finally:
-                            file.close()
+                        # try:
+                        #     file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell"+str(cell_number)+"_num_of_cycles.txt", "r")
+                        #     num_of_cycles = int (file.read())
+                        # finally:
+                        #     file.close()
+                        sql = "SELECT num_of_cycles FROM cells_num_of_cycles WHERE module_ID = 1 AND cell_ID = "+str(cell_number)+" ORDER BY ID DESC LIMIT 1"
+                        mycursor.execute(sql)
+                        data = mycursor.fetchone()
+                        num_of_cycles = data[0]
                         num_of_cycles += 1
-                        try:
-                            file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell"+str(cell_number)+"_num_of_cycles.txt", "w")
-                            file.truncate()      # delete the last value of number of cycles.
-                            file.write(str(num_of_cycles))
-                        finally:
-                            file.close()
+                        # try:
+                        #     file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell"+str(cell_number)+"_num_of_cycles.txt", "w")
+                        #     file.truncate()      # delete the last value of number of cycles.
+                        #     file.write(str(num_of_cycles))
+                        # finally:
+                        #     file.close()
+                        sql = "INSERT INTO cells_num_of_cycles (module_ID,cell_ID, num_of_cycles) VALUES (%s, %s, %s)"
+                        values = (1,cell_number, num_of_cycles)
+                        mycursor.execute(sql , values) # store the measurement value in SQL database
+                        mydb.commit()  # Commit the transaction
                         cycle_count_array[index_cycle_count_array] = 1.00
                         index_cycle_count_array += 1
                         
@@ -104,8 +130,11 @@ def run():
     t_2 = threading.Thread(target=rainflow_algorithm, args=(2,))   # count the numer of cycles for cell2.
     t_3 = threading.Thread(target=rainflow_algorithm, args=(3,))   # count the numer of cycles for cell3.
     t_1.start()
+    time.sleep(5)
     t_2.start()
+    time.sleep(5)
     t_3.start()
+    time.sleep(5)
    
 #run()
 

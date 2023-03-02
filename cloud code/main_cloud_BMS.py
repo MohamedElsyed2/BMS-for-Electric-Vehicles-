@@ -9,12 +9,14 @@ import update_coulombic_efficincy
 import check_battery_usage 
 import number_of_cycles_counter
 import threading
+import time
 
 # thread_1 = threading.Thread(target=connect_subscribe_getMeasseges.run)
 # thread_1.start()
 # #thread_1.join() # # wait until thread 1 is completely executed; until connect to the broker, subscribe to the required topics, and get measseges and sensors reagings.
 thread_2 = threading.Thread(target=run_cycle_life_prediction.run)
 thread_2.start()
+time.sleep(5)
 # thread_3 = threading.Thread(target=state_of_health.run)
 # thread_3.start()
 # thread_6 = threading.Thread(target=update_coulombic_efficincy.run)
@@ -25,11 +27,18 @@ thread_2.start()
 # thread_5.start()
 thread_7 = threading.Thread(target=check_battery_usage.run)
 thread_7.start()
-# thread_8 = threading.Thread(target=number_of_cycles_counter.run)
-# thread_8.start()
+time.sleep(5)
+thread_8 = threading.Thread(target=number_of_cycles_counter.run)
+thread_8.start()
+time.sleep(5)
 while True:
     connect_subscribe_getMeasseges.run()
+    time.sleep(5)
     state_of_health.run()
+    time.sleep(5)
     state_of_charge.run()
+    time.sleep(5)
     standalone_timer.run()
+    time.sleep(5)
     update_coulombic_efficincy.run()
+    time.sleep(5)

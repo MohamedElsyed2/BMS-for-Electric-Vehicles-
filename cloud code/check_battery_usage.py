@@ -12,7 +12,7 @@ mycursor = mydb.cursor()
 #***********************************************#
 
 def check_battery_being_used_or_not ():
-    #while True:
+    while True:
         print("check battery usage is running")
         #time.sleep(2)
         timer = 0
