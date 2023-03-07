@@ -14,6 +14,7 @@ import time
 
 thread_1 = threading.Thread(target=connect_subscribe_getMeasseges.run)
 thread_1.start()
+time.sleep(2)
 # #thread_1.join() # # wait until thread 1 is completely executed; until connect to the broker, subscribe to the required topics, and get measseges and sensors reagings.
 thread_2 = threading.Thread(target=run_cycle_life_prediction.run)
 thread_2.start()
