@@ -12,6 +12,8 @@ mydb = mysql.connector.connect(
 )
 mycursor = mydb.cursor()
 #***********************************************#
+mutex = threading.Lock()
+
 # #************************************#
 # import firebase_admin
 # from firebase_admin import credentials
@@ -34,8 +36,10 @@ def get_state_of_health (cell_number):
         #     file.close()
         # state_of_health = ref.child("state_of_health").child("cell"+str(cell_number)+"_SOH").get()
         sql = "SELECT SOH FROM cells_state_of_health WHERE module_ID = 1 AND cell_ID = "+ str(cell_number) +" ORDER BY ID DESC LIMIT 1"
+        mutex.acquire()
         mycursor.execute(sql)
         data = mycursor.fetchone()
+        mutex.release()
         state_of_health = data[0]
     elif cell_number == 4:
         # try:
@@ -45,8 +49,10 @@ def get_state_of_health (cell_number):
         #     file.close()
         # state_of_health = ref.child("state_of_health").child("module1_SOH").get()
         sql = "SELECT SOH FROM modules_state_of_health WHERE module_ID = 1  ORDER BY ID DESC LIMIT 1" 
+        mutex.acquire()
         mycursor.execute(sql)
         data = mycursor.fetchone()
+        mutex.release()
         state_of_health = data[0]
     return state_of_health
 #*************************************************************************************#
@@ -131,8 +137,10 @@ def get_intial_soc_calibration (cell_number,temperature, current, voltage):
             # finally:
             #     file.close()
             # socIntial = ref.child("state_of_charge").child("cell"+str(cell_number)+"_SOC").get()
+            mutex.acquire()
             mycursor.execute("SELECT SOC FROM cells_state_of_charge WHERE module_ID = 1 AND cell_ID = "+ str(cell_number)) # ORDER BY ID DESC LIMIT 1
             data = mycursor.fetchall()
+            mutex.release()
             last_value = data [-1]
             socIntial = float (last_value[0])
     # #************************************************************************************#
@@ -181,8 +189,10 @@ def get_intial_soc_calibration (cell_number,temperature, current, voltage):
             # finally:
             #     file.close()
             # socIntial = ref.child("state_of_charge").child("module1_SOC").get()
+            mutex.acquire()
             mycursor.execute("SELECT SOC FROM modules_state_of_charge WHERE module_ID = 1") # ORDER BY ID DESC LIMIT 1
             data = mycursor.fetchall()
+            mutex.release()
             last_value = data [-1]
             socIntial = float (last_value[0])
     #***********************************************************************#
@@ -195,8 +205,10 @@ def get_coulombic_efficiency(cell_number):             # coulombic_efficiency at
         # file.close()
         # coulombic_efficiency = ref.child("coulombic_efficiency").child("cell"+str(cell_number)+"_CE").get()
         sql= "SELECT coulombic_efficiency FROM cells_coulombic_efficiency WHERE module_ID = 1 AND cell_ID = "+ str(cell_number)+" ORDER BY ID DESC LIMIT 1"
+        mutex.acquire()
         mycursor.execute(sql)
         data = mycursor.fetchone()
+        mutex.release()
         coulombic_efficiency = data[0]
     elif cell_number == 4:
         # file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/module1_coulombic_efficiency.txt", "r")  
@@ -205,22 +217,25 @@ def get_coulombic_efficiency(cell_number):             # coulombic_efficiency at
         #coulombic_efficiency = ref.child("coulombic_efficiency").child("module1_CE").get()
         # sql= "SELECT coulombic_efficiency FROM modules_coulombic_efficiency"
         sql= "SELECT coulombic_efficiency FROM modules_coulombic_efficiency WHERE module_ID = 1  ORDER BY ID DESC LIMIT 1"
+        mutex.acquire()
         mycursor.execute(sql)
         data = mycursor.fetchone()
+        mutex.release()
         coulombic_efficiency = data[0]
     return coulombic_efficiency
 
 #*********************************************************************#
 def SoC_method(cell_number):
     #while True:
-        print ("state of charge is running")
         # time.sleep(2)
         # file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/temperature.txt", "r")  
         # temperature = float (file.read())
         # file.close()
         #temperature = ref.child("temperature").child("Module1_temperature").get()
+        mutex.acquire()
         mycursor.execute("SELECT temperature FROM modules_temperature WHERE module_ID = 1") # ORDER BY ID DESC LIMIT 1
         data = mycursor.fetchall()
+        mutex.release()
         last_value = data [-1]
         temperature = float (last_value[0])
         if cell_number < 4:
@@ -229,16 +244,20 @@ def SoC_method(cell_number):
             # current = float (file.read())
             # file.close()
             #current = ref.child("current").child("cell"+str(cell_number)+"_current").get()
+            mutex.acquire()
             mycursor.execute("SELECT current FROM current_measurements WHERE module_ID = 1 AND cell_ID = "+ str(cell_number))
             data = mycursor.fetchall()
+            mutex.release()
             last_value = data [-1]
             current = float (last_value[0])
             # file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell"+str(cell_number)+"_voltage.txt", "r")  
             # voltage = float (file.read())
             # file.close()
             #voltage = ref.child("voltage").child("cell"+str(cell_number)+"_voltage").get()
+            mutex.acquire()
             mycursor.execute("SELECT voltage FROM voltage_measurements WHERE module_ID = 1 AND cell_ID = "+ str(cell_number))
             data = mycursor.fetchall()
+            mutex.release()
             last_value = data [-1]
             voltage = float (last_value[0])
         elif cell_number == 4:
@@ -247,22 +266,26 @@ def SoC_method(cell_number):
             # current = float (file.read())
             # file.close()
             # current = ref.child("current").child("module1_current").get()
+            mutex.acquire()
             mycursor.execute("SELECT current FROM modules_current WHERE module_ID = 1")
             data = mycursor.fetchall()
+            mutex.release()
             last_value = data [-1]
             current = float (last_value[0])
             # file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/module1_voltage.txt", "r")  
             # voltage = float (file.read())
             # file.close()
             #voltage = ref.child("voltage").child("module1_voltage").get()  # read the module_1 voltage from the database
+            mutex.acquire()
             mycursor.execute("SELECT voltage FROM modules_voltage WHERE module_ID = 1")
             data = mycursor.fetchall()
+            mutex.release()
             last_value = data [-1]
             voltage = float (last_value[0])
         global recalibrated_rated_capacity
         recalibrated_rated_capacity =  rated_capacity * get_state_of_health(cell_number)  
         coulombic_efficiency= get_coulombic_efficiency(cell_number)
-        time_two_readings = 2           # time between two readings (2 sec).
+        time_two_readings = 60           # time between two readings (60 sec).
 
         global state_of_charge
         # file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/timer.txt", "r")   # open the file 'timer.txt' in raeding mode.
@@ -270,8 +293,10 @@ def SoC_method(cell_number):
         # file.close() 
         # timer = ref.child("timer").get()
         sql = "SELECT timer_value FROM timer ORDER BY ID DESC LIMIT 1"
+        mutex.acquire()
         mycursor.execute(sql)
         data = mycursor.fetchone()
+        mutex.release()
         timer = data[0]
         timmer_interrupt = numpy.uint32 (timer)
         if timmer_interrupt % 5 == 0:             # calibrate the SOC every 5 minutes.
@@ -285,8 +310,10 @@ def SoC_method(cell_number):
                 #     file.close()
                 #state_of_charge = ref.child("state_of_charge").child("cell"+str(cell_number)+"_SOC").get()
                 sql = "SELECT SOC FROM cells_state_of_charge WHERE module_ID = 1 AND cell_ID = "+ str(cell_number) + " ORDER BY ID DESC LIMIT 1"
+                mutex.acquire()
                 mycursor.execute(sql)
                 data = mycursor.fetchone()
+                mutex.release()
                 state_of_charge = data[0]
             elif cell_number == 4:
                 # try:
@@ -296,8 +323,10 @@ def SoC_method(cell_number):
                 #     file.close()
                 #state_of_charge = ref.child("state_of_charge").child("module1_SOC").get()
                 sql = "SELECT SOC FROM modules_state_of_charge WHERE module_ID = 1 ORDER BY ID DESC LIMIT 1"
+                mutex.acquire()
                 mycursor.execute(sql)
                 data = mycursor.fetchone()
+                mutex.release()
                 state_of_charge = data[0]
         state_of_charge = state_of_charge - coulombic_efficiency*(current* (time_two_readings/3600))/ recalibrated_rated_capacity   #/3600 to convert from second to hour.
         #*********** Start get the true SoC***********************************#
@@ -320,8 +349,10 @@ def SoC_method(cell_number):
             # ref.child("cell"+str(cell_number)+"_SOC").child(time_str).update({"value": state_of_charge, "time":time_str})
             sql = "INSERT INTO cells_state_of_charge (module_ID,cell_ID, SOC) VALUES (%s, %s, %s)"
             values = (1,cell_number, state_of_charge)
+            mutex.acquire()
             mycursor.execute(sql , values) # store the measurement value in SQL database
             mydb.commit()  # Commit the transaction
+            mutex.release()
         elif cell_number == 4:
             # try:
             #     file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/module1_state_of_charge.txt", "w")
@@ -334,11 +365,14 @@ def SoC_method(cell_number):
             # ref.child("module1_SOC").child(time_str).update({"value": state_of_charge, "time":time_str})
             sql = "INSERT INTO modules_state_of_charge (module_ID, SOC) VALUES (%s, %s)"
             values = (1, state_of_charge)
+            mutex.acquire()
             mycursor.execute(sql , values) # store the measurement value in SQL database
             mydb.commit()  # Commit the transaction
-        time.sleep (2)                     # to wait 2 seconds between readings.
+            mutex.release()
+        time.sleep (60)                     # to wait 60 seconds between readings.
 #####################################################################################
 def run():
+        print ("state of charge is running")
     # t_1 = threading.Thread(target=SoC_method, args=(1,))   # calculate the state of charge  of cell1.
     # t_2 = threading.Thread(target=SoC_method, args=(2,))   # calculate the state of charge  of cell2.
     # # t_3 = threading.Thread(target=SoC_method, args=(3,))   # calculate the state of charge  of cell3.

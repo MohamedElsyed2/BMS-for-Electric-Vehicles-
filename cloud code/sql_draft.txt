@@ -62,10 +62,12 @@ mycursor = mydb.cursor()
 #***********************************************#
 
 ##########################################################################
-sql = "INSERT INTO cells_state_of_charge (module_ID,cell_ID, SOC) VALUES (%s, %s, %s)"
-values = (1,cell_number, state_of_charge)
+sql = "INSERT INTO cooling_system (cooling_sys_status) VALUES (%s)"
+values = (cooling_sys_status, )
+mutex.acquire()
 mycursor.execute(sql , values) # store the measurement value in SQL database
 mydb.commit()  # Commit the transaction
+mutex.release()
 #############################################
 sql = "SELECT SOC FROM cells_state_of_charge WHERE module_ID = 1 ORDER BY ID DESC LIMIT 1"
 mycursor.execute(sql)
@@ -73,5 +75,10 @@ data = mycursor.fetchone()
 state_of_charge = data[0]
 #########################################
 
-CREATE TABLE cells_residual_num_cycles (ID int NOT NULL AUTO_INCREMENT,module_ID int,cell_ID int, residual_num_cycles float,timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (ID));
-INSERT INTO cells_residual_num_cycles (module_ID,cell_ID, residual_num_cycles) VALUES (1, 1,31657);
+CREATE TABLE thermal_manag_sys (ID int NOT NULL AUTO_INCREMENT,cooling_sys_status int, heating_sys_status int, timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (ID));
+INSERT INTO thermal_manag_sys (cooling_sys_status, heating_sys_status) VALUES (0,0);
+
+mutex = threading.Lock()
+mutex.acquire()
+mutex.release()
+

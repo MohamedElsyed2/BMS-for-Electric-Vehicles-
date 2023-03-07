@@ -1,4 +1,4 @@
-
+import threading
 import mysql.connector
 
 #*********** setup the sql database ***********#
@@ -10,6 +10,7 @@ mydb = mysql.connector.connect(
 )
 mycursor = mydb.cursor()
 #***********************************************#
+mutex = threading.Lock()
 #**** insert a new value*******#
 
 #mycursor.execute("INSERT INTO cell_data (voltage) VALUES (%s)",cell1_voltage)
@@ -50,11 +51,11 @@ mycursor = mydb.cursor()
 # temperature = mycursor.fetchall()
 # last_value = temperature[-1]
 # print(temperature)
-sql = "INSERT INTO modules_state_of_charge (module_ID, SOC) VALUES (%s, %s)"
-values = (1, 0.99)
-mycursor.execute(sql , values) # store the measurement value in SQL database
-mydb.commit()  
-#print(state_of_health)
+sql = "SELECT heating_sys_status FROM thermal_manag_sys ORDER BY ID DESC LIMIT 1"
+mycursor.execute(sql)
+data = mycursor.fetchone()
+value_cool_sys = data[0]
+print(value_cool_sys)
 #***** read the last value in a specific column*****#
 #mycursor.execute("SELECT voltage FROM voltage_measurements WHERE cell_ID = 2") # ORDER BY ID DESC LIMIT 1
 # cell3_values = mycursor.fetchall()

@@ -14,15 +14,14 @@ mydb = mysql.connector.connect(
 )
 mycursor = mydb.cursor()
 #***********************************************#
+mutex = threading.Lock()
 
 """ These methods are coded according to the methodology which is published in: Andrea, Davide. Battery management systems for 
 large lithium-ion battery packs. Artech house, 2010, pp. 189-192. And Tan, C.M., Singh, P. and Chen, C., 2020. Accurate real time 
 on-line estimation of state-of-health and remaining useful life of Li ion batteries. Applied Sciences, 10(21), p.7836. """
-print("Thread3!")
-def get_state_of_health (cell_number):
+
+def cal_state_of_health (cell_number):
     #while True:
-        print ("state of health is running")
-        time.sleep(2)
         if cell_number < 4:
             def  get_nominal_lifetime (cell_number):
                 """ This method is coded according to the published paper: Muenzel, V.; de Hoog, J.; Brazil, M.; Vishwanath, A.; Kalyanaraman,
@@ -62,7 +61,9 @@ def get_state_of_health (cell_number):
                 t = 0.6111
                 dod = 0     # the battery will not charge or discharge.
                 sql = "SELECT SOC FROM cells_state_of_charge WHERE module_ID = 1 AND cell_ID = "+ str(cell_number)+"ORDER BY ID DESC LIMIT 1"
+                mutex.acquire()
                 mycursor.execute(sql)
+                mutex.release()
                 data = mycursor.fetchone()
                 average_SOC = data[0]
                 # try:
@@ -100,8 +101,10 @@ def get_state_of_health (cell_number):
                 # num_of_cycles = float (file.read())
                 # file.close()
                 sql = "SELECT num_of_cycles FROM cells_num_of_cycles WHERE module_ID = 1 AND cell_ID = "+ str(cell_number)
+                mutex.acquire()
                 mycursor.execute(sql) # ORDER BY ID DESC LIMIT 1
                 data = mycursor.fetchall()
+                mutex.release()
                 last_value = data [-1]
                 num_of_cycles = float (last_value[0])
                 nominal_capacity = 3.350   # Ah
@@ -110,8 +113,10 @@ def get_state_of_health (cell_number):
                 #     cell_current = float (file.read())
                 # finally:
                 #     file.close()
+                mutex.acquire()
                 mycursor.execute("SELECT current FROM current_measurements WHERE module_ID = 1 AND cell_ID = "+ str(cell_number))
                 data = mycursor.fetchall()
+                mutex.release()
                 last_value = data [-1]
                 cell_current = float (last_value[0])
                 # try:
@@ -119,8 +124,10 @@ def get_state_of_health (cell_number):
                 #     temperature = float (file.read())
                 # finally:
                 #     file.close()
+                mutex.acquire()
                 mycursor.execute("SELECT temperature FROM modules_temperature WHERE module_ID = 1") # ORDER BY ID DESC LIMIT 1
                 data = mycursor.fetchall()
+                mutex.release()
                 last_value = data [-1]
                 temperature = float (last_value[0])
                 c_rate = abs(cell_current)/nominal_capacity   
@@ -142,8 +149,10 @@ def get_state_of_health (cell_number):
             #             battery_being_used = float (file.read())
             # finally:
             #     file.close()
+            mutex.acquire()
             mycursor.execute("SELECT value FROM battery_usage WHERE module_ID = 1") 
             data = mycursor.fetchall()
+            mutex.release()
             last_value = data [-1]
             battery_being_used = float (last_value[0])
             if battery_being_used == 1:
@@ -194,21 +203,24 @@ def get_state_of_health (cell_number):
             #     file.close()
             sql = "INSERT INTO modules_state_of_health (module_ID, SOH) VALUES (%s, %s)"
             values = (1, module1_SoH)
+            mutex.acquire()
             mycursor.execute(sql , values) # store the measurement value in SQL database
+            mutex.release()
             mydb.commit()  # Commit the transaction
+        time.sleep(60)   # wait 60 sec between 2 loops.
 #************************************************************************************************#    
 def run():
-    # t_1 = threading.Thread(target=get_state_of_health, args=(1,))   # calculate the state of health  of cell1.
-    # t_2 = threading.Thread(target=get_state_of_health, args=(2,))   # calculate the state of health  of cell2.
-    # t_3 = threading.Thread(target=get_state_of_health, args=(3,))   # calculate the state of health  of cell3.
-    # t_4 = threading.Thread(target=get_state_of_health, args=(4,))   # calculate the state of health  of module1.
+    print ("state of health is running")
+    # t_1 = threading.Thread(target=cal_state_of_health, args=(1,))   # calculate the state of health  of cell1.
+    # t_2 = threading.Thread(target=cal_state_of_health, args=(2,))   # calculate the state of health  of cell2.
+    # t_3 = threading.Thread(target=cal_state_of_health, args=(3,))   # calculate the state of health  of cell3.
+    # t_4 = threading.Thread(target=cal_state_of_health, args=(4,))   # calculate the state of health  of module1.
     # t_1.start()
     # t_2.start()
     # t_3.start()
     # t_4.start()
     #while True:
-        for i in range(4):
-            get_state_of_health(i+1)
-            time.sleep(2)
+    for i in range(4):
+        cal_state_of_health(i+1)
 
 #run()

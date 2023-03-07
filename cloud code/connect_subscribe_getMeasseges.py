@@ -2,11 +2,13 @@
 from paho.mqtt import client as mqtt_client
 from datetime import date
 import time
+import threading
 #*******************************#
 # import firebase_admin
 # from firebase_admin import credentials
 # from firebase_admin import db
 import mysql.connector
+mutex = threading.Lock()
 
 #******************************************************************#
 def connect_mqtt() -> mqtt_client:
@@ -40,21 +42,20 @@ client.loop_start()
 #     'databaseURL': 'https://cloud-based-bms-95343-default-rtdb.europe-west1.firebasedatabase.app/'
 # })
 # ref = db.reference('/')
+#*********** setup the sql database ***********#
+mydb = mysql.connector.connect(
+host="127.0.0.1",
+user="root",
+password="46045",
+database="CBBMS_DB"
+)
+mycursor = mydb.cursor()
+#print("connected to the database")
+#***********************************************#
 
+def get_measurements_store_publish(client):
 
-def get_measurements_compute(client):
-        #*********** setup the sql database ***********#
-        mydb = mysql.connector.connect(
-        host="127.0.0.1",
-        user="root",
-        password="46045",
-        database="CBBMS_DB"
-        )
-        mycursor = mydb.cursor()
-        #print("connected to the database")
-        #***********************************************#
-    
-    #while True:
+    while True:
         def on_message(client, userdata,msg):
             # check if the message recieved on 'battery_temperature'  topic, publish {ON,OFF} on topic 'fan' after recieving the temperature reading
             if msg.topic==str('battery_temperature'):
@@ -63,8 +64,10 @@ def get_measurements_compute(client):
                 
                 sql = "INSERT INTO modules_temperature (module_ID,temperature) VALUES (%s, %s)"
                 values = (1, temperature)
+                mutex.acquire()
                 mycursor.execute(sql , values) # store the measurement value in SQL database
                 mydb.commit()  # Commit the transaction
+                mutex.release()
                 # try:
                 #     file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/temperature.txt", "w")
                 #     file.truncate()      
@@ -84,8 +87,10 @@ def get_measurements_compute(client):
 
                 sql = "INSERT INTO voltage_measurements (module_ID, cell_ID,voltage) VALUES (%s, %s, %s)"
                 values = (1,1, cell1_voltage)
+                mutex.acquire()
                 mycursor.execute(sql , values) # store the measurement value in SQL database
-                mydb.commit() 
+                mydb.commit()
+                mutex.release()
 
                 # try:
                 #     file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell1_voltage.txt", "w")
@@ -106,8 +111,10 @@ def get_measurements_compute(client):
 
                 sql = "INSERT INTO voltage_measurements (module_ID, cell_ID,voltage) VALUES (%s, %s, %s)"
                 values = (1,2, cell2_voltage)
+                mutex.acquire()
                 mycursor.execute(sql , values) # store the measurement value in SQL database
                 mydb.commit()
+                mutex.release()
 
                 # try:
                 #     file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell2_voltage.txt", "w")
@@ -127,8 +134,10 @@ def get_measurements_compute(client):
 
                 sql = "INSERT INTO voltage_measurements (module_ID, cell_ID,voltage) VALUES (%s, %s, %s)"
                 values = (1,3, cell3_voltage)
+                mutex.acquire()
                 mycursor.execute(sql , values) # store the measurement value in SQL database
                 mydb.commit()
+                mutex.release()
 
                 # try:
                 #     file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell3_voltage.txt", "w")
@@ -148,8 +157,10 @@ def get_measurements_compute(client):
 
                 sql = "INSERT INTO modules_voltage (module_ID, voltage) VALUES (%s, %s)"
                 values = (1, module1_voltage)
+                mutex.acquire()
                 mycursor.execute(sql , values) # store the measurement value in SQL database
                 mydb.commit()
+                mutex.release()
 
                 # try:
                 #     file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/module1_voltage.txt", "w")
@@ -169,8 +180,10 @@ def get_measurements_compute(client):
 
                 sql = "INSERT INTO current_measurements (module_ID, cell_ID,current) VALUES (%s, %s, %s)"
                 values =  (1,1, cell1_current)
+                mutex.acquire()
                 mycursor.execute(sql , values) # store the measurement value in SQL database
                 mydb.commit()
+                mutex.release()
                 
                 # try:
                 #     file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell1_current.txt", "w")
@@ -189,8 +202,10 @@ def get_measurements_compute(client):
 
                 sql = "INSERT INTO current_measurements (module_ID, cell_ID,current) VALUES (%s, %s, %s)"
                 values =  (1,2, cell2_current)
+                mutex.acquire()
                 mycursor.execute(sql , values) # store the measurement value in SQL database
                 mydb.commit()
+                mutex.release()
 
                 # try:
                 #     file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell2_current.txt", "w")
@@ -210,8 +225,10 @@ def get_measurements_compute(client):
 
                 sql = "INSERT INTO current_measurements (module_ID, cell_ID,current) VALUES (%s, %s, %s)"
                 values =  (1,3, cell3_current)
+                mutex.acquire()
                 mycursor.execute(sql , values) # store the measurement value in SQL database
                 mydb.commit()
+                mutex.release()
 
                 # try:
                 #     file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell3_current.txt", "w")
@@ -231,8 +248,10 @@ def get_measurements_compute(client):
 
                 sql = "INSERT INTO modules_current (module_ID, current) VALUES (%s, %s)"
                 values =  (1, module1_current)
+                mutex.acquire()
                 mycursor.execute(sql , values) # store the measurement value in SQL database
                 mydb.commit()
+                mutex.release()
 
                 # try:
                 #     file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/module1_current.txt", "w")
@@ -245,20 +264,50 @@ def get_measurements_compute(client):
                 # ref.child("current").update({"module1_current": module1_current})
                 # ref.child("module1_current").child(time_str).update({"value": module1_current, "time":time_str})
             #*******************************************************************************#
-            elif msg.topic==str('sensors_Error'):  # recive the message on topic cell1_current 
-                error = (int)(msg.payload.decode())
-                if error == 1:
-                    client.publish('messages',"1")  # 1 means the sensors are not connected.
-            #***********************************************************************************#
+            elif msg.topic==str('error_codes'): 
+                error_code = (int)(msg.payload.decode())
+
+                sql = "INSERT INTO error_codes (error_code) VALUES (%s)"
+                values =  (error_code, )
+                mutex.acquire()
+                mycursor.execute(sql , values) # store the measurement value in SQL database
+                mydb.commit()
+                mutex.release()
+                print("Received " + str(error_code)+ " from " + msg.topic + " topic")
+            #*******************************************************************************#
+
         client.subscribe([('battery_temperature', 1), ('cell1_voltage', 1), ('cell2_voltage', 1),('cell3_voltage', 1),('module1_voltage', 1), 
-                          ('cell1_current', 1),('cell2_current', 1), ('cell3_current', 1),('module1_current', 1),('sensors_Error', 1)])
+                          ('cell1_current', 1),('cell2_current', 1), ('cell3_current', 1),('module1_current', 1),('sensors_Error', 1),
+                          ('error_codes', 1)])
         client.on_message = on_message 
-#***********************************************************************************#
+    #****************************************************************************#
+        def publish(client):
+            #***** read the cooling system status, and sending it to the microcontroller***#
+            sql = "SELECT cooling_sys_status FROM thermal_manag_sys ORDER BY ID DESC LIMIT 1"
+            mutex.acquire()
+            mycursor.execute(sql)
+            data = mycursor.fetchone()
+            mutex.release()
+            value_cool_sys = data[0]
+            client.publish('cooling_sys', str(value_cool_sys))
+            time.sleep(30)
+            #*************************************************************************#
+            #***** read the cooling system status, and sending it to the microcontroller***#
+            sql = "SELECT heating_sys_status FROM thermal_manag_sys ORDER BY ID DESC LIMIT 1"
+            mutex.acquire()
+            mycursor.execute(sql)
+            data = mycursor.fetchone()
+            mutex.release()
+            heating_sys_status = data[0]
+            client.publish('heating_sys', str(heating_sys_status))
+            time.sleep(30) 
+            #*************************************************************************#
+
+        publish(client)
+        #********************************************#
 def run():
     
-    
-    #while True:
-        get_measurements_compute(client)
+    get_measurements_store_publish(client)
     
 #run()
 

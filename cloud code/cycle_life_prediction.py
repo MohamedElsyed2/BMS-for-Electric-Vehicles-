@@ -14,6 +14,7 @@ mydb = mysql.connector.connect(
   database="CBBMS_DB"
 )
 mycursor = mydb.cursor()
+mutex = threading.Lock()
 #***********************************************#
 #************************* Start of battery_age_estimation method*****************************************#
 """ This method is coded according to the published paper: Muenzel, V.; de Hoog, J.; Brazil, M.; Vishwanath, A.; Kalyanaraman,
@@ -26,8 +27,10 @@ def battery_age_temperature():
     # temperature = float (file.read())
     # file.close()                   # the real temperature of the battery cell.
     sql = "SELECT temperature FROM modules_temperature WHERE module_ID = 1 ORDER BY ID DESC LIMIT 1"
+    mutex.acquire()
     mycursor.execute(sql)
     data = mycursor.fetchone()
+    mutex.release()
     temperature = data[0]
     clT_array = array.array('f', [])   # clT_array: is the array of cycle life of temperature, 'f': stands for float.
     for i in range (0,4):
@@ -61,8 +64,10 @@ def battery_age_chg_dischg_current(cell_number):
         # cell_current = float (file.read())
         # file.close() 
         sql = "SELECT current FROM current_measurements WHERE module_ID = 1 AND cell_ID = "+ str(cell_number)+" ORDER BY ID DESC LIMIT 1"       
+        mutex.acquire()
         mycursor.execute(sql)
         data = mycursor.fetchone()
+        mutex.release()
         cell_current = data[0]      
         while timer < 86400:         # 86400   wait for 24 hours
             #global before_SOC
@@ -72,8 +77,10 @@ def battery_age_chg_dischg_current(cell_number):
             # before_SOC = float (file.read())
             # file.close()
             sql = "SELECT SOC FROM cells_state_of_charge WHERE module_ID = 1 AND cell_ID = "+ str(cell_number) + " ORDER BY ID DESC LIMIT 1"
+            mutex.acquire()
             mycursor.execute(sql)
             data = mycursor.fetchone()
+            mutex.release()
             before_SOC = data[0]
             if current_status_flag == False:
                 time.sleep(60) #60
@@ -83,8 +90,10 @@ def battery_age_chg_dischg_current(cell_number):
                 # SOC_after_chg = float (file.read())
                 # file.close()
                 sql = "SELECT SOC FROM cells_state_of_charge WHERE module_ID = 1 AND cell_ID = "+ str(cell_number) + " ORDER BY ID DESC LIMIT 1"
-                mycursor.execute(sql)
+                mutex.acquire()
+                mycursor.execute(sql)              
                 data = mycursor.fetchone()
+                mutex.release()
                 SOC_after_chg = data[0]
                 increased_SOC = SOC_after_chg - before_SOC
                 #global total_incresed_SOC
@@ -100,8 +109,10 @@ def battery_age_chg_dischg_current(cell_number):
                 # SOC_after_dischg = float (file.read())
                 # file.close()
                 sql = "SELECT SOC FROM cells_state_of_charge WHERE module_ID = 1 AND cell_ID = "+ str(cell_number) + " ORDER BY ID DESC LIMIT 1"
+                mutex.acquire()
                 mycursor.execute(sql)
                 data = mycursor.fetchone()
+                mutex.release()
                 SOC_after_dischg = data[0]
                 decresed_SOC = before_SOC - SOC_after_dischg
                 #global total_decresed_SOC
@@ -157,8 +168,10 @@ def battery_age_SOC_DOD(cell_number):
         # cell_SOC = float (file.read())
         # file.close()
         sql = "SELECT SOC FROM cells_state_of_charge WHERE module_ID = 1 AND cell_ID = "+ str(cell_number) + " ORDER BY ID DESC LIMIT 1"
+        mutex.acquire()
         mycursor.execute(sql)
         data = mycursor.fetchone()
+        mutex.release()
         cell_SOC = data[0]
         SOC_array.append(cell_SOC)         # append a new value of the cell_state of charge every 3 hours.
         time.sleep(10800)    #10800                       # wait for 3 hours
@@ -175,9 +188,8 @@ def battery_age_SOC_DOD(cell_number):
 #******************* End of battery_age_SOC_DOD method*******************************#
 
 def run(cell_number):
+    
     while True:
-        print("cycle life prediction is running")
-        time.sleep(2)
         thread_1 = threading.Thread(target=battery_age_temperature)
         thread_2 = threading.Thread(target=battery_age_chg_dischg_current, args=(cell_number,))
         thread_3 = threading.Thread(target=battery_age_SOC_DOD, args=(cell_number,))
@@ -210,7 +222,9 @@ def run(cell_number):
         #     file.close()
         sql = "INSERT INTO cells_residual_num_cycles (module_ID,cell_ID, residual_num_cycles) VALUES (%s, %s, %s)"
         values = (1,cell_number, residual_num_cycles)
+        mutex.acquire()
         mycursor.execute(sql , values) # store the measurement value in SQL database
         mydb.commit()  # Commit the transaction
+        mutex.release()
 #run(2)
 

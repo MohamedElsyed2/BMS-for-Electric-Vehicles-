@@ -11,10 +11,11 @@ mydb = mysql.connector.connect(
 )
 mycursor = mydb.cursor()
 #***********************************************#
-print("Thread4!")
+mutex = threading.Lock()
+
 def calibrate_coulombic_Efficiency(cell_number):
-    #while True:
-        print("update coulombic efficincy is running")
+
+    while True:
         global is_discharged_capacity_done
         is_discharged_capacity_done = False 
         def get_discharged_capacity (cell_number):
@@ -29,8 +30,10 @@ def calibrate_coulombic_Efficiency(cell_number):
                 # finally:
                 #     file.close()
                 sql = "SELECT voltage FROM voltage_measurements WHERE module_ID = 1 AND cell_ID = "+str(cell_number)+" ORDER BY ID DESC LIMIT 1"
+                mutex.acquire()
                 mycursor.execute(sql)
                 data = mycursor.fetchone()
+                mutex.release()
                 voltage = data[0]
                 # try:        
                 #     file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell"+number+"_current.txt", "r")
@@ -38,8 +41,10 @@ def calibrate_coulombic_Efficiency(cell_number):
                 # finally:
                 #     file.close()
                 sql = "SELECT current FROM current_measurements WHERE module_ID = 1 AND cell_ID = "+str(cell_number)+" ORDER BY ID DESC LIMIT 1"
+                mutex.acquire()
                 mycursor.execute(sql)
                 data = mycursor.fetchone()
+                mutex.release()
                 current = data[0]
 
             elif cell_number == 4:            # in case of the whole module number 1.
@@ -49,8 +54,10 @@ def calibrate_coulombic_Efficiency(cell_number):
                 # finally:
                 #     file.close()
                 sql = "SELECT voltage FROM modules_voltage WHERE module_ID = 1 ORDER BY ID DESC LIMIT 1"
+                mutex.acquire()
                 mycursor.execute(sql)
                 data = mycursor.fetchone()
+                mutex.release()
                 voltage = data[0]
 
                 # try:        
@@ -59,8 +66,10 @@ def calibrate_coulombic_Efficiency(cell_number):
                 # finally:
                 #     file.close()
                 sql = "SELECT current FROM modules_current WHERE module_ID = 1 ORDER BY ID DESC LIMIT 1"
+                mutex.acquire()
                 mycursor.execute(sql)
                 data = mycursor.fetchone()
+                mutex.release()
                 current = data[0]
             #*****************************************************************************#
             if voltage >= 4.2 and current >= -0.065:              # this meaning the battaery is fully charged.
@@ -76,8 +85,10 @@ def calibrate_coulombic_Efficiency(cell_number):
                     # finally:
                     #     file.close()
                     sql = "SELECT voltage FROM voltage_measurements WHERE module_ID = 1 AND cell_ID = "+str(cell_number)+" ORDER BY ID DESC LIMIT 1"
+                    mutex.acquire()
                     mycursor.execute(sql)
                     data = mycursor.fetchone()
+                    mutex.release()
                     voltage = data[0]
                     # try:        
                     #     file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell"+number+"_current.txt", "r")
@@ -85,8 +96,10 @@ def calibrate_coulombic_Efficiency(cell_number):
                     # finally:
                     #     file.close()
                     sql = "SELECT current FROM current_measurements WHERE module_ID = 1 AND cell_ID = "+str(cell_number)+" ORDER BY ID DESC LIMIT 1"
+                    mutex.acquire()
                     mycursor.execute(sql)
                     data = mycursor.fetchone()
+                    mutex.release()
                     current = data[0]
                 elif cell_number == 4:            # in case of the whole module number 1.
                     # try:        
@@ -95,8 +108,10 @@ def calibrate_coulombic_Efficiency(cell_number):
                     # finally:
                     #     file.close()
                     sql = "SELECT voltage FROM modules_voltage WHERE module_ID = 1 ORDER BY ID DESC LIMIT 1"
+                    mutex.acquire()
                     mycursor.execute(sql)
                     data = mycursor.fetchone()
+                    mutex.release()
                     voltage = data[0]
                     # try:        
                     #     file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/module1_current.txt", "r")
@@ -104,8 +119,10 @@ def calibrate_coulombic_Efficiency(cell_number):
                     # finally:
                     #     file.close()
                     sql = "SELECT current FROM modules_current WHERE module_ID = 1 ORDER BY ID DESC LIMIT 1"
+                    mutex.acquire()
                     mycursor.execute(sql)
                     data = mycursor.fetchone()
+                    mutex.release()
                     current = data[0]
             #***************************************************#
                 if current >= 0:            #  this means the battery is in discharging stage, then we can calculate the discharged capacity.
@@ -130,16 +147,20 @@ def calibrate_coulombic_Efficiency(cell_number):
                 # state_of_health = float (file.read())
                 # file.close()
                 sql = "SELECT SOH FROM cells_state_of_health WHERE module_ID = 1 AND cell_ID = "+ str(cell_number) +" ORDER BY ID DESC LIMIT 1"
+                mutex.acquire()
                 mycursor.execute(sql)
                 data = mycursor.fetchone()
+                mutex.release()
                 state_of_health = data[0]
             elif cell_number == 4:
                 # file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/module1_state_of_health.txt", "r")  
                 # state_of_health = float (file.read())
                 # file.close()
                 sql = "SELECT SOH FROM modules_state_of_health WHERE module_ID = 1 " 
+                mutex.acquire()
                 mycursor.execute(sql)
                 data = mycursor.fetchone()
+                mutex.release()
                 state_of_health = data[0]
             return state_of_health
         #************************ End get SOH ******************************#
@@ -151,16 +172,20 @@ def calibrate_coulombic_Efficiency(cell_number):
                 # old_coulombic_Efficiency = float (file.read())
                 # file.close()
                 sql= "SELECT coulombic_efficiency FROM cells_coulombic_efficiency WHERE module_ID = 1 AND cell_ID = "+ str(cell_number)+" ORDER BY ID DESC LIMIT 1"
+                mutex.acquire()
                 mycursor.execute(sql)
                 data = mycursor.fetchone()
+                mutex.release()
                 old_coulombic_Efficiency = data[0]
             elif cell_number == 4:
                 # file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/module1_coulombic_efficiency.txt", "r")  
                 # old_coulombic_Efficiency = float (file.read())
                 # file.close()
                 sql= "SELECT coulombic_efficiency FROM modules_coulombic_efficiency WHERE module_ID = 1"
+                mutex.acquire()
                 mycursor.execute(sql)
                 data = mycursor.fetchone()
+                mutex.release()
                 old_coulombic_Efficiency = data[0]
             return old_coulombic_Efficiency
         #************************ End get old_coulombic_Efficiency **********#
@@ -174,8 +199,10 @@ def calibrate_coulombic_Efficiency(cell_number):
                 # finally:
                 #     file.close()
                 sql= "SELECT coulombic_Efficiency_numinator FROM cells_coulombic_Efficiency_numinator WHERE module_ID = 1 AND cell_ID = "+ str(cell_number)+" ORDER BY ID DESC LIMIT 1"
+                mutex.acquire()
                 mycursor.execute(sql)
                 data = mycursor.fetchone()
+                mutex.release()
                 coulombic_Efficiency_numinator = data[0]
             elif cell_number == 4:
                 # try:
@@ -184,8 +211,10 @@ def calibrate_coulombic_Efficiency(cell_number):
                 # finally:
                 #     file.close()
                 sql= "SELECT coulombic_Efficiency_numinator FROM modules_coulombic_Efficiency_numinator WHERE module_ID = 1"
+                mutex.acquire()
                 mycursor.execute(sql)
                 data = mycursor.fetchone()
+                mutex.release()
                 coulombic_Efficiency_numinator = data[0]
             return coulombic_Efficiency_numinator
         #*********************** End get_coulombic_Efficiency_numinator ************#
@@ -199,8 +228,10 @@ def calibrate_coulombic_Efficiency(cell_number):
                 # finally:
                 #     file.close()
                 sql= "SELECT coulombic_Efficiency_denominator FROM cells_coulombic_Efficiency_denominator WHERE module_ID = 1 AND cell_ID = "+ str(cell_number)+" ORDER BY ID DESC LIMIT 1"
+                mutex.acquire()
                 mycursor.execute(sql)
                 data = mycursor.fetchone()
+                mutex.release()
                 coulombic_Efficiency_denominator = data[0]
             elif cell_number == 4:
                 # try:
@@ -209,8 +240,10 @@ def calibrate_coulombic_Efficiency(cell_number):
                 # finally:
                 #     file.close()
                 sql= "SELECT coulombic_Efficiency_denominator FROM modules_coulombic_Efficiency_denominator WHERE module_ID = 1 ORDER BY ID DESC LIMIT 1"
+                mutex.acquire()
                 mycursor.execute(sql)
                 data = mycursor.fetchone()
+                mutex.release()
                 coulombic_Efficiency_denominator = data[0]
             return coulombic_Efficiency_denominator
         #*********************** End get_coulombic_Efficiency_denominator ************#
@@ -226,8 +259,10 @@ def calibrate_coulombic_Efficiency(cell_number):
                 #     file.close()
                 sql = "INSERT INTO cells_coulombic_efficiency (module_ID,cell_ID, coulombic_efficiency) VALUES (%s, %s, %s)"
                 values = (1,cell_number, calibrated_coulombic_Efficiency)
+                mutex.acquire()
                 mycursor.execute(sql , values) # store the measurement value in SQL database
                 mydb.commit()  # Commit the transaction
+                mutex.release()
                 # try:
                 #     file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell"+number+"_coulombic_efficiency_numinator.txt", "w")  
                 #     file.truncate()
@@ -236,8 +271,10 @@ def calibrate_coulombic_Efficiency(cell_number):
                 #     file.close()
                 sql = "INSERT INTO cells_coulombic_Efficiency_numinator (module_ID,cell_ID, coulombic_Efficiency_numinator) VALUES (%s, %s, %s)"
                 values = (1,cell_number, coulombic_Efficiency_numinator)
+                mutex.acquire()
                 mycursor.execute(sql , values) # store the measurement value in SQL database
                 mydb.commit()  # Commit the transaction
+                mutex.release()
 
                 # try:
                 #     file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell"+number+"_coulombic_efficiency_denominator.txt", "w")  
@@ -247,8 +284,10 @@ def calibrate_coulombic_Efficiency(cell_number):
                 #     file.close()
                 sql = "INSERT INTO cells_coulombic_Efficiency_denominator (module_ID,cell_ID, coulombic_Efficiency_denominator) VALUES (%s, %s, %s)"
                 values = (1,cell_number, coulombic_Efficiency_denominator)
+                mutex.acquire()
                 mycursor.execute(sql , values) # store the measurement value in SQL database
                 mydb.commit()  # Commit the transaction
+                mutex.release()
 
 
             elif cell_number == 4:        # in case of module 1.
@@ -260,8 +299,10 @@ def calibrate_coulombic_Efficiency(cell_number):
                 #     file.close()
                 sql = "INSERT INTO modules_coulombic_efficiency (module_ID, coulombic_efficiency) VALUES (%s, %s)"
                 values = (1, calibrated_coulombic_Efficiency)
+                mutex.acquire()
                 mycursor.execute(sql , values) # store the measurement value in SQL database
                 mydb.commit()  # Commit the transaction
+                mutex.release()
                 # try:  # This way, we are guaranteeing that the file is properly closed even if an exception is raised that causes program flow to stop.
                 #     file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/module1_coulombic_efficiency_numinator.txt", "w")
                 #     file.truncate()      
@@ -270,8 +311,10 @@ def calibrate_coulombic_Efficiency(cell_number):
                 #     file.close()
                 sql = "INSERT INTO modules_coulombic_Efficiency_numinator (module_ID, coulombic_Efficiency_numinator) VALUES (%s, %s)"
                 values = (1, coulombic_Efficiency_numinator)
+                mutex.acquire()
                 mycursor.execute(sql , values) # store the measurement value in SQL database
                 mydb.commit()  # Commit the transaction
+                mutex.release()
                 # try:        
                 #     file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/module1_coulombic_efficiency_denominator.txt", "w")
                 #     file.truncate()
@@ -280,8 +323,10 @@ def calibrate_coulombic_Efficiency(cell_number):
                 #     file.close() 
                 sql = "INSERT INTO modules_coulombic_Efficiency_denominator (module_ID, coulombic_Efficiency_denominator) VALUES (%s, %s)"
                 values = (1, coulombic_Efficiency_denominator)
+                mutex.acquire()
                 mycursor.execute(sql , values) # store the measurement value in SQL database
                 mydb.commit()  # Commit the transaction
+                mutex.release()
 
         #*********************** End write the new values  *************************#
         discharged_capacity = get_discharged_capacity (cell_number)
@@ -306,20 +351,16 @@ def calibrate_coulombic_Efficiency(cell_number):
 
 
 def run():
-
+    print("update coulombic efficincy is running")
     thread_1 = threading.Thread(target=calibrate_coulombic_Efficiency, args=(1,))
     thread_2 = threading.Thread(target=calibrate_coulombic_Efficiency, args=(2,))
     thread_3 = threading.Thread(target=calibrate_coulombic_Efficiency, args=(3,))
     thread_4 = threading.Thread(target=calibrate_coulombic_Efficiency, args=(4,))
     
     thread_1.start()
-    time.sleep(5)
     thread_2.start()
-    time.sleep(5)
     thread_3.start()
-    time.sleep(5)
     thread_4.start()
-    time.sleep(5)
     # thread_1.join()   # wait until thread 1 is completely executed
     # thread_2.join()
     # thread_3.join()

@@ -14,6 +14,7 @@ mydb = mysql.connector.connect(
 )
 mycursor = mydb.cursor()
 #***********************************************#
+mutex = threading.Lock()
 
 """ These methods are coded according to the methodology and  explanation of Rainflow counting method which is published in: 
 Alam, M. J. E., and T. K. Saha. "Cycle-life degradation assessment of Battery Energy Storage Systems caused by solar PV variability.
@@ -21,8 +22,8 @@ Alam, M. J. E., and T. K. Saha. "Cycle-life degradation assessment of Battery En
 
 
 def rainflow_algorithm(cell_number):
+    
     while True:
-        print("cycles counter is running")
         #time.sleep(2)
         #**************************** Start of get the depth of discharging array *************#
         def get_DoD_array(cell_number):
@@ -36,8 +37,10 @@ def rainflow_algorithm(cell_number):
                 # finally:
                 #     file.close()
                 sql = "SELECT SOC FROM cells_state_of_charge WHERE module_ID = 1 AND cell_ID = "+ str(cell_number) + " ORDER BY ID DESC LIMIT 1"
+                mutex.acquire()
                 mycursor.execute(sql)
                 data = mycursor.fetchone()
+                mutex.release()
                 SoC_before = data[0]
                 time.sleep (1800)  # 1800  # wait for half hour.
                 # try:
@@ -46,8 +49,10 @@ def rainflow_algorithm(cell_number):
                 # finally:
                 #     file.close()
                 sql = "SELECT SOC FROM cells_state_of_charge WHERE module_ID = 1 AND cell_ID = "+ str(cell_number) + " ORDER BY ID DESC LIMIT 1"
+                mutex.acquire()
                 mycursor.execute(sql)
                 data = mycursor.fetchone()
+                mutex.release()
                 SoC_after = data[0]
                 diff_SoC = SoC_before - SoC_after
 
@@ -99,8 +104,10 @@ def rainflow_algorithm(cell_number):
                         # finally:
                         #     file.close()
                         sql = "SELECT num_of_cycles FROM cells_num_of_cycles WHERE module_ID = 1 AND cell_ID = "+str(cell_number)+" ORDER BY ID DESC LIMIT 1"
+                        mutex.acquire()
                         mycursor.execute(sql)
                         data = mycursor.fetchone()
+                        mutex.release()
                         num_of_cycles = data[0]
                         num_of_cycles += 1
                         # try:
@@ -111,8 +118,10 @@ def rainflow_algorithm(cell_number):
                         #     file.close()
                         sql = "INSERT INTO cells_num_of_cycles (module_ID,cell_ID, num_of_cycles) VALUES (%s, %s, %s)"
                         values = (1,cell_number, num_of_cycles)
+                        mutex.acquire()
                         mycursor.execute(sql , values) # store the measurement value in SQL database
                         mydb.commit()  # Commit the transaction
+                        mutex.release()
                         cycle_count_array[index_cycle_count_array] = 1.00
                         index_cycle_count_array += 1
                         
@@ -126,15 +135,13 @@ def rainflow_algorithm(cell_number):
         #return cycle_count_array
 
 def run():
+    print("cycles counter is running")
     t_1 = threading.Thread(target=rainflow_algorithm, args=(1,))   # count the numer of cycles for cell1.
     t_2 = threading.Thread(target=rainflow_algorithm, args=(2,))   # count the numer of cycles for cell2.
     t_3 = threading.Thread(target=rainflow_algorithm, args=(3,))   # count the numer of cycles for cell3.
     t_1.start()
-    time.sleep(5)
     t_2.start()
-    time.sleep(5)
     t_3.start()
-    time.sleep(5)
    
 #run()
 
