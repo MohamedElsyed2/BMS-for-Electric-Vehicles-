@@ -85,5 +85,5 @@ mutex.release()
 #*************************************#
 
 git config --global user.email "mo.elsyed3@gmail.com"
-git config --global user.name "Mohamed Elsyed"
+git config --global user.name "MohamedElsyed2"
 
