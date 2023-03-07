@@ -82,3 +82,8 @@ mutex = threading.Lock()
 mutex.acquire()
 mutex.release()
 
+#*************************************#
+
+git config --global user.email "mo.elsyed3@gmail.com"
+git config --global user.name "Mohamed Elsyed"
+
