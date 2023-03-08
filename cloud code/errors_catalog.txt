@@ -26,3 +26,13 @@ error code:
             03 : voltage sensor#3 is defect.
             04 : voltage  sensor#1 is defect.
             0123: the voltage sensor 1 &2 & 3 maybe defect.
+
+
+cell_error:
+    00000: all cells are connected and there is no defect.
+    00001 : cell #1 is not connected, short circuited, over-charged or over-discharged.
+    00002 : cell #2 is not connected, short circuited, over-charged or over-discharged.
+    00003 : cell #3 is not connected, short circuited, over-charged or over-discharged.
+    000012: cells #1 and #2 are not connected, short circuited, over-charged or over-discharged.
+    000013: cells #1 and #3 are not connected, short circuited, over-charged or over-discharged.
+    000023: cells #2 and #3 are not connected, short circuited, over-charged or over-discharged.
