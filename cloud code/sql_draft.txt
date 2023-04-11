@@ -18,7 +18,8 @@ CREATE TABLE cells_state_of_charge (ID int NOT NULL AUTO_INCREMENT,module_ID int
 
 INSERT INTO cells_state_of_charge (module_ID, cell_ID , SOH) VALUES (1, 1, 1);
 
-INSERT INTO cells_coulombic_efficiency (module_ID, cell_ID , coulombic_efficiency) VALUES (1, 1, 1);
+INSERT INTO modules_state_of_charge (module_ID, SOC) VALUES (1, 0.852536);
+
 
 select * from cells_coulombic_efficiency;
 
@@ -76,7 +77,7 @@ state_of_charge = data[0]
 #########################################
 
 CREATE TABLE thermal_manag_sys (ID int NOT NULL AUTO_INCREMENT,cooling_sys_status int, heating_sys_status int, timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (ID));
-INSERT INTO thermal_manag_sys (cooling_sys_status, heating_sys_status) VALUES (0,0);
+INSERT INTO cells_num_of_cycles (module_ID, cell_ID, num_of_cycles) VALUES (1,1, 2);
 
 mutex = threading.Lock()
 mutex.acquire()
@@ -87,3 +88,4 @@ mutex.release()
 git config --global user.email "mo.elsyed3@gmail.com"
 git config --global user.name "Mohamed Elsyed"
 
+mysql -u root -p

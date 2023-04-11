@@ -43,9 +43,8 @@ def cal_state_of_health (cell_number):
                 g = -1519
                 h = -0.4305
                 num_cycle_life_disch_current = (e*exp(f*disch_current)+g*exp(h*disch_current))/(e*exp(f*nominal_disch_current)+g*exp(h*nominal_disch_current))
-
-
-                charging_current = 0                   # no charging current, beacuse the battery is out of sevice
+                #**********************************************************#
+                charging_current = 0        # no charging current, beacuse the battery is out of sevice
                 nominal_charging_current = 0.7        # from datasheet
                 m = 5963
                 n = -0.6531
@@ -85,12 +84,12 @@ def cal_state_of_health (cell_number):
 
             #******* Start of the code to calculate SoH based on the passage of time *********#
             def SOH_passage_of_time (cell_number):
-                today = date.today()
-                month_from_year = today.year - 2022
-                month_from_month = today.month - 8
-                battery_age_month = 12* month_from_year + month_from_month     # get the total number of months.
+                today = date.today()            # get the date of today.
+                month_from_year = today.year - 2022   #  duration useage of the battery in years, 2022 is the year of first use. 
+                month_from_month = today.month - 10    # duration useage of the battery in months, 10 is the month of first use.
+                battery_age_month = 12* month_from_year + month_from_month     # calculate the total number of months.
                 battery_age_year = battery_age_month / 12
-                nominal_lifetime = get_nominal_lifetime (cell_number)/365      # number of life cycles when battery is not being used / 365 (assume that the battery will be charged once every day)  
+                nominal_lifetime = get_nominal_lifetime (cell_number)/365     # number of life cycles when battery is not being used / 365 (assume that the battery will be charged once every day)  
                 SoH_age = 1 - (battery_age_year / nominal_lifetime) 
                 return SoH_age
             #****************************************************************************#
@@ -114,7 +113,8 @@ def cal_state_of_health (cell_number):
                 # finally:
                 #     file.close()
                 mutex.acquire()
-                mycursor.execute("SELECT current FROM current_measurements WHERE module_ID = 1 AND cell_ID = "+ str(cell_number))
+                sql = "SELECT current FROM modules_current WHERE module_ID = 1"
+                mycursor.execute(sql)
                 data = mycursor.fetchall()
                 mutex.release()
                 last_value = data [-1]
@@ -130,25 +130,17 @@ def cal_state_of_health (cell_number):
                 mutex.release()
                 last_value = data [-1]
                 temperature = float (last_value[0])
+
                 c_rate = abs(cell_current)/nominal_capacity   
                 temp_coeff = (temperature - 40 )/15                   # (temperature (◦C) - 40 ◦C)/15 ◦C, @ temperature 25° C.
                 c_rate_coeff = c_rate - 2
-                k1 = 0                                #  k1 accounts for the capacity losses that increase rapidly during the conditions of cycling at high temperature.
+                k1 = 0        #  k1 accounts for the capacity losses that increase rapidly during the conditions of cycling at high temperature.
                 k2 = 0.000287 - 0.000115 * temp_coeff - 0.000080 * c_rate_coeff - 0.000032 *temp_coeff* c_rate_coeff       # k2 is a factor to account for capacity losses under the normal conditions of cycling.
                 k3 = 0.003557 + 0.002207 * temp_coeff + 0.002843 * c_rate_coeff + 0.001493 * temp_coeff * c_rate_coeff       # k3 accounts for the capacity loss due to C-rate.
                 soh_num_of_cycles_coeff = 1- (0.5*k1*pow(num_of_cycles,2)+k2 * num_of_cycles) - (k3*c_rate /nominal_capacity)
                 return soh_num_of_cycles_coeff 
             #*************************************************************************************#
-            # try:
-            #     file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/battery_usage.txt", "r")   # open the file 'temperature.txt' in raeding mode.
-            #     battery_being_used = float (file.read())
-            # except:
-            #     while os.stat("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/battery_usage.txt").st_size == 0:
-            #         time.sleep(0.1)
-            #         if os.stat("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/battery_usage.txt").st_size != 0:
-            #             battery_being_used = float (file.read())
-            # finally:
-            #     file.close()
+           
             mutex.acquire()
             mycursor.execute("SELECT value FROM battery_usage WHERE module_ID = 1") 
             data = mycursor.fetchall()
@@ -165,42 +157,25 @@ def cal_state_of_health (cell_number):
             else:
                 state_of_health = SOH_passage_of_time (cell_number)
             total_SOH  = float("{:.2f}".format(state_of_health))               #convert to float of to decimal point.
-            # try:
-            #     file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell"+str(cell_number)+"_state_of_health.txt", "w")
-            #     file.truncate()       
-            #     file.write(str(total_SOH))
-            # finally:
-            #     file.close()
+           
             sql = "INSERT INTO cells_state_of_health (module_ID,cell_ID, SOH) VALUES (%s, %s, %s)"
             values = (1,cell_number, total_SOH)
+            mutex.acquire()
             mycursor.execute(sql , values) # store the measurement value in SQL database
             mydb.commit()  # Commit the transaction
+            mutex.release()
         #********************************************************************#
         elif cell_number == 4:
             soh = 0
             for cell_number in range(1,4):     # get the state of health of every cell.
-                # try:
-                #     file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell"+str(cell_number)+"_state_of_health.txt", "r")  
-                #     soh += float (file.read())
-                # except:
-                #     while os.stat("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell"+str(cell_number)+"_state_of_health.txt").st_size == 0:
-                #         time.sleep(0.1)
-                #         if os.stat("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell"+str(cell_number)+"_state_of_health.txt").st_size != 0:
-                #             soh += float (file.read())
-                # finally:
-                #     file.close()
+                
                 sql = "SELECT SOH FROM cells_state_of_health WHERE module_ID = 1 AND cell_ID = "+ str(cell_number)
                 mycursor.execute(sql) 
                 data = mycursor.fetchall()
                 last_value = data [-1]
                 soh += float (last_value[0])
             module1_SoH = soh / 3
-            # try:
-            #     file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/module1_state_of_health.txt", "w")
-            #     file.truncate()      
-            #     file.write(str(module1_SoH))
-            # finally:
-            #     file.close()
+            
             sql = "INSERT INTO modules_state_of_health (module_ID, SOH) VALUES (%s, %s)"
             values = (1, module1_SoH)
             mutex.acquire()

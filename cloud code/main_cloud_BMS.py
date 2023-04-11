@@ -1,5 +1,4 @@
 
-
 import connect_subscribe_getMeasseges
 import run_cycle_life_prediction
 import state_of_health

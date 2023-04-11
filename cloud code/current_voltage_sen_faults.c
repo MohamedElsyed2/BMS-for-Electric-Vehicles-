@@ -67,7 +67,7 @@ int check_voltage_sensors_fault (float voltage_sensor1,float voltage_sensor2,flo
     float diff_13 = abs(voltage_sensor1-voltage_sensor3);
     float diff_23 = abs(voltage_sensor2-voltage_sensor3);
     float cell_vol_max = 4300;
-    float cell_vol_min = 3600;
+    float cell_vol_min = 2500;
     bool cell1_ok= voltage_sensor1 >= cell_vol_min && voltage_sensor1 <= cell_vol_max ;
     bool cell2_ok= voltage_sensor2 >= cell_vol_min && voltage_sensor2 <= cell_vol_max ;
     bool cell3_ok= voltage_sensor3 >= cell_vol_min && voltage_sensor3 <= cell_vol_max ;

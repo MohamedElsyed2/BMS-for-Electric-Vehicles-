@@ -23,9 +23,7 @@ S. A multi-factor battery cycle life prediction methodology for optimal battery 
 
 #******************* Start of battery_age_temperature method***********************************#
 def battery_age_temperature():
-    # file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/temperature.txt", "r")   # open the file 'temperature.txt' in raeding mode.
-    # temperature = float (file.read())
-    # file.close()                   # the real temperature of the battery cell.
+    
     sql = "SELECT temperature FROM modules_temperature WHERE module_ID = 1 ORDER BY ID DESC LIMIT 1"
     mutex.acquire()
     mycursor.execute(sql)
@@ -59,23 +57,16 @@ def battery_age_chg_dischg_current(cell_number):
         global total_chg_time
         total_chg_time = 0
         global total_dischg_time
-        total_dischg_time = 1               #it should to be zero, but substituted with 1 to avoid a software error, and more 1 second will not affect on our calculations. 
-        # file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell"+str(cell_number)+"_current.txt", "r")   # open the file 'temperature.txt' in raeding mode.
-        # cell_current = float (file.read())
-        # file.close() 
-        sql = "SELECT current FROM current_measurements WHERE module_ID = 1 AND cell_ID = "+ str(cell_number)+" ORDER BY ID DESC LIMIT 1"       
+        total_dischg_time = 1    
+        
+        sql = "SELECT current FROM modules_current WHERE module_ID = 1 ORDER BY ID DESC LIMIT 1"
         mutex.acquire()
         mycursor.execute(sql)
         data = mycursor.fetchone()
         mutex.release()
         cell_current = data[0]      
-        while timer < 86400:         # 86400   wait for 24 hours
-            #global before_SOC
-            # global cell_state_of_charge
-            # before_SOC = cell_state_of_charge
-            # file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell"+str(cell_number)+"_state_of_charge.txt", "r")   # open the file 'temperature.txt' in raeding mode.
-            # before_SOC = float (file.read())
-            # file.close()
+        while timer < 86400:         # 86400 wait for 24 hours
+            
             sql = "SELECT SOC FROM cells_state_of_charge WHERE module_ID = 1 AND cell_ID = "+ str(cell_number) + " ORDER BY ID DESC LIMIT 1"
             mutex.acquire()
             mycursor.execute(sql)
@@ -86,9 +77,7 @@ def battery_age_chg_dischg_current(cell_number):
                 time.sleep(60) #60
                 if cell_current > 0:              # positive  current means discharge current
                     current_status_flag = True
-                # file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell"+str(cell_number)+"_state_of_charge.txt", "r")   # open the file 'temperature.txt' in raeding mode.
-                # SOC_after_chg = float (file.read())
-                # file.close()
+               
                 sql = "SELECT SOC FROM cells_state_of_charge WHERE module_ID = 1 AND cell_ID = "+ str(cell_number) + " ORDER BY ID DESC LIMIT 1"
                 mutex.acquire()
                 mycursor.execute(sql)              
@@ -188,7 +177,6 @@ def battery_age_SOC_DOD(cell_number):
 #******************* End of battery_age_SOC_DOD method*******************************#
 
 def run(cell_number):
-    
     while True:
         thread_1 = threading.Thread(target=battery_age_temperature)
         thread_2 = threading.Thread(target=battery_age_chg_dischg_current, args=(cell_number,))
@@ -207,23 +195,17 @@ def run(cell_number):
         #end = time.time()
         # all threads completely executed
 
-        nominal_cycle_life = 649                                        # from battery datasheet.
+        nominal_cycle_life = 649                  # from battery datasheet.
         global avr_num_cycle_life_temp
         global num_cycle_life_disch_current
         global num_cycle_life_charging_current
         residual_num_cycles = int (nominal_cycle_life * avr_num_cycle_life_temp * num_cycle_life_disch_current * num_cycle_life_charging_current * num_cycle_life_SOC_DOD)
         # print ("Battery age (Number of cycle life)= ",residual_num_cycles)
-        # print('Time taken in seconds: ', end - start)
-        # try:
-        #     file = open("E:/Masterarbeit/BMS-for-Electric-Vehicles-/cloud code/cell"+str(cell_number)+"_estimated_life_cycles.txt", "w")
-        #     file.truncate()       # delete the last value of number of cycles.
-        #     file.write(str(residual_num_cycles))
-        # finally:
-        #     file.close()
+        #***** store the measurement value in MySQL database*****#
         sql = "INSERT INTO cells_residual_num_cycles (module_ID,cell_ID, residual_num_cycles) VALUES (%s, %s, %s)"
         values = (1,cell_number, residual_num_cycles)
         mutex.acquire()
-        mycursor.execute(sql , values) # store the measurement value in SQL database
+        mycursor.execute(sql , values) 
         mydb.commit()  # Commit the transaction
         mutex.release()
 #run(2)
