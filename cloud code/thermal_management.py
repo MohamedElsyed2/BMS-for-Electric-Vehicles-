@@ -13,7 +13,6 @@ mycursor = mydb.cursor()
 #***********************************************#
 mutex = threading.Lock()
 
-
 sql = "SELECT temperature FROM modules_temperature WHERE module_ID = 1 ORDER BY ID DESC LIMIT 1"
 mutex.acquire()
 mycursor.execute(sql)
@@ -31,9 +30,11 @@ def run():
     if temperature > 25:
        
         cooling_sys_status = 1
+        heating_sys_status = 0
     elif temperature < 25:
         
         heating_sys_status = 1
+        cooling_sys_status = 0
     else:
        
         cooling_sys_status = 0

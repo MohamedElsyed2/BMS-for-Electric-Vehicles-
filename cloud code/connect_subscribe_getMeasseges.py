@@ -283,10 +283,61 @@ def get_measurements_store_publish(client):
                 print("Received " + str(module3_current)+ " from " + msg.topic + " topic")
             #***************************************************#
             elif msg.topic==str('error_codes'): 
-                error_code = (int)(msg.payload.decode())
+                sql = "SELECT heat_sys_error FROM error_codes ORDER BY ID DESC LIMIT 1" # SELECT SQL statement is used to retrieve the value of cooling_sys_status column
+                mutex.acquire() #The mutex object is used to synchronize access to the database, ensuring that only one thread can access the database at a time
+                mycursor.execute(sql)
+                data = mycursor.fetchone() # retrieves the query result.
+                mutex.release() # The mutex lock is then released
+                heat_sys_error = data[0] 
 
-                sql = "INSERT INTO error_codes (error_code) VALUES (%s)"
-                values =  (error_code, )
+                sql = "SELECT cool_sys_error FROM error_codes ORDER BY ID DESC LIMIT 1" # SELECT SQL statement is used to retrieve the value of cooling_sys_status column
+                mutex.acquire() #The mutex object is used to synchronize access to the database, ensuring that only one thread can access the database at a time
+                mycursor.execute(sql)
+                data = mycursor.fetchone() # retrieves the query result.
+                mutex.release() # The mutex lock is then released
+                cool_sys_error = data[0] 
+
+                sql = "SELECT current_sensor_error FROM error_codes ORDER BY ID DESC LIMIT 1" # SELECT SQL statement is used to retrieve the value of cooling_sys_status column
+                mutex.acquire() #The mutex object is used to synchronize access to the database, ensuring that only one thread can access the database at a time
+                mycursor.execute(sql)
+                data = mycursor.fetchone() # retrieves the query result.
+                mutex.release() # The mutex lock is then released
+                current_sensor_error = data[0] 
+
+                sql = "SELECT voltage_sensor_error FROM error_codes ORDER BY ID DESC LIMIT 1" # SELECT SQL statement is used to retrieve the value of cooling_sys_status column
+                mutex.acquire() #The mutex object is used to synchronize access to the database, ensuring that only one thread can access the database at a time
+                mycursor.execute(sql)
+                data = mycursor.fetchone() # retrieves the query result.
+                mutex.release() # The mutex lock is then released
+                voltage_sensor_error = data[0] 
+
+                sql = "SELECT cell_error FROM error_codes ORDER BY ID DESC LIMIT 1" # SELECT SQL statement is used to retrieve the value of cooling_sys_status column
+                mutex.acquire() #The mutex object is used to synchronize access to the database, ensuring that only one thread can access the database at a time
+                mycursor.execute(sql)
+                data = mycursor.fetchone() # retrieves the query result.
+                mutex.release() # The mutex lock is then released
+                cell_error = data[0] 
+
+                error_code = (int)(msg.payload.decode())
+                
+                if error_code <=1:
+                    current_sensor_error = error_code
+
+                elif error_code >=2 and error_code <= 7:
+                    voltage_sensor_error = error_code
+                
+                elif error_code >=8 and error_code <= 9:
+                    heat_sys_error = error_code
+
+                elif error_code >=10 and error_code <= 11:
+                    cool_sys_error = error_code
+
+                else:
+                    cell_error= error_code
+
+
+                sql = "insert into error_codes (heat_sys_error , cool_sys_error ,current_sensor_error , voltage_sensor_error , cell_error) VALUES (%s, %s, %s, %s, %s)"
+                values =  (heat_sys_error, cool_sys_error, current_sensor_error, voltage_sensor_error, cell_error)
                 mutex.acquire()
                 mycursor.execute(sql , values) # store the measurement value in SQL database
                 mydb.commit()

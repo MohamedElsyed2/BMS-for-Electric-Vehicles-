@@ -77,8 +77,8 @@ state_of_charge = data[0]
 #########################################
 
 CREATE TABLE thermal_manag_sys (ID int NOT NULL AUTO_INCREMENT,cooling_sys_status int, heating_sys_status int, timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (ID));
-INSERT INTO cells_num_of_cycles (module_ID, cell_ID, num_of_cycles) VALUES (1,1, 2);
-
+INSERT INTO  thermal_manag_sys  (cooling_sys_status, heating_sys_status) VALUES (0,1);
+insert into error_codes (heat_sys_error , cool_sys_error ,current_sensor_error , voltage_sensor_error , cell_error) VALUES (0000, 000, 0, 00, 00000);
 mutex = threading.Lock()
 mutex.acquire()
 mutex.release()
@@ -88,4 +88,8 @@ mutex.release()
 git config --global user.email "mo.elsyed3@gmail.com"
 git config --global user.name "Mohamed Elsyed"
 
+
+
+docker ps
+docker exec -it 80012edc87cc /bin/bash
 mysql -u root -p

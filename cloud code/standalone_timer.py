@@ -13,7 +13,6 @@ mycursor = mydb.cursor()
 #***********************************************#
 mutex=threading.Lock() # craete a lock fot the threads
 
-
 def timer ():
     
     while True:

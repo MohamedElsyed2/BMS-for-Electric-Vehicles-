@@ -1,29 +1,31 @@
+
+current_sensor_error:
+    0: all of the current sensors are OK.
+    1 : current sensor#1 or current sensor#2 is defect.
+
+voltage_sensor_error;
+    2 : all of the voltage sensors are OK.
+    3  : voltage sensor#1 is defect.
+    4  : voltage sensor#2 is defect.
+    5  : voltage sensor#3 is defect.
+    6  : voltage  sensor#1 is defect.
+    7 : the voltage sensor 1 &2 & 3 maybe defect.
+
 heat_sys_error:
-    0000: Heating system is OK.
-    0001 : Heating system is defect. 
+    8 : Heating system is OK.
+    9  : Heating system is defect. 
     
 cool_sys_error:
-    000: coolind system is OK.
-    001 : coolind system is defect.
-
-
-error code:
-            0: all of the current sensors are OK.
-            1 : current sensor#1 or current sensor#2 is defect.
-
-            00: all of the voltage sensors are OK.
-            01 : voltage sensor#1 is defect.
-            02 : voltage sensor#2 is defect.
-            03 : voltage sensor#3 is defect.
-            04 : voltage  sensor#1 is defect.
-            0123: the voltage sensor 1 &2 & 3 maybe defect.
+    10 : cooling system is OK.
+    11  : cooling system is defect.
 
 
 cell_error:
-    00000: all cells are connected and there is no defect.
-    00001 : cell #1 is not connected, short circuited, over-charged or over-discharged.
-    00002 : cell #2 is not connected, short circuited, over-charged or over-discharged.
-    00003 : cell #3 is not connected, short circuited, over-charged or over-discharged.
-    000012: cells #1 and #2 are not connected, short circuited, over-charged or over-discharged.
-    000013: cells #1 and #3 are not connected, short circuited, over-charged or over-discharged.
-    000023: cells #2 and #3 are not connected, short circuited, over-charged or over-discharged.
+    12 : all cells are connected and there is no defect.
+    13  : cell #1 is not connected, short circuited, over-charged or over-discharged.
+    14  : cell #2 is not connected, short circuited, over-charged or over-discharged.
+    15  : cell #3 is not connected, short circuited, over-charged or over-discharged.
+    16 : cells #1 and #2 are not connected, short circuited, over-charged or over-discharged.
+    17 : cells #1 and #3 are not connected, short circuited, over-charged or over-discharged.
+    18 : cells #2 and #3 are not connected, short circuited, over-charged or over-discharged.
+    19 : cells 1#, #2, and #3 are not connected, short circuited, over-charged or over-discharged.
