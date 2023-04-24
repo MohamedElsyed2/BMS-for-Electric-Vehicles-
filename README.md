@@ -36,7 +36,7 @@ creating a website on DigitalOcean using flask and HTML, you can follow these st
 1.	List the running containers on the cloud server using the command:
 -	docker ps
 2.	to open an interactive shell session within the container, run the command:
--	docker docker exec -it 80012edc87cc /bin/bash 
+- docker exec -it 80012edc87cc /bin/bash 
   
 #**************************************************************#
   
