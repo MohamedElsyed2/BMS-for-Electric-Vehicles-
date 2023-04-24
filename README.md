@@ -16,4 +16,17 @@ Creating a Docker container on DigitalOcean:
 7.	Here, “-d” flag runs the container in the background, “-p” flag maps the port 80 on the droplet to the port 80 on the container, and <CBBMS > is the name of the Docker image you pulled.
   
  #***************************************************************#
+ 
+creating a website on DigitalOcean using flask and HTML, you can follow these steps:
 
+1.	Install Python and Flask: Once you are logged into the droplet, install Python and Flask by running the following command: 
+-	sudo apt-get update
+-	sudo apt-get install python3 python3-pip
+-	sudo pip3 install flask
+2.	Write your Flask application: Create a new file called app.py on the server and add your Flask application code. Here's an example Flask application that serves a simple HTML page:
+3.	Create your HTML template: Create a new directory called templates on the server and add an HTML file called index.html to it. Here's an example HTML file:
+4.	Run the Flask application: Finally, run the Flask application by running the following command:   
+-	python3 app.py
+5.	Test the website: Finally, test the website by navigating to the IP address < http://142.93.104.90:5000/ > of the server in a web browser.
+
+#************************************************************#
