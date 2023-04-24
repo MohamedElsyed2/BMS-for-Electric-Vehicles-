@@ -45,5 +45,7 @@ Editing configuration files, scripts, and other plain text files in the containe
 
   #**************************************************************#
   
-  
+ Logging  into the MySQL command-line interface:
+-	mysql -u root -p
+
 
