@@ -40,6 +40,10 @@ creating a website on DigitalOcean using flask and HTML, you can follow these st
   
 #**************************************************************#
   
-  Editing configuration files, scripts, and other plain text files in the container, use the following:
-1.	nano, for example nano main.py
+Editing configuration files, scripts, and other plain text files in the container, use the following command:
+-	nano, for example nano main.py
+
+  #**************************************************************#
+  
+  
 
