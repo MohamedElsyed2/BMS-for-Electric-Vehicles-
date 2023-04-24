@@ -10,9 +10,9 @@ Creating a Docker container on DigitalOcean:
 -	sudo apt-get update
 -	sudo apt-get install docker.io
 5.	Pull a Docker image: After Docker is installed, you can pull a Docker image by running the following command:   
--	sudo docker pull <CBBMS >
+-	sudo docker pull <ceaf6a38181d  >
 6.	Run the Docker container: Finally, run the Docker container by running the following command:  
--	sudo docker run -d -p 80:80 <image-name>
+-	sudo docker run -d -p 80:80 <ceaf6a38181d>
 7.	Here, “-d” flag runs the container in the background, “-p” flag maps the port 80 on the droplet to the port 80 on the container, and <CBBMS > is the name of the Docker image you pulled.
   
  #***************************************************************#
