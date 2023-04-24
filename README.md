@@ -30,3 +30,14 @@ creating a website on DigitalOcean using flask and HTML, you can follow these st
 5.	Test the website: Finally, test the website by navigating to the IP address < http://142.93.104.90:5000/ > of the server in a web browser.
 
 #************************************************************#
+  
+  Navigate into a container:
+
+1.	List the running containers on the cloud server using the command:
+-	docker ps
+2.	to open an interactive shell session within the container, run the command:
+-	docker docker exec -it 80012edc87cc /bin/bash 
+  
+#**************************************************************#
+  
+  
